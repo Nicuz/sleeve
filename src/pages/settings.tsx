@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Check,
@@ -8,9 +8,11 @@ import {
   ExternalLink,
   FileJson,
   FileSpreadsheet,
+  FileUp,
   Grid2x2,
   HardDrive,
   List,
+  Loader2,
   Palette,
   Plus,
   RotateCcw,
@@ -79,6 +81,8 @@ export function SettingsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [deleteText, setDeleteText] = useState('');
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: stats } = useQuery({
     queryKey: ['stats'],
@@ -116,6 +120,42 @@ export function SettingsPage() {
     anchor.click();
     anchor.remove();
     toast(`Preparing ${format.toUpperCase()} export`, 'info');
+  }
+
+  async function handleImportFile(file: File) {
+    setImporting(true);
+    try {
+      const parsed = JSON.parse(await file.text()) as unknown;
+      const result = await api.importData(parsed);
+      queryClient.invalidateQueries();
+      queryClient.removeQueries({ queryKey: ['release'] });
+      if (result.importedReleases + result.importedWishlist === 0) {
+        toast('Backup read: nothing new to import.', 'info');
+      } else {
+        toast(
+          `Imported ${pluralize(result.importedReleases, 'release')} and ${pluralize(result.importedWishlist, 'wishlist item')}.`,
+          'success',
+        );
+      }
+      if (result.invalidReleases + result.invalidWishlist > 0) {
+        toast(
+          `${pluralize(result.invalidReleases + result.invalidWishlist, 'item')} could not be read.`,
+          'error',
+        );
+      }
+    } catch (error) {
+      toast(
+        error instanceof SyntaxError
+          ? 'That file is not valid JSON.'
+          : error instanceof Error
+            ? error.message
+            : 'Could not import the backup.',
+        'error',
+      );
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   }
 
   return (
@@ -326,10 +366,10 @@ export function SettingsPage() {
             <SectionHeading
               icon={Database}
               title="Library data"
-              description="Your collection lives in a local SQLite database. Export a copy or start fresh."
+              description="Your collection lives in a local SQLite database. Export, import or start fresh."
             />
 
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
+            <div className="mt-5 grid gap-2 sm:grid-cols-3">
               <button
                 type="button"
                 onClick={() => downloadExport('json')}
@@ -343,7 +383,7 @@ export function SettingsPage() {
                     Export JSON
                   </span>
                   <span className="mt-0.5 block text-[10px] text-muted">
-                    Full release data and tracks
+                    Releases, tracks and wishlist
                   </span>
                 </span>
                 <Download
@@ -373,6 +413,39 @@ export function SettingsPage() {
                   className="shrink-0 text-muted transition group-hover:text-cream"
                 />
               </button>
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={importing}
+                className="group flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3 text-left transition hover:border-white/20 hover:bg-white/[0.04] disabled:opacity-60"
+              >
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
+                  {importing ? (
+                    <Loader2 size={17} className="animate-spin" />
+                  ) : (
+                    <FileUp size={17} />
+                  )}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs font-medium text-cream">
+                    Import JSON
+                  </span>
+                  <span className="mt-0.5 block text-[10px] text-muted">
+                    Merge backup; duplicates skipped
+                  </span>
+                </span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/json,.json"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void handleImportFile(file);
+                }}
+              />
             </div>
 
             <div className="mt-3 flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[11px] text-muted">

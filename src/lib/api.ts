@@ -2,6 +2,7 @@ import type {
   ArtistDetail,
   ArtistSearchResult,
   DiscoverResponse,
+  ImportResult,
   MbRelease,
   Meta,
   Release,
@@ -60,6 +61,13 @@ export const api = {
     return request<{ releases: Release[]; count: number }>(
       `/api/releases${suffix ? `?${suffix}` : ''}`,
     );
+  },
+
+  importData(payload: unknown) {
+    return request<ImportResult>('/api/import', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
   },
 
   discover() {

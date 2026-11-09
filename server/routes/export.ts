@@ -106,18 +106,28 @@ function loadReleases() {
   });
 }
 
+function loadWishlist() {
+  return prisma.wishlistItem.findMany({
+    orderBy: [{ priority: 'desc' }, { createdAt: 'asc' }],
+  });
+}
+
 export const exportRoutes = new Elysia().get('/api/export', async ({ query, set }) => {
   const format = query.format === 'csv' ? 'csv' : 'json';
-  const releases = await loadReleases();
   const stamp = new Date().toISOString().slice(0, 10);
 
   if (format === 'csv') {
+    const releases = await loadReleases();
     set.headers['content-type'] = 'text/csv; charset=utf-8';
     set.headers['content-disposition'] =
       `attachment; filename="sleeve-library-${stamp}.csv"`;
     return toCsv(releases);
   }
 
+  const [releases, wishlist] = await Promise.all([
+    loadReleases(),
+    loadWishlist(),
+  ]);
   set.headers['content-type'] = 'application/json; charset=utf-8';
   set.headers['content-disposition'] =
     `attachment; filename="sleeve-library-${stamp}.json"`;
@@ -127,6 +137,7 @@ export const exportRoutes = new Elysia().get('/api/export', async ({ query, set 
       version: 1,
       exportedAt: new Date().toISOString(),
       releases,
+      wishlist,
     },
     null,
     2,

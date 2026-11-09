@@ -125,6 +125,15 @@ export type ArtistDetail = Omit<ArtistSearchResult, 'score'> & {
 };
 
 
+export type ImportResult = {
+  importedReleases: number;
+  skippedReleases: number;
+  invalidReleases: number;
+  importedWishlist: number;
+  skippedWishlist: number;
+  invalidWishlist: number;
+};
+
 export type WishlistItem = {
   id: string;
   musicbrainzId: string | null;

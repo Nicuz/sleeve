@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -114,11 +114,13 @@ export function LibraryPage() {
     decade !== 'All' ||
     missing !== 'All';
 
-  const formatCounts = useMemo(
-    () =>
-      new Map((stats?.byFormat ?? []).map((item) => [item.format, item.count])),
-    [stats],
-  );
+  const formatOptions = [
+    { value: 'All', label: 'All formats' },
+    ...(stats?.byFormat ?? []).map((item) => ({
+      value: item.format,
+      label: `${item.format} (${item.count})`,
+    })),
+  ];
 
   function setParam(key: string, value: string, fallback = 'All') {
     const next = new URLSearchParams(params);
@@ -230,37 +232,14 @@ export function LibraryPage() {
 
       <section className="mt-8">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex flex-wrap items-center gap-1.5">
-            {[
-              'All',
-              ...(metaQuery.data?.formats ?? [
-                'CD',
-                'Vinyl',
-                'Cassette',
-                'Other',
-              ]),
-            ].map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setParam('format', item)}
-                className={cn('chip', format === item && 'chip-active')}
-              >
-                {item === 'All' ? 'All formats' : item}
-                {item !== 'All' && formatCounts.get(item) ? (
-                  <span className="text-[10px] opacity-60">
-                    {formatCounts.get(item)}
-                  </span>
-                ) : null}
-              </button>
-            ))}
-          </div>
-
-          <div className="mx-1 hidden h-5 w-px bg-white/10 sm:block" />
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Select
-              label="Filter by genre"
+          <Select
+            label="Filter by format"
+            value={format}
+            onChange={(value) => setParam('format', value)}
+            options={formatOptions}
+          />
+          <Select
+            label="Filter by genre"
               value={genre}
               onChange={(value) => setParam('genre', value)}
               options={[
@@ -302,7 +281,6 @@ export function LibraryPage() {
               }
               options={SORT_OPTIONS}
             />
-          </div>
 
           <div className="ml-auto flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
             <button

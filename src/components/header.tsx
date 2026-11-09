@@ -85,7 +85,7 @@ export function Header() {
 
         <button
           type="button"
-          onClick={openAdd}
+          onClick={() => openAdd()}
           className="btn btn-primary ml-auto h-10 px-3 sm:px-4"
         >
           <Plus size={16} />

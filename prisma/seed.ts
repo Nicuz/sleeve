@@ -188,6 +188,7 @@ async function main() {
           musicbrainzId: detail.musicbrainzId,
           title: detail.title,
           artist: detail.artist,
+          artistId: detail.artistId,
           year: detail.year,
           releaseDate: detail.releaseDate,
           country: detail.country,

@@ -1,11 +1,16 @@
 const MB_BASE = 'https://musicbrainz.org/ws/2';
 const CAA_BASE = 'https://coverartarchive.org/release';
+const CAA_RELEASE_GROUP_BASE = 'https://coverartarchive.org/release-group';
 const USER_AGENT =
   process.env.MUSICBRAINZ_USER_AGENT ?? 'Sleeve/0.1 ( https://github.com/local/sleeve )';
 const MIN_INTERVAL_MS = 1200;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-type Credit = { name: string; joinphrase?: string };
+type Credit = {
+  name: string;
+  joinphrase?: string;
+  artist?: { id?: string };
+};
 
 type MbSearchRelease = {
   id: string;
@@ -59,6 +64,7 @@ export type SearchResult = {
   musicbrainzId: string;
   title: string;
   artist: string;
+  artistId: string | null;
   year: number | null;
   releaseDate: string | null;
   country: string | null;
@@ -86,6 +92,86 @@ export type ReleaseDetail = Omit<SearchResult, 'type'> & {
     artist: string | null;
   }>;
 };
+
+type MbArtistSearch = {
+  id: string;
+  name: string;
+  'sort-name'?: string;
+  disambiguation?: string;
+  type?: string;
+  country?: string;
+  area?: { name?: string };
+  'life-span'?: { begin?: string; end?: string; ended?: boolean };
+  score?: number;
+};
+
+type MbArtist = MbArtistSearch & {
+  genres?: Array<{ name: string }>;
+  tags?: Array<{ name: string; count?: number }>;
+  relations?: Array<{ type?: string; url?: { resource?: string } }>;
+};
+
+type MbReleaseGroup = {
+  id: string;
+  title: string;
+  'primary-type'?: string;
+  'secondary-types'?: string[];
+  'first-release-date'?: string;
+  'release-count'?: number;
+  'artist-credit'?: Credit[];
+};
+
+export type ArtistSearchResult = {
+  id: string;
+  name: string;
+  sortName: string | null;
+  disambiguation: string | null;
+  type: string | null;
+  country: string | null;
+  area: string | null;
+  beginYear: number | null;
+  endYear: number | null;
+  ended: boolean;
+  score: number;
+};
+
+export type ArtistLink = {
+  type: string;
+  url: string;
+};
+
+export type ArtistReleaseGroup = {
+  id: string;
+  title: string;
+  primaryType: string;
+  secondaryTypes: string[];
+  firstReleaseDate: string | null;
+  year: number | null;
+  releaseCount: number;
+  coverUrl: string;
+  artist: string;
+};
+
+export type ArtistDetail = Omit<ArtistSearchResult, 'score'> & {
+  genres: string[];
+  links: ArtistLink[];
+  releaseGroups: ArtistReleaseGroup[];
+  releaseGroupTotal: number;
+};
+
+const ARTIST_LINK_TYPES = [
+  'official homepage',
+  'wikipedia',
+  'discogs',
+  'bandcamp',
+  'allmusic',
+  'wikidata',
+  'youtube',
+  'instagram',
+  'facebook',
+  'twitter',
+  'soundcloud',
+];
 
 const cache = new Map<string, { expires: number; value: unknown }>();
 
@@ -183,6 +269,7 @@ function mapSearchRelease(release: MbSearchRelease): SearchResult {
     musicbrainzId: release.id,
     title: release.title,
     artist: joinCredit(release['artist-credit']) || 'Unknown artist',
+    artistId: release['artist-credit']?.[0]?.artist?.id ?? null,
     year: date ? Number(date.slice(0, 4)) || null : null,
     releaseDate: date || null,
     country: release.country ?? null,
@@ -242,6 +329,7 @@ function mapRelease(release: MbRelease): ReleaseDetail {
     musicbrainzId: release.id,
     title: release.title,
     artist,
+    artistId: release['artist-credit']?.[0]?.artist?.id ?? null,
     year: date ? Number(date.slice(0, 4)) || null : null,
     releaseDate: date || null,
     country: release.country ?? null,
@@ -289,6 +377,128 @@ export async function getRelease(mbid: string): Promise<ReleaseDetail> {
     `release/${encodeURIComponent(mbid)}?inc=recordings+artist-credits+labels+genres+release-groups&fmt=json`,
   );
   const detail = mapRelease(data);
+  cacheSet(key, detail);
+  return detail;
+}
+
+function mapArtistSearch(artist: MbArtistSearch): ArtistSearchResult {
+  return {
+    id: artist.id,
+    name: artist.name,
+    sortName: artist['sort-name'] ?? null,
+    disambiguation: artist.disambiguation || null,
+    type: artist.type ?? null,
+    country: artist.country ?? null,
+    area: artist.area?.name ?? null,
+    beginYear: artist['life-span']?.begin
+      ? Number(artist['life-span'].begin.slice(0, 4)) || null
+      : null,
+    endYear: artist['life-span']?.end
+      ? Number(artist['life-span'].end.slice(0, 4)) || null
+      : null,
+    ended: Boolean(artist['life-span']?.ended),
+    score: artist.score ?? 0,
+  };
+}
+
+function mapArtistReleaseGroup(
+  group: MbReleaseGroup,
+  fallbackArtist: string,
+): ArtistReleaseGroup {
+  const date = group['first-release-date'] ?? '';
+  return {
+    id: group.id,
+    title: group.title,
+    primaryType: group['primary-type'] ?? 'Other',
+    secondaryTypes: group['secondary-types'] ?? [],
+    firstReleaseDate: date || null,
+    year: date ? Number(date.slice(0, 4)) || null : null,
+    releaseCount: group['release-count'] ?? 0,
+    coverUrl: `${CAA_RELEASE_GROUP_BASE}/${group.id}/front-250`,
+    artist: joinCredit(group['artist-credit']) || fallbackArtist,
+  };
+}
+
+export async function searchArtists(
+  query: string,
+  limit = 6,
+): Promise<ArtistSearchResult[]> {
+  const key = `artist-search:${query.toLowerCase()}:${limit}`;
+  const cached = cacheGet<ArtistSearchResult[]>(key);
+  if (cached) return cached;
+
+  const data = await mbFetch<{ artists?: MbArtistSearch[] }>(
+    `artist/?query=${encodeURIComponent(query)}&fmt=json&limit=${limit}`,
+  );
+  const results = (data.artists ?? []).map(mapArtistSearch);
+  cacheSet(key, results);
+  return results;
+}
+
+export async function getArtist(mbid: string): Promise<ArtistDetail> {
+  const key = `artist:${mbid}`;
+  const cached = cacheGet<ArtistDetail>(key);
+  if (cached) return cached;
+
+  const [artistData, groupData] = await Promise.all([
+    mbFetch<MbArtist>(
+      `artist/${encodeURIComponent(mbid)}?inc=genres+tags+url-rels&fmt=json`,
+    ),
+    mbFetch<{
+      'release-groups'?: MbReleaseGroup[];
+      'release-group-count'?: number;
+    }>(
+      `release-group?artist=${encodeURIComponent(mbid)}&inc=artist-credits&fmt=json&limit=100`,
+    ),
+  ]);
+
+  const base = mapArtistSearch(artistData);
+  const genreMap = new Map<string, string>();
+  const addGenre = (name: string) => {
+    const clean = titleizeGenre(name);
+    if (clean && !genreMap.has(clean.toLowerCase())) {
+      genreMap.set(clean.toLowerCase(), clean);
+    }
+  };
+  for (const genre of artistData.genres ?? []) addGenre(genre.name);
+  if (genreMap.size === 0) {
+    [...(artistData.tags ?? [])]
+      .sort((a, b) => (b.count ?? 0) - (a.count ?? 0))
+      .slice(0, 6)
+      .forEach((tag) => addGenre(tag.name));
+  }
+
+  const links: ArtistLink[] = [];
+  const seenTypes = new Set<string>();
+  for (const relation of artistData.relations ?? []) {
+    const type = relation.type?.toLowerCase();
+    const url = relation.url?.resource;
+    if (!type || !url || !ARTIST_LINK_TYPES.includes(type) || seenTypes.has(type)) {
+      continue;
+    }
+    seenTypes.add(type);
+    links.push({ type, url });
+  }
+  links.sort(
+    (a, b) =>
+      ARTIST_LINK_TYPES.indexOf(a.type) - ARTIST_LINK_TYPES.indexOf(b.type),
+  );
+
+  const releaseGroups = (groupData['release-groups'] ?? [])
+    .map((group) => mapArtistReleaseGroup(group, artistData.name))
+    .sort(
+      (a, b) =>
+        (b.firstReleaseDate ?? '').localeCompare(a.firstReleaseDate ?? '') ||
+        a.title.localeCompare(b.title),
+    );
+
+  const detail: ArtistDetail = {
+    ...base,
+    genres: [...genreMap.values()].sort((a, b) => a.localeCompare(b)),
+    links: links.slice(0, 8),
+    releaseGroups,
+    releaseGroupTotal: groupData['release-group-count'] ?? releaseGroups.length,
+  };
   cacheSet(key, detail);
   return detail;
 }

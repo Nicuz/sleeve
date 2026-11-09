@@ -1,4 +1,6 @@
 import type {
+  ArtistDetail,
+  ArtistSearchResult,
   MbRelease,
   Meta,
   Release,
@@ -107,6 +109,18 @@ export const api = {
   getMusicbrainzRelease(mbid: string) {
     return request<{ release: MbRelease }>(
       `/api/musicbrainz/releases/${encodeURIComponent(mbid)}`,
+    );
+  },
+
+  searchArtists(query: string, limit = 6) {
+    return request<{ results: ArtistSearchResult[]; count: number }>(
+      `/api/musicbrainz/artists?q=${encodeURIComponent(query)}&limit=${limit}`,
+    );
+  },
+
+  getArtist(mbid: string) {
+    return request<{ artist: ArtistDetail }>(
+      `/api/musicbrainz/artists/${encodeURIComponent(mbid)}`,
     );
   },
 

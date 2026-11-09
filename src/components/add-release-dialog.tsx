@@ -27,6 +27,7 @@ import {
   todayInputValue,
 } from '@/lib/utils';
 import { useApp } from './app-context';
+import { ArtistAvatar } from './artist-avatar';
 import { CoverArt } from './cover-art';
 import { useToast } from './toast';
 import { FormatBadge } from './release-card';
@@ -133,7 +134,7 @@ function Stars({
 }
 
 export function AddReleaseDialog() {
-  const { addOpen, closeAdd } = useApp();
+  const { addOpen, addPreset, closeAdd } = useApp();
   const { settings } = useSettings();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -141,6 +142,7 @@ export function AddReleaseDialog() {
 
   const [tab, setTab] = useState<Tab>('search');
   const [query, setQuery] = useState('');
+  const [mbQuery, setMbQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
@@ -149,8 +151,9 @@ export function AddReleaseDialog() {
   useEffect(() => {
     if (!addOpen) return;
     setTab('search');
-    setQuery('');
-    setDebounced('');
+    setQuery(addPreset?.display ?? '');
+    setMbQuery(addPreset?.query ?? '');
+    setDebounced(addPreset?.query ?? '');
     setSelectedId(null);
     setDraft({
       ...emptyDraft,
@@ -167,9 +170,9 @@ export function AddReleaseDialog() {
   }, [addOpen]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setDebounced(query.trim()), 400);
+    const timer = window.setTimeout(() => setDebounced(mbQuery.trim()), 400);
     return () => window.clearTimeout(timer);
-  }, [query]);
+  }, [mbQuery]);
 
   useEffect(() => {
     if (!addOpen) return;
@@ -186,6 +189,8 @@ export function AddReleaseDialog() {
   }, [addOpen, closeAdd]);
 
   const isBarcode = /^\d{8,14}$/.test(debounced);
+  const isPreset = mbQuery !== query;
+  const artistTerm = isPreset ? '' : query.trim();
 
   const searchQuery = useQuery({
     queryKey: ['mb-search', debounced, isBarcode],
@@ -197,6 +202,18 @@ export function AddReleaseDialog() {
     retry: false,
     staleTime: 5 * 60_000,
   });
+
+  const artistSearchQuery = useQuery({
+    queryKey: ['mb-artist-search', artistTerm],
+    queryFn: () => api.searchArtists(artistTerm, 6),
+    enabled: addOpen && !isPreset && !isBarcode && artistTerm.length >= 2,
+    retry: false,
+    staleTime: 5 * 60_000,
+  });
+
+  const artists = (artistSearchQuery.data?.results ?? [])
+    .filter((artist) => artist.score >= 80)
+    .slice(0, 4);
 
   const detailQuery = useQuery({
     queryKey: ['mb-release', selectedId],
@@ -247,6 +264,7 @@ export function AddReleaseDialog() {
       musicbrainzId: detail.musicbrainzId,
       title: detail.title,
       artist: detail.artist,
+      artistId: detail.artistId,
       year: detail.year,
       releaseDate: detail.releaseDate,
       country: detail.country,
@@ -384,7 +402,10 @@ export function AddReleaseDialog() {
                   <input
                     autoFocus
                     value={query}
-                    onChange={(event) => setQuery(event.target.value)}
+                    onChange={(event) => {
+                      setQuery(event.target.value);
+                      setMbQuery(event.target.value);
+                    }}
                     placeholder="Artist, album or barcode…"
                     className="input py-2.5 pr-3 pl-9 text-[13px]"
                     aria-label="Search MusicBrainz"
@@ -397,6 +418,62 @@ export function AddReleaseDialog() {
               </div>
 
               <div className="min-h-0 flex-1 p-2 md:overflow-y-auto">
+                {artists.length > 0 && (
+                  <div className="mb-1 border-b border-white/[0.06] pb-2">
+                    <p className="px-2 pt-1 pb-1.5 text-[9px] font-semibold tracking-[0.18em] text-muted/50 uppercase">
+                      Artists
+                    </p>
+                    <div className="space-y-0.5">
+                      {artists.map((artist) => (
+                        <button
+                          key={artist.id}
+                          type="button"
+                          onClick={() => {
+                            closeAdd();
+                            navigate(`/artists/${artist.id}`);
+                          }}
+                          className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-white/[0.05]"
+                        >
+                          <ArtistAvatar
+                            name={artist.name}
+                            className="h-10 w-10 text-xs"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-xs font-semibold text-cream">
+                              {artist.name}
+                            </p>
+                            <p className="truncate text-[10px] text-muted">
+                              {[
+                                artist.disambiguation,
+                                artist.type,
+                                artist.country ?? artist.area,
+                                artist.beginYear
+                                  ? `${artist.beginYear}${artist.endYear ? `–${artist.endYear}` : ''}`
+                                  : null,
+                              ]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </p>
+                          </div>
+                          <span className="shrink-0 text-[9px] text-muted/50">
+                            Discography
+                          </span>
+                          <ChevronRight
+                            size={14}
+                            className="shrink-0 text-muted/40"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {artists.length > 0 && debounced.length >= 2 && (
+                  <p className="px-2 pt-2 pb-1.5 text-[9px] font-semibold tracking-[0.18em] text-muted/50 uppercase">
+                    Releases
+                  </p>
+                )}
+
                 {debounced.length < 2 ? (
                   <div className="flex flex-col items-center px-6 py-14 text-center">
                     <span className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/[0.03] text-muted">

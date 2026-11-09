@@ -161,7 +161,7 @@ export function LibraryPage() {
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <button type="button" onClick={openAdd} className="btn btn-primary">
+            <button type="button" onClick={() => openAdd()} className="btn btn-primary">
               <Plus size={16} />
               Add a release
             </button>

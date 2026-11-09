@@ -137,7 +137,7 @@ export function Sidebar() {
           </p>
           <button
             type="button"
-            onClick={openAdd}
+            onClick={() => openAdd()}
             className="btn btn-primary mt-3 w-full py-2 text-xs"
           >
             <Plus size={14} />

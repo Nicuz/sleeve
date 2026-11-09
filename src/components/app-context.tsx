@@ -1,8 +1,14 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
+export type AddPreset = {
+  query: string;
+  display: string;
+};
+
 type AppContextValue = {
   addOpen: boolean;
-  openAdd: () => void;
+  addPreset: AddPreset | null;
+  openAdd: (preset?: AddPreset) => void;
   closeAdd: () => void;
 };
 
@@ -10,14 +16,22 @@ const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [addOpen, setAddOpen] = useState(false);
+  const [addPreset, setAddPreset] = useState<AddPreset | null>(null);
 
   const value = useMemo<AppContextValue>(
     () => ({
       addOpen,
-      openAdd: () => setAddOpen(true),
-      closeAdd: () => setAddOpen(false),
+      addPreset,
+      openAdd: (preset) => {
+        setAddPreset(preset ?? null);
+        setAddOpen(true);
+      },
+      closeAdd: () => {
+        setAddOpen(false);
+        setAddPreset(null);
+      },
     }),
-    [addOpen],
+    [addOpen, addPreset],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

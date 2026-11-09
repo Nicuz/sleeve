@@ -9,9 +9,10 @@ datasource db {
 
 model Release {
   id               String   @id @default(cuid())
-  musicbrainzId    String?  @unique
-  title            String
-  artist           String
+  musicbrainzId   String?  @unique
+  title           String
+  artist          String
+  artistId        String?
   year             Int?
   releaseDate      String?
   country          String?

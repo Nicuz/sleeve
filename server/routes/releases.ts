@@ -16,6 +16,7 @@ const releaseBaseSchema = z.object({
   musicbrainzId: z.string().nullable().optional(),
   title: z.string().min(1, 'Title is required'),
   artist: z.string().min(1, 'Artist is required'),
+  artistId: z.string().nullable().optional(),
   year: z.number().int().min(1800).max(2200).nullable().optional(),
   releaseDate: z.string().nullable().optional(),
   country: z.string().nullable().optional(),
@@ -144,6 +145,7 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
           musicbrainzId: data.musicbrainzId ?? null,
           title: data.title,
           artist: data.artist,
+          artistId: data.artistId ?? null,
           year: data.year ?? null,
           releaseDate: data.releaseDate ?? null,
           country: data.country ?? null,
@@ -193,6 +195,7 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
     const updateData = mapNullable({
       title: data.title,
       artist: data.artist,
+      artistId: data.artistId,
       year: data.year,
       releaseDate: data.releaseDate,
       country: data.country,

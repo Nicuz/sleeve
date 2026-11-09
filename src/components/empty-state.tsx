@@ -34,7 +34,7 @@ export function EmptyState({
       {actionLabel && onAction && (
         <button
           type="button"
-          onClick={onAction}
+          onClick={() => onAction()}
           className="btn btn-primary mt-6"
         >
           <Plus size={16} />

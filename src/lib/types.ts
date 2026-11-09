@@ -14,6 +14,7 @@ export type Release = {
   musicbrainzId: string | null;
   title: string;
   artist: string;
+  artistId: string | null;
   year: number | null;
   releaseDate: string | null;
   country: string | null;
@@ -41,6 +42,7 @@ export type SearchResult = {
   musicbrainzId: string;
   title: string;
   artist: string;
+  artistId: string | null;
   year: number | null;
   releaseDate: string | null;
   country: string | null;
@@ -66,6 +68,44 @@ export type MbRelease = SearchResult & {
     duration: number | null;
     artist: string | null;
   }>;
+};
+
+export type ArtistSearchResult = {
+  id: string;
+  name: string;
+  sortName: string | null;
+  disambiguation: string | null;
+  type: string | null;
+  country: string | null;
+  area: string | null;
+  beginYear: number | null;
+  endYear: number | null;
+  ended: boolean;
+  score: number;
+};
+
+export type ArtistLink = {
+  type: string;
+  url: string;
+};
+
+export type ArtistReleaseGroup = {
+  id: string;
+  title: string;
+  primaryType: string;
+  secondaryTypes: string[];
+  firstReleaseDate: string | null;
+  year: number | null;
+  releaseCount: number;
+  coverUrl: string;
+  artist: string;
+};
+
+export type ArtistDetail = Omit<ArtistSearchResult, 'score'> & {
+  genres: string[];
+  links: ArtistLink[];
+  releaseGroups: ArtistReleaseGroup[];
+  releaseGroupTotal: number;
 };
 
 export type Stats = {
@@ -119,6 +159,7 @@ export type ReleasePayload = {
   musicbrainzId?: string | null;
   title: string;
   artist: string;
+  artistId?: string | null;
   year?: number | null;
   releaseDate?: string | null;
   country?: string | null;

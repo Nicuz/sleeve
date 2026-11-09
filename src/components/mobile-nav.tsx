@@ -29,7 +29,7 @@ export function MobileNav() {
         <div className="flex justify-center">
           <button
             type="button"
-            onClick={openAdd}
+            onClick={() => openAdd()}
             className="accent-glow-strong -mt-5 grid h-12 w-12 place-items-center rounded-full bg-accent text-ink-950 transition active:scale-95"
             aria-label="Add release"
           >

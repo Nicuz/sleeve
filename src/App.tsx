@@ -7,6 +7,7 @@ import { AddReleaseDialog } from '@/components/add-release-dialog';
 import { LibraryPage } from '@/pages/library';
 import { StatsPage } from '@/pages/stats';
 import { ReleasePage } from '@/pages/release';
+import { ArtistPage } from '@/pages/artist';
 import { SettingsPage } from '@/pages/settings';
 
 function ScrollToTop() {
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/" element={<LibraryPage />} />
             <Route path="/stats" element={<StatsPage />} />
             <Route path="/releases/:id" element={<ReleasePage />} />
+            <Route path="/artists/:mbid" element={<ArtistPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -1,6 +1,8 @@
 import { Elysia } from 'elysia';
 import {
+  getArtist,
   getRelease,
+  searchArtists,
   searchByBarcode,
   searchReleases,
 } from '../musicbrainz';
@@ -32,6 +34,30 @@ export const musicbrainzRoutes = new Elysia({ prefix: '/api/musicbrainz' })
     try {
       const results = await searchByBarcode(params.code);
       return { results, count: results.length };
+    } catch (error) {
+      set.status = 502;
+      return { message: message(error) };
+    }
+  })
+  .get('/artists', async ({ query, set }) => {
+    const q = typeof query.q === 'string' ? query.q.trim() : '';
+    if (!q) {
+      set.status = 400;
+      return { message: 'Search query is required' };
+    }
+    const limit = Math.min(10, Math.max(1, Number(query.limit ?? 6) || 6));
+    try {
+      const results = await searchArtists(q, limit);
+      return { results, count: results.length };
+    } catch (error) {
+      set.status = 502;
+      return { message: message(error) };
+    }
+  })
+  .get('/artists/:mbid', async ({ params, set }) => {
+    try {
+      const artist = await getArtist(params.mbid);
+      return { artist };
     } catch (error) {
       set.status = 502;
       return { message: message(error) };

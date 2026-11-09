@@ -296,7 +296,16 @@ export function ReleasePage() {
               {release.title}
             </h1>
             <p className="mt-2 text-base text-muted md:text-lg">
-              {release.artist}
+              {release.artistId ? (
+                <Link
+                  to={`/artists/${release.artistId}`}
+                  className="underline-offset-4 transition hover:text-cream hover:underline"
+                >
+                  {release.artist}
+                </Link>
+              ) : (
+                release.artist
+              )}
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">

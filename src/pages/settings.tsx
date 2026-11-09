@@ -15,6 +15,7 @@ import {
   Loader2,
   Palette,
   Plus,
+  RefreshCw,
   RotateCcw,
   ShieldAlert,
   SlidersHorizontal,
@@ -88,6 +89,33 @@ export function SettingsPage() {
     queryKey: ['stats'],
     queryFn: api.stats,
     staleTime: 60_000,
+  });
+
+  const { data: cacheInfo } = useQuery({
+    queryKey: ['metadata-cache'],
+    queryFn: api.metadataCacheInfo,
+    staleTime: 30_000,
+  });
+
+  const clearMetadataCache = useMutation({
+    mutationFn: api.clearMetadataCache,
+    onSuccess: ({ deleted }) => {
+      queryClient.setQueryData(['metadata-cache'], {
+        count: 0,
+        oldest: null,
+        newest: null,
+      });
+      queryClient.invalidateQueries({ queryKey: ['metadata-cache'] });
+      toast(`${pluralize(deleted, 'cached entry', 'cached entries')} cleared`, 'info');
+    },
+    onError: (error) => {
+      toast(
+        error instanceof ApiError
+          ? error.message
+          : 'Could not clear the metadata cache',
+        'error',
+      );
+    },
   });
 
   const clearLibrary = useMutation({
@@ -530,6 +558,40 @@ export function SettingsPage() {
                 <ExternalLink size={11} />
               </a>
             </div>
+          </section>
+
+          <section className="panel p-5 sm:p-6">
+            <SectionHeading
+              icon={RefreshCw}
+              title="Metadata cache"
+              description="MusicBrainz lookups are cached locally. Clearing forces fresh requests."
+            />
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-3">
+              <div>
+                <p className="text-xs font-medium text-cream">
+                  {cacheInfo ? pluralize(cacheInfo.count, 'cached entry', 'cached entries') : '—'}
+                </p>
+                <p className="mt-0.5 text-[10px] text-muted/60">
+                  Searches 30 min · details 7 days
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => clearMetadataCache.mutate()}
+                disabled={clearMetadataCache.isPending || !cacheInfo?.count}
+                className="btn btn-secondary shrink-0 py-2 text-xs"
+              >
+                {clearMetadataCache.isPending ? (
+                  <Loader2 size={13} className="animate-spin" />
+                ) : (
+                  <RefreshCw size={13} />
+                )}
+                Clear
+              </button>
+            </div>
+            <p className="mt-3 text-[10px] leading-relaxed text-muted/60">
+              Refresh individual releases from their release page.
+            </p>
           </section>
 
           <section className="panel p-5 sm:p-6">

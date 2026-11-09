@@ -2,6 +2,7 @@ import { Elysia } from 'elysia';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../db';
+import { refreshRelease } from '../musicbrainz';
 
 const trackSchema = z.object({
   position: z.number().int().nonnegative().optional(),
@@ -293,6 +294,71 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
     }
     const result = await prisma.release.deleteMany();
     return { ok: true, deleted: result.count };
+  })
+  .post('/:id/refresh', async ({ params, set, request }) => {
+    const existing = await prisma.release.findUnique({
+      where: { id: params.id },
+      select: { id: true, musicbrainzId: true },
+    });
+    if (!existing) {
+      set.status = 404;
+      return { message: 'Release not found' };
+    }
+    if (!existing.musicbrainzId) {
+      set.status = 400;
+      return {
+        message: 'Manual releases have no MusicBrainz metadata to refresh.',
+      };
+    }
+
+    try {
+      const detail = await refreshRelease(
+        existing.musicbrainzId,
+        request.signal,
+      );
+      const release = await prisma.$transaction(async (tx) => {
+        await tx.track.deleteMany({ where: { releaseId: params.id } });
+        return tx.release.update({
+          where: { id: params.id },
+          data: {
+            title: detail.title,
+            artist: detail.artist,
+            artistId: detail.artistId,
+            year: detail.year,
+            releaseDate: detail.releaseDate,
+            country: detail.country,
+            label: detail.label,
+            catalogNumber: detail.catalogNumber,
+            barcode: detail.barcode,
+            formatDetail: detail.formatDetail,
+            coverUrl: detail.coverUrl,
+            genres: detail.genres.length ? detail.genres.join(', ') : null,
+            trackCount: detail.trackCount,
+            tracks: detail.tracks.length
+              ? {
+                  create: detail.tracks.map((track) => ({
+                    position: track.position,
+                    disc: track.disc,
+                    number: track.number,
+                    title: track.title,
+                    duration: track.duration,
+                    artist: track.artist,
+                  })),
+                }
+              : undefined,
+          },
+          include: {
+            tracks: {
+              orderBy: [{ disc: 'asc' }, { number: 'asc' }, { position: 'asc' }],
+            },
+          },
+        });
+      });
+      return { release };
+    } catch (error) {
+      set.status = 502;
+      return { message: errorMessage(error) };
+    }
   })
   .delete('/:id', async ({ params, set }) => {
     try {

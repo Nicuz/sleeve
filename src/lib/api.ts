@@ -3,6 +3,7 @@ import type {
   ArtistSearchResult,
   DiscoverResponse,
   ImportResult,
+  MetadataCacheInfo,
   MbRelease,
   Meta,
   Release,
@@ -94,6 +95,22 @@ export const api = {
 
   deleteWishlistItem(id: string) {
     return request<{ ok: boolean }>(`/api/wishlist/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  refreshRelease(id: string) {
+    return request<{ release: Release }>(`/api/releases/${id}/refresh`, {
+      method: 'POST',
+    });
+  },
+
+  metadataCacheInfo() {
+    return request<MetadataCacheInfo>('/api/metadata/cache');
+  },
+
+  clearMetadataCache() {
+    return request<{ ok: boolean; deleted: number }>('/api/metadata/cache', {
       method: 'DELETE',
     });
   },

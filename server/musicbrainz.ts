@@ -715,3 +715,17 @@ export async function searchReleaseGroupsByTag(
     signal,
   );
 }
+
+
+export async function refreshRelease(
+  mbid: string,
+  signal?: AbortSignal,
+): Promise<ReleaseDetail> {
+  const data = await mbFetch<MbRelease>(
+    `release/${encodeURIComponent(mbid)}?inc=recordings+artist-credits+labels+genres+release-groups&fmt=json`,
+    signal,
+  );
+  const detail = mapRelease(data);
+  await cacheSet(`mb:release:${mbid}`, detail, CACHE_TTL_MS.detail);
+  return detail;
+}

@@ -7,6 +7,7 @@ import {
   ExternalLink,
   Loader2,
   Pencil,
+  RefreshCw,
   Star,
   Trash2,
   X,
@@ -130,6 +131,26 @@ export function ReleasePage() {
     onError: (error) => {
       toast(
         error instanceof ApiError ? error.message : 'Could not save changes',
+        'error',
+      );
+    },
+  });
+
+  const refreshMetadata = useMutation({
+    mutationFn: () => api.refreshRelease(id as string),
+    onSuccess: ({ release }) => {
+      queryClient.setQueryData(['release', id], { release });
+      queryClient.invalidateQueries({ queryKey: ['releases'] });
+      queryClient.invalidateQueries({ queryKey: ['stats'] });
+      queryClient.invalidateQueries({ queryKey: ['meta'] });
+      queryClient.invalidateQueries({ queryKey: ['discover'] });
+      toast('Metadata refreshed from MusicBrainz', 'success');
+    },
+    onError: (error) => {
+      toast(
+        error instanceof ApiError
+          ? error.message
+          : 'Could not refresh metadata',
         'error',
       );
     },
@@ -364,6 +385,21 @@ export function ReleasePage() {
                 <Trash2 size={15} />
                 Remove
               </button>
+              {release.musicbrainzId && (
+                <button
+                  type="button"
+                  onClick={() => refreshMetadata.mutate()}
+                  disabled={refreshMetadata.isPending}
+                  className="btn btn-ghost"
+                >
+                  {refreshMetadata.isPending ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <RefreshCw size={14} />
+                  )}
+                  Refresh
+                </button>
+              )}
               {release.musicbrainzId && (
                 <a
                   href={`https://musicbrainz.org/release/${release.musicbrainzId}`}

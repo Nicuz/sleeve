@@ -125,6 +125,12 @@ export type ArtistDetail = Omit<ArtistSearchResult, 'score'> & {
 };
 
 
+export type MetadataCacheInfo = {
+  count: number;
+  oldest: string | null;
+  newest: string | null;
+};
+
 export type ImportResult = {
   importedReleases: number;
   skippedReleases: number;

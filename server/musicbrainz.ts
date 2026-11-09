@@ -115,11 +115,17 @@ type MbArtist = MbArtistSearch & {
 type MbReleaseGroup = {
   id: string;
   title: string;
+  score?: number;
   'primary-type'?: string;
   'secondary-types'?: string[];
   'first-release-date'?: string;
   'release-count'?: number;
+  count?: number;
   'artist-credit'?: Credit[];
+};
+
+export type DiscoverReleaseGroup = ArtistReleaseGroup & {
+  score: number;
 };
 
 export type ArtistSearchResult = {
@@ -151,6 +157,7 @@ export type ArtistReleaseGroup = {
   releaseCount: number;
   coverUrl: string;
   artist: string;
+  artistId: string | null;
 };
 
 export type ArtistDetail = Omit<ArtistSearchResult, 'score'> & {
@@ -581,9 +588,10 @@ function mapArtistReleaseGroup(
     secondaryTypes: group['secondary-types'] ?? [],
     firstReleaseDate: date || null,
     year: date ? Number(date.slice(0, 4)) || null : null,
-    releaseCount: group['release-count'] ?? 0,
+    releaseCount: group['release-count'] ?? group.count ?? 0,
     coverUrl: `${CAA_RELEASE_GROUP_BASE}/${group.id}/front-250`,
     artist: joinCredit(group['artist-credit']) || fallbackArtist,
+    artistId: group['artist-credit']?.[0]?.artist?.id ?? null,
   };
 }
 
@@ -677,6 +685,32 @@ export async function getArtist(
         releaseGroupTotal:
           groupData['release-group-count'] ?? releaseGroups.length,
       } satisfies ArtistDetail;
+    },
+    signal,
+  );
+}
+
+
+export async function searchReleaseGroupsByTag(
+  tag: string,
+  limit = 12,
+  signal?: AbortSignal,
+): Promise<DiscoverReleaseGroup[]> {
+  const cleanTag = tag.replace(/"/g, '').trim();
+  if (!cleanTag) return [];
+  const query = `tag:"${cleanTag}" AND primarytype:album`;
+  return withCache(
+    `mb:genre-albums:${cleanTag.toLowerCase()}:${limit}`,
+    'search',
+    async (flightSignal) => {
+      const data = await mbFetch<{ 'release-groups'?: MbReleaseGroup[] }>(
+        `release-group/?query=${encodeURIComponent(query)}&fmt=json&limit=${limit}`,
+        flightSignal,
+      );
+      return (data['release-groups'] ?? []).map((group) => ({
+        ...mapArtistReleaseGroup(group, 'Unknown artist'),
+        score: group.score ?? 0,
+      }));
     },
     signal,
   );

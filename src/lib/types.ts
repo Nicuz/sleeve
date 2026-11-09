@@ -99,6 +99,22 @@ export type ArtistReleaseGroup = {
   releaseCount: number;
   coverUrl: string;
   artist: string;
+  artistId: string | null;
+};
+
+export type DiscoverReleaseGroup = ArtistReleaseGroup & {
+  score: number;
+};
+
+export type DiscoverSection = {
+  genre: string;
+  items: DiscoverReleaseGroup[];
+};
+
+export type DiscoverResponse = {
+  basedOn: string[];
+  sections: DiscoverSection[];
+  generatedAt: string;
 };
 
 export type ArtistDetail = Omit<ArtistSearchResult, 'score'> & {

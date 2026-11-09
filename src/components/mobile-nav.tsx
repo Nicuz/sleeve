@@ -1,10 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
   ChartNoAxesColumnIncreasing,
+  Compass,
   Heart,
   LibraryBig,
   Plus,
-  Settings2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useApp } from './app-context';
@@ -14,9 +14,9 @@ export function MobileNav() {
   const { pathname } = useLocation();
   const libraryActive =
     pathname === '/' || pathname.startsWith('/releases/');
+  const discoverActive = pathname.startsWith('/discover');
   const wishlistActive = pathname.startsWith('/wishlist');
   const insightsActive = pathname.startsWith('/stats');
-  const settingsActive = pathname.startsWith('/settings');
 
   const itemClass = (active: boolean) =>
     cn(
@@ -34,12 +34,12 @@ export function MobileNav() {
           />
           Library
         </Link>
-        <Link to="/wishlist" className={itemClass(wishlistActive)}>
-          <Heart
+        <Link to="/discover" className={itemClass(discoverActive)}>
+          <Compass
             size={19}
-            className={wishlistActive ? 'text-accent' : undefined}
+            className={discoverActive ? 'text-accent' : undefined}
           />
-          Wishlist
+          Discover
         </Link>
         <div className="flex justify-center">
           <button
@@ -51,19 +51,19 @@ export function MobileNav() {
             <Plus size={22} />
           </button>
         </div>
+        <Link to="/wishlist" className={itemClass(wishlistActive)}>
+          <Heart
+            size={19}
+            className={wishlistActive ? 'text-accent' : undefined}
+          />
+          Wishlist
+        </Link>
         <Link to="/stats" className={itemClass(insightsActive)}>
           <ChartNoAxesColumnIncreasing
             size={19}
             className={insightsActive ? 'text-accent' : undefined}
           />
           Insights
-        </Link>
-        <Link to="/settings" className={itemClass(settingsActive)}>
-          <Settings2
-            size={19}
-            className={settingsActive ? 'text-accent' : undefined}
-          />
-          Settings
         </Link>
       </div>
     </nav>

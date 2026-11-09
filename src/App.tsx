@@ -10,6 +10,7 @@ import { ReleasePage } from '@/pages/release';
 import { ArtistPage } from '@/pages/artist';
 import { SettingsPage } from '@/pages/settings';
 import { WishlistPage } from '@/pages/wishlist';
+import { DiscoverPage } from '@/pages/discover';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="/releases/:id" element={<ReleasePage />} />
             <Route path="/artists/:mbid" element={<ArtistPage />} />
             <Route path="/wishlist" element={<WishlistPage />} />
+            <Route path="/discover" element={<DiscoverPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

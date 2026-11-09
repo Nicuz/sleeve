@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   ChartNoAxesColumnIncreasing,
+  Compass,
   Disc3,
   Heart,
   LibraryBig,
@@ -27,6 +28,7 @@ export function Sidebar() {
   const { pathname } = useLocation();
   const libraryActive =
     pathname === '/' || pathname.startsWith('/releases/');
+  const discoverActive = pathname.startsWith('/discover');
   const wishlistActive = pathname.startsWith('/wishlist');
   const insightsActive = pathname.startsWith('/stats');
   const settingsActive = pathname.startsWith('/settings');
@@ -68,6 +70,21 @@ export function Sidebar() {
           <span className="ml-auto text-[11px] tabular-nums text-muted/60">
             {data?.total ?? '—'}
           </span>
+        </Link>
+        <Link
+          to="/discover"
+          className={cn(
+            'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition',
+            discoverActive
+              ? 'bg-white/[0.07] text-cream'
+              : 'text-muted hover:bg-white/[0.04] hover:text-cream',
+          )}
+        >
+          <Compass
+            size={18}
+            className={discoverActive ? 'text-accent' : 'text-muted'}
+          />
+          Discover
         </Link>
         <Link
           to="/wishlist"

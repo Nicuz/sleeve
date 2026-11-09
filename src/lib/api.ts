@@ -1,6 +1,7 @@
 import type {
   ArtistDetail,
   ArtistSearchResult,
+  DiscoverResponse,
   MbRelease,
   Meta,
   Release,
@@ -59,6 +60,10 @@ export const api = {
     return request<{ releases: Release[]; count: number }>(
       `/api/releases${suffix ? `?${suffix}` : ''}`,
     );
+  },
+
+  discover() {
+    return request<DiscoverResponse>('/api/discover');
   },
 
   listWishlist() {

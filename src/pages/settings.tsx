@@ -1,27 +1,9 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Check,
-  Grid2x2,
-  List,
-  Loader2,
-  Moon,
-  Sun,
-} from 'lucide-react';
+import { Check, Grid2x2, List, Loader2, Moon, Sun } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
-import {
-  ACCENTS,
-  SORT_OPTIONS,
-  useSettings,
-  type AccentKey,
-} from '@/lib/settings';
-import {
-  CONDITIONS,
-  CURRENCIES,
-  cn,
-  FORMAT_OPTIONS,
-  pluralize,
-} from '@/lib/utils';
+import { ACCENTS, SORT_OPTIONS, useSettings, type AccentKey } from '@/lib/settings';
+import { CONDITIONS, CURRENCIES, cn, FORMAT_OPTIONS, pluralize } from '@/lib/utils';
 import { useToast } from '@/components/toast';
 
 function Section({
@@ -71,9 +53,7 @@ function SettingRow({
       <div className="min-w-0">
         <p className="text-sm font-medium text-cream">{label}</p>
         {description ? (
-          <p className="mt-0.5 text-xs leading-relaxed text-muted">
-            {description}
-          </p>
+          <p className="mt-0.5 text-xs leading-relaxed text-muted">{description}</p>
         ) : null}
       </div>
       <div className="flex shrink-0 items-center gap-2">{children}</div>
@@ -88,6 +68,13 @@ function InfoRow({ label, value }: { label: string; value: string }) {
       <dd className="text-right text-xs text-cream/80">{value}</dd>
     </div>
   );
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${Math.round(kb)} KB`;
+  return `${(kb / 1024).toFixed(1)} MB`;
 }
 
 const dataRowClass =
@@ -113,6 +100,27 @@ export function SettingsPage() {
     staleTime: 30_000,
   });
 
+  const { data: coverCacheInfo } = useQuery({
+    queryKey: ['cover-cache'],
+    queryFn: api.coverCacheInfo,
+    staleTime: 30_000,
+  });
+
+  const clearCoverCache = useMutation({
+    mutationFn: api.clearCoverCache,
+    onSuccess: ({ deleted }) => {
+      queryClient.setQueryData(['cover-cache'], { count: 0, bytes: 0 });
+      queryClient.invalidateQueries({ queryKey: ['cover-cache'] });
+      toast(`${pluralize(deleted, 'cached cover', 'cached covers')} cleared`, 'info');
+    },
+    onError: (error) => {
+      toast(
+        error instanceof ApiError ? error.message : 'Could not clear the cover cache',
+        'error',
+      );
+    },
+  });
+
   const clearMetadataCache = useMutation({
     mutationFn: api.clearMetadataCache,
     onSuccess: ({ deleted }) => {
@@ -126,9 +134,7 @@ export function SettingsPage() {
     },
     onError: (error) => {
       toast(
-        error instanceof ApiError
-          ? error.message
-          : 'Could not clear the metadata cache',
+        error instanceof ApiError ? error.message : 'Could not clear the metadata cache',
         'error',
       );
     },
@@ -140,16 +146,11 @@ export function SettingsPage() {
       queryClient.invalidateQueries();
       queryClient.removeQueries({ queryKey: ['release'] });
       setDeleteText('');
-      toast(
-        `${pluralize(deleted, 'release')} removed from the library`,
-        'info',
-      );
+      toast(`${pluralize(deleted, 'release')} removed from the library`, 'info');
     },
     onError: (error) => {
       toast(
-        error instanceof ApiError
-          ? error.message
-          : 'Could not clear the library',
+        error instanceof ApiError ? error.message : 'Could not clear the library',
         'error',
       );
     },
@@ -211,8 +212,8 @@ export function SettingsPage() {
             Make Sleeve yours.
           </h1>
           <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted">
-            Tune the look, set library defaults and take ownership of your
-            collection data.
+            Tune the look, set library defaults and take ownership of your collection
+            data.
           </p>
         </div>
         <span className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[10px] font-medium text-muted sm:self-auto">
@@ -222,9 +223,7 @@ export function SettingsPage() {
       </header>
 
       <div className="mt-8 space-y-8">
-        <Section
-          title="Appearance"
-        >
+        <Section title="Appearance">
           <div>
             <SettingRow
               label="Theme"
@@ -316,9 +315,7 @@ export function SettingsPage() {
           </div>
         </Section>
 
-        <Section
-          title="Library defaults"
-        >
+        <Section title="Library defaults">
           <div>
             <SettingRow label="Format" description="Used for manual releases.">
               <select
@@ -419,14 +416,12 @@ export function SettingsPage() {
           </div>
 
           <p className="mt-4 text-[10px] leading-relaxed text-muted/60">
-            MusicBrainz editions keep their own format. Your condition, view and
-            sort defaults apply across the app.
+            MusicBrainz editions keep their own format. Your condition, view and sort
+            defaults apply across the app.
           </p>
         </Section>
 
-        <Section
-          title="Data & backups"
-        >
+        <Section title="Data & backups">
           <div>
             <button
               type="button"
@@ -434,9 +429,7 @@ export function SettingsPage() {
               className={dataRowClass}
             >
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-cream">
-                  Export JSON
-                </span>
+                <span className="block text-sm font-medium text-cream">Export JSON</span>
                 <span className="mt-0.5 block text-[11px] text-muted">
                   Releases, tracks and wishlist
                 </span>
@@ -449,9 +442,7 @@ export function SettingsPage() {
               className={dataRowClass}
             >
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-cream">
-                  Export CSV
-                </span>
+                <span className="block text-sm font-medium text-cream">Export CSV</span>
                 <span className="mt-0.5 block text-[11px] text-muted">
                   One row per track, spreadsheet ready
                 </span>
@@ -465,9 +456,7 @@ export function SettingsPage() {
               className={dataRowClass}
             >
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-cream">
-                  Import JSON
-                </span>
+                <span className="block text-sm font-medium text-cream">Import JSON</span>
                 <span className="mt-0.5 block text-[11px] text-muted">
                   Merge backup; duplicates skipped
                 </span>
@@ -486,7 +475,6 @@ export function SettingsPage() {
                 if (file) void handleImportFile(file);
               }}
             />
-
           </div>
 
           <div className="mt-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[11px] text-muted">
@@ -495,9 +483,7 @@ export function SettingsPage() {
           </div>
         </Section>
 
-        <Section
-          title="Metadata & cache"
-        >
+        <Section title="Metadata & cache">
           <div>
             <SettingRow
               label={
@@ -519,6 +505,27 @@ export function SettingsPage() {
                 Clear cache
               </button>
             </SettingRow>
+
+            <SettingRow
+              label="Cover cache"
+              description={
+                coverCacheInfo
+                  ? `${pluralize(coverCacheInfo.count, 'image')} · ${formatBytes(coverCacheInfo.bytes)}`
+                  : 'Cached cover images on disk'
+              }
+            >
+              <button
+                type="button"
+                onClick={() => clearCoverCache.mutate()}
+                disabled={clearCoverCache.isPending || !coverCacheInfo?.count}
+                className="btn btn-secondary py-2 text-xs"
+              >
+                {clearCoverCache.isPending && (
+                  <Loader2 size={13} className="animate-spin" />
+                )}
+                Clear covers
+              </button>
+            </SettingRow>
           </div>
 
           <p className="mt-4 text-[10px] leading-relaxed text-muted/60">
@@ -526,16 +533,11 @@ export function SettingsPage() {
           </p>
         </Section>
 
-        <Section
-          title="About Sleeve"
-        >
+        <Section title="About Sleeve">
           <dl>
             <InfoRow label="Version" value="0.1.0" />
             <InfoRow label="Storage" value="SQLite · local" />
-            <InfoRow
-              label="Metadata"
-              value="MusicBrainz + Cover Art Archive"
-            />
+            <InfoRow label="Metadata" value="MusicBrainz + Cover Art Archive" />
             <InfoRow label="Runtime" value="Bun + React" />
             <InfoRow
               label="Collection"
@@ -563,9 +565,7 @@ export function SettingsPage() {
           </div>
         </Section>
 
-        <Section
-          title="Preferences"
-        >
+        <Section title="Preferences">
           <div>
             <SettingRow
               label="Reset preferences"
@@ -585,10 +585,7 @@ export function SettingsPage() {
           </div>
         </Section>
 
-        <Section
-          title="Danger zone"
-          danger
-        >
+        <Section title="Danger zone" danger>
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
               value={deleteText}

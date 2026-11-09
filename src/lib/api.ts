@@ -132,6 +132,16 @@ export const api = {
     });
   },
 
+  coverCacheInfo() {
+    return request<{ count: number; bytes: number }>('/api/covers/cache');
+  },
+
+  clearCoverCache() {
+    return request<{ ok: boolean; deleted: number }>('/api/covers/cache', {
+      method: 'DELETE',
+    });
+  },
+
   getRelease(id: string) {
     return request<{ release: Release }>(`/api/releases/${id}`);
   },

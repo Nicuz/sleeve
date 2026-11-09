@@ -1,10 +1,9 @@
 import { Elysia } from 'elysia';
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const CACHE_DIR =
-  process.env.COVER_CACHE_DIR ?? join(process.cwd(), 'data', 'covers');
+const CACHE_DIR = process.env.COVER_CACHE_DIR ?? join(process.cwd(), 'data', 'covers');
 const ALLOWED_HOST = 'coverartarchive.org';
 const MAX_BYTES = 5 * 1024 * 1024;
 const USER_AGENT =
@@ -107,9 +106,37 @@ async function getCover(url: string): Promise<CachedCover> {
   return request;
 }
 
-export const coverRoutes = new Elysia().get(
-  '/api/cover',
-  async ({ query, set }) => {
+async function cacheInfo() {
+  await ensureDirectory();
+  const entries = await readdir(CACHE_DIR).catch(() => [] as string[]);
+  const images = entries.filter((name) => name.endsWith('.bin'));
+  let bytes = 0;
+  for (const name of images) {
+    try {
+      bytes += (await stat(join(CACHE_DIR, name))).size;
+    } catch {
+      // Ignore files removed while counting.
+    }
+  }
+  return { count: images.length, bytes };
+}
+
+async function clearCache() {
+  await ensureDirectory();
+  const entries = await readdir(CACHE_DIR).catch(() => [] as string[]);
+  await Promise.all(
+    entries.map((name) => unlink(join(CACHE_DIR, name)).catch(() => undefined)),
+  );
+  return entries.length;
+}
+
+export const coverRoutes = new Elysia()
+  .get('/api/covers/cache', async () => cacheInfo())
+  .delete('/api/covers/cache', async () => ({
+    ok: true,
+    deleted: await clearCache(),
+  }))
+  .get('/api/cover', async ({ query, set }) => {
     const raw = typeof query.url === 'string' ? query.url : '';
     if (!raw) {
       set.status = 400;
@@ -122,8 +149,7 @@ export const coverRoutes = new Elysia().get(
     } catch (error) {
       set.status = 400;
       return {
-        message:
-          error instanceof Error ? error.message : 'Invalid cover URL.',
+        message: error instanceof Error ? error.message : 'Invalid cover URL.',
       };
     }
 
@@ -139,9 +165,7 @@ export const coverRoutes = new Elysia().get(
     } catch (error) {
       set.status = 502;
       return {
-        message:
-          error instanceof Error ? error.message : 'Could not fetch cover.',
+        message: error instanceof Error ? error.message : 'Could not fetch cover.',
       };
     }
-  },
-);
+  });

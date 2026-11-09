@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Disc3 } from 'lucide-react';
-import { cn, hueFromString } from '@/lib/utils';
+import { cn, hueFromString, proxiedCoverUrl } from '@/lib/utils';
 
 type CoverArtProps = {
   src?: string | null;
@@ -13,7 +13,8 @@ export function CoverArt({ src, title, className, iconSize = 38 }: CoverArtProps
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const hue = hueFromString(title);
-  const showImage = Boolean(src) && !failed;
+  const resolvedSrc = proxiedCoverUrl(src);
+  const showImage = Boolean(resolvedSrc) && !failed;
 
   useEffect(() => {
     setLoaded(false);
@@ -44,7 +45,7 @@ export function CoverArt({ src, title, className, iconSize = 38 }: CoverArtProps
       )}
       {showImage && (
         <img
-          src={src as string}
+          src={resolvedSrc as string}
           alt=""
           loading="lazy"
           className={cn(

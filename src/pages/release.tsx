@@ -24,6 +24,7 @@ import {
   formatTotalDuration,
   parseGenres,
   parsePriceInput,
+  proxiedCoverUrl,
   splitList,
   todayInputValue,
 } from '@/lib/utils';
@@ -275,7 +276,7 @@ export function ReleasePage() {
         <div className="absolute inset-0">
           {release.coverUrl ? (
             <img
-              src={release.coverUrl}
+              src={proxiedCoverUrl(release.coverUrl) ?? release.coverUrl}
               alt=""
               className="h-full w-full scale-125 object-cover opacity-25 blur-3xl"
             />

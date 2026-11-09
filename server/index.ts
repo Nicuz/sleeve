@@ -9,6 +9,7 @@ import { wishlistRoutes } from './routes/wishlist';
 import { discoverRoutes } from './routes/discover';
 import { importRoutes } from './routes/import';
 import { maintenanceRoutes } from './routes/maintenance';
+import { coverRoutes } from './routes/covers';
 
 const app = new Elysia()
   .get('/api/health', () => ({ ok: true, name: 'Sleeve', time: new Date() }))
@@ -20,7 +21,8 @@ const app = new Elysia()
   .use(wishlistRoutes)
   .use(discoverRoutes)
   .use(importRoutes)
-  .use(maintenanceRoutes);
+  .use(maintenanceRoutes)
+  .use(coverRoutes);
 
 const isProduction = process.env.NODE_ENV === 'production';
 const port = Number(process.env.PORT ?? (isProduction ? 3000 : 3001));

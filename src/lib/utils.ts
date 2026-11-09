@@ -73,6 +73,22 @@ export function parsePriceInput(value: string): number | null {
   return Number.isFinite(price) && price >= 0 ? price : null;
 }
 
+
+export function proxiedCoverUrl(
+  value: string | null | undefined,
+): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol === 'https:' && url.hostname === 'coverartarchive.org') {
+      return `/api/cover?url=${encodeURIComponent(value)}`;
+    }
+  } catch {
+    return value;
+  }
+  return value;
+}
+
 export function hueFromString(value: string): number {
   let hash = 0;
   for (let index = 0; index < value.length; index += 1) {

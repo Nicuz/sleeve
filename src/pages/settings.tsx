@@ -1,29 +1,11 @@
-import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useRef, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Check,
-  Database,
-  Disc3,
-  Download,
-  ExternalLink,
-  FileJson,
-  FileSpreadsheet,
-  FileUp,
   Grid2x2,
-  HardDrive,
   List,
   Loader2,
-  Palette,
-  Plus,
-  RefreshCw,
-  RotateCcw,
-  ShieldAlert,
-  SlidersHorizontal,
-  Table2,
-  Trash2,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import {
   ACCENTS,
@@ -40,44 +22,74 @@ import {
 } from '@/lib/utils';
 import { useToast } from '@/components/toast';
 
-function SectionHeading({
-  icon: Icon,
+function Section({
   title,
-  description,
+  danger,
+  children,
 }: {
-  icon: LucideIcon;
   title: string;
-  description: string;
+  danger?: boolean;
+  children: ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/[0.07] bg-white/[0.03] text-accent">
-        <Icon size={16} />
-      </span>
-      <div>
-        <h2 className="font-display text-base font-semibold text-cream">
+    <section className="space-y-2.5">
+      <div className="px-1">
+        <h2
+          className={cn(
+            'font-display text-base font-semibold tracking-tight',
+            danger ? 'text-red-200' : 'text-cream',
+          )}
+        >
           {title}
         </h2>
-        <p className="mt-0.5 text-xs leading-relaxed text-muted">{description}</p>
       </div>
-    </div>
+      <div
+        className={cn(
+          'panel p-5 sm:p-6',
+          danger && 'border-red-400/20 bg-red-500/[0.03]',
+        )}
+      >
+        {children}
+      </div>
+    </section>
   );
 }
 
 function SettingRow({
   label,
-  value,
+  description,
+  children,
 }: {
   label: string;
-  value: string;
+  description?: string;
+  children: ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-white/[0.04] py-2.5 last:border-b-0">
+    <div className="flex flex-col gap-2.5 border-b border-white/[0.04] py-4 first:pt-0 last:border-b-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-cream">{label}</p>
+        {description ? (
+          <p className="mt-0.5 text-xs leading-relaxed text-muted">
+            {description}
+          </p>
+        ) : null}
+      </div>
+      <div className="flex shrink-0 items-center gap-2">{children}</div>
+    </div>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-white/[0.04] py-3 first:pt-0 last:border-b-0 last:pb-0">
       <dt className="text-xs text-muted">{label}</dt>
       <dd className="text-right text-xs text-cream/80">{value}</dd>
     </div>
   );
 }
+
+const dataRowClass =
+  'group flex w-full items-center gap-3 border-b border-white/[0.04] px-1 py-3.5 text-left transition last:border-b-0 hover:bg-white/[0.02] disabled:opacity-60';
 
 export function SettingsPage() {
   const { settings, updateSettings, resetSettings } = useSettings();
@@ -192,10 +204,7 @@ export function SettingsPage() {
     <div className="pb-24">
       <header className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="eyebrow flex items-center gap-2">
-            <SlidersHorizontal size={12} />
-            Preferences
-          </p>
+          <p className="eyebrow">Preferences</p>
           <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-cream md:text-5xl">
             Make Sleeve yours.
           </h1>
@@ -210,64 +219,52 @@ export function SettingsPage() {
         </span>
       </header>
 
-      <div className="mt-8 grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-        <div className="space-y-4">
-          <section className="panel p-5 sm:p-6">
-            <SectionHeading
-              icon={Palette}
-              title="Appearance"
-              description="Pick the accent that sits beside your records. Applied across the whole app."
-            />
-
-            <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-5">
-              {(Object.keys(ACCENTS) as AccentKey[]).map((key) => {
-                const accent = ACCENTS[key];
-                const selected = settings.accent === key;
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => updateSettings({ accent: key })}
-                    aria-pressed={selected}
-                    className={cn(
-                      'flex flex-col items-center rounded-xl border px-2 py-3 transition',
-                      selected
-                        ? 'border-accent/40 bg-accent/[0.06]'
-                        : 'border-white/[0.07] bg-white/[0.02] hover:border-white/15',
-                    )}
-                  >
-                    <span
-                      className="grid h-9 w-9 place-items-center rounded-full"
+      <div className="mt-8 space-y-8">
+        <Section
+          title="Appearance"
+        >
+          <div>
+            <div className="flex flex-col gap-3 border-b border-white/[0.04] py-4 first:pt-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-cream">Accent color</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted">
+                  Buttons, badges and highlights update instantly.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(Object.keys(ACCENTS) as AccentKey[]).map((key) => {
+                  const accent = ACCENTS[key];
+                  const selected = settings.accent === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => updateSettings({ accent: key })}
+                      aria-pressed={selected}
+                      aria-label={accent.label}
+                      title={accent.label}
+                      className={cn(
+                        'grid h-10 w-10 place-items-center rounded-full border transition',
+                        selected
+                          ? 'border-accent/50 ring-2 ring-accent/20'
+                          : 'border-white/[0.07] hover:border-white/25',
+                      )}
                       style={{
                         background: `linear-gradient(135deg, ${accent.accent}, ${accent.soft})`,
-                        boxShadow: `0 0 18px -4px ${accent.accent}`,
                       }}
                     >
-                      {selected && (
-                        <Check size={15} className="text-ink-950" />
-                      )}
-                    </span>
-                    <span
-                      className={cn(
-                        'mt-2 text-[10px] font-medium',
-                        selected ? 'text-cream' : 'text-muted',
-                      )}
-                    >
-                      {accent.label}
-                    </span>
-                  </button>
-                );
-              })}
+                      {selected && <Check size={16} className="text-ink-950" />}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-3 rounded-xl border border-white/[0.07] bg-ink-950/40 p-4">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-accent/15 text-accent">
-                <Disc3 size={17} />
-              </span>
+            <div className="flex items-center gap-3 pt-4">
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-cream">Accent preview</p>
                 <p className="mt-0.5 text-[10px] text-muted">
-                  Buttons, badges and highlights update instantly.
+                  A quick look at the active color.
                 </p>
               </div>
               <button
@@ -275,370 +272,303 @@ export function SettingsPage() {
                 className="btn btn-primary pointer-events-none py-2 text-xs"
                 tabIndex={-1}
               >
-                <Plus size={13} />
                 Add release
               </button>
             </div>
-          </section>
+          </div>
+        </Section>
 
-          <section className="panel p-5 sm:p-6">
-            <SectionHeading
-              icon={SlidersHorizontal}
-              title="Library defaults"
-              description="Applied when filters are empty and when you add a manual release."
-            />
-
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <label>
-                <span className="field-label">Default format</span>
-                <select
-                  value={settings.defaultFormat}
-                  onChange={(event) =>
-                    updateSettings({ defaultFormat: event.target.value })
-                  }
-                  className="input"
-                >
-                  {FORMAT_OPTIONS.map((format) => (
-                    <option key={format}>{format}</option>
-                  ))}
-                </select>
-              </label>
-
-              <label>
-                <span className="field-label">Default condition</span>
-                <select
-                  value={settings.defaultCondition}
-                  onChange={(event) =>
-                    updateSettings({ defaultCondition: event.target.value })
-                  }
-                  className="input"
-                >
-                  {CONDITIONS.map((condition) => (
-                    <option key={condition}>{condition}</option>
-                  ))}
-                </select>
-              </label>
-
-              <label>
-                <span className="field-label">Default currency</span>
-                <select
-                  value={settings.defaultCurrency}
-                  onChange={(event) =>
-                    updateSettings({ defaultCurrency: event.target.value })
-                  }
-                  className="input"
-                >
-                  {CURRENCIES.map((currency) => (
-                    <option key={currency}>{currency}</option>
-                  ))}
-                </select>
-              </label>
-
-              <div>
-                <span className="field-label">Default view</span>
-                <div className="grid grid-cols-2 gap-1 rounded-xl border border-white/10 bg-ink-900/60 p-1">
-                  <button
-                    type="button"
-                    onClick={() => updateSettings({ defaultView: 'grid' })}
-                    className={cn(
-                      'flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition',
-                      settings.defaultView === 'grid'
-                        ? 'bg-white/10 text-cream'
-                        : 'text-muted hover:text-cream',
-                    )}
-                  >
-                    <Grid2x2 size={13} />
-                    Grid
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => updateSettings({ defaultView: 'list' })}
-                    className={cn(
-                      'flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition',
-                      settings.defaultView === 'list'
-                        ? 'bg-white/10 text-cream'
-                        : 'text-muted hover:text-cream',
-                    )}
-                  >
-                    <List size={13} />
-                    List
-                  </button>
-                </div>
-              </div>
-
-              <label>
-                <span className="field-label">Default sort</span>
-                <select
-                  value={settings.defaultSort}
-                  onChange={(event) =>
-                    updateSettings({
-                      defaultSort: event.target.value as typeof settings.defaultSort,
-                    })
-                  }
-                  className="input"
-                >
-                  {SORT_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            <p className="mt-3 text-[10px] leading-relaxed text-muted/60">
-              MusicBrainz editions keep their own format. Your condition, view
-              and sort defaults apply across the app.
-            </p>
-          </section>
-
-          <section className="panel p-5 sm:p-6">
-            <SectionHeading
-              icon={Database}
-              title="Library data"
-              description="Your collection lives in a local SQLite database. Export, import or start fresh."
-            />
-
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => downloadExport('json')}
-                className="group flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3 text-left transition hover:border-white/20 hover:bg-white/[0.04]"
+        <Section
+          title="Library defaults"
+        >
+          <div>
+            <SettingRow label="Format" description="Used for manual releases.">
+              <select
+                value={settings.defaultFormat}
+                onChange={(event) =>
+                  updateSettings({ defaultFormat: event.target.value })
+                }
+                className="input w-full sm:w-48"
+                aria-label="Default format"
               >
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
-                  <FileJson size={17} />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-xs font-medium text-cream">
-                    Export JSON
-                  </span>
-                  <span className="mt-0.5 block text-[10px] text-muted">
-                    Releases, tracks and wishlist
-                  </span>
-                </span>
-                <Download
-                  size={14}
-                  className="shrink-0 text-muted transition group-hover:text-cream"
-                />
-              </button>
+                {FORMAT_OPTIONS.map((format) => (
+                  <option key={format}>{format}</option>
+                ))}
+              </select>
+            </SettingRow>
 
-              <button
-                type="button"
-                onClick={() => downloadExport('csv')}
-                className="group flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3 text-left transition hover:border-white/20 hover:bg-white/[0.04]"
+            <SettingRow label="Condition" description="Default grading on new entries.">
+              <select
+                value={settings.defaultCondition}
+                onChange={(event) =>
+                  updateSettings({ defaultCondition: event.target.value })
+                }
+                className="input w-full sm:w-48"
+                aria-label="Default condition"
               >
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
-                  <FileSpreadsheet size={17} />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-xs font-medium text-cream">
-                    Export CSV
-                  </span>
-                  <span className="mt-0.5 block text-[10px] text-muted">
-                    One row per track, spreadsheet ready
-                  </span>
-                </span>
-                <Download
-                  size={14}
-                  className="shrink-0 text-muted transition group-hover:text-cream"
-                />
-              </button>
+                {CONDITIONS.map((condition) => (
+                  <option key={condition}>{condition}</option>
+                ))}
+              </select>
+            </SettingRow>
 
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={importing}
-                className="group flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3 text-left transition hover:border-white/20 hover:bg-white/[0.04] disabled:opacity-60"
+            <SettingRow label="Currency" description="Used for purchase prices.">
+              <select
+                value={settings.defaultCurrency}
+                onChange={(event) =>
+                  updateSettings({ defaultCurrency: event.target.value })
+                }
+                className="input w-full sm:w-48"
+                aria-label="Default currency"
               >
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
-                  {importing ? (
-                    <Loader2 size={17} className="animate-spin" />
-                  ) : (
-                    <FileUp size={17} />
-                  )}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-xs font-medium text-cream">
-                    Import JSON
-                  </span>
-                  <span className="mt-0.5 block text-[10px] text-muted">
-                    Merge backup; duplicates skipped
-                  </span>
-                </span>
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="application/json,.json"
-                className="hidden"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) void handleImportFile(file);
-                }}
-              />
+                {CURRENCIES.map((currency) => (
+                  <option key={currency}>{currency}</option>
+                ))}
+              </select>
+            </SettingRow>
 
-              <Link
-                to="/import/csv"
-                className="group flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3 text-left transition hover:border-white/20 hover:bg-white/[0.04]"
-              >
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
-                  <Table2 size={17} />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-xs font-medium text-cream">
-                    Import Discogs CSV
-                  </span>
-                  <span className="mt-0.5 block text-[10px] text-muted">
-                    Map columns visually before import
-                  </span>
-                </span>
-              </Link>
-            </div>
-
-            <div className="mt-3 flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[11px] text-muted">
-              <HardDrive size={13} className="text-accent/70" />
-              {pluralize(stats?.total ?? 0, 'release')} ·{' '}
-              {pluralize(stats?.totalTracks ?? 0, 'track')} stored locally
-            </div>
-
-            <div className="mt-5 rounded-xl border border-red-400/20 bg-red-500/[0.05] p-4">
-              <div className="flex items-start gap-2.5">
-                <ShieldAlert size={16} className="mt-0.5 text-red-300" />
-                <div>
-                  <p className="text-xs font-semibold text-red-200">
-                    Danger zone
-                  </p>
-                  <p className="mt-0.5 text-[11px] leading-relaxed text-red-200/60">
-                    Removes every release, track and note. Export your library
-                    before continuing.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                <input
-                  value={deleteText}
-                  onChange={(event) => setDeleteText(event.target.value)}
-                  placeholder="Type DELETE to confirm"
-                  className="input flex-1"
-                  aria-label="Type DELETE to confirm"
-                />
+            <SettingRow label="View" description="Grid or list for the library.">
+              <div className="grid w-full grid-cols-2 gap-1 rounded-xl border border-white/10 bg-ink-900/60 p-1 sm:w-48">
                 <button
                   type="button"
-                  onClick={() => clearLibrary.mutate()}
-                  disabled={deleteText !== 'DELETE' || clearLibrary.isPending}
-                  className="btn btn-danger shrink-0"
+                  onClick={() => updateSettings({ defaultView: 'grid' })}
+                  aria-pressed={settings.defaultView === 'grid'}
+                  className={cn(
+                    'flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition',
+                    settings.defaultView === 'grid'
+                      ? 'bg-white/10 text-cream'
+                      : 'text-muted hover:text-cream',
+                  )}
                 >
-                  <Trash2 size={14} />
-                  {clearLibrary.isPending ? 'Clearing…' : 'Clear library'}
+                  <Grid2x2 size={13} />
+                  Grid
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateSettings({ defaultView: 'list' })}
+                  aria-pressed={settings.defaultView === 'list'}
+                  className={cn(
+                    'flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition',
+                    settings.defaultView === 'list'
+                      ? 'bg-white/10 text-cream'
+                      : 'text-muted hover:text-cream',
+                  )}
+                >
+                  <List size={13} />
+                  List
                 </button>
               </div>
-            </div>
-          </section>
-        </div>
+            </SettingRow>
 
-        <div className="space-y-4">
-          <section className="panel p-5 sm:p-6">
-            <SectionHeading
-              icon={HardDrive}
-              title="About Sleeve"
-              description="A private listening archive for the records you own."
-            />
-            <dl className="mt-5">
-              <SettingRow label="Version" value="0.1.0" />
-              <SettingRow label="Storage" value="SQLite · local" />
-              <SettingRow
-                label="Metadata"
-                value="MusicBrainz + Cover Art Archive"
-              />
-              <SettingRow label="Runtime" value="Bun + React" />
-              <SettingRow
-                label="Collection"
-                value={`${pluralize(stats?.total ?? 0, 'release')} · ${pluralize(stats?.totalTracks ?? 0, 'track')}`}
-              />
-            </dl>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              <a
-                href="https://musicbrainz.org"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 text-[10px] text-muted transition hover:border-white/20 hover:text-cream"
+            <SettingRow label="Sort order" description="Initial ordering in the library.">
+              <select
+                value={settings.defaultSort}
+                onChange={(event) =>
+                  updateSettings({
+                    defaultSort: event.target.value as typeof settings.defaultSort,
+                  })
+                }
+                className="input w-full sm:w-48"
+                aria-label="Default sort"
               >
-                MusicBrainz
-                <ExternalLink size={11} />
-              </a>
-              <a
-                href="https://coverartarchive.org"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 text-[10px] text-muted transition hover:border-white/20 hover:text-cream"
-              >
-                Cover Art Archive
-                <ExternalLink size={11} />
-              </a>
-            </div>
-          </section>
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </SettingRow>
+          </div>
 
-          <section className="panel p-5 sm:p-6">
-            <SectionHeading
-              icon={RefreshCw}
-              title="Metadata cache"
-              description="MusicBrainz lookups are cached locally. Clearing forces fresh requests."
+          <p className="mt-4 text-[10px] leading-relaxed text-muted/60">
+            MusicBrainz editions keep their own format. Your condition, view and
+            sort defaults apply across the app.
+          </p>
+        </Section>
+
+        <Section
+          title="Data & backups"
+        >
+          <div>
+            <button
+              type="button"
+              onClick={() => downloadExport('json')}
+              className={dataRowClass}
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-cream">
+                  Export JSON
+                </span>
+                <span className="mt-0.5 block text-[11px] text-muted">
+                  Releases, tracks and wishlist
+                </span>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => downloadExport('csv')}
+              className={dataRowClass}
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-cream">
+                  Export CSV
+                </span>
+                <span className="mt-0.5 block text-[11px] text-muted">
+                  One row per track, spreadsheet ready
+                </span>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={importing}
+              className={dataRowClass}
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-cream">
+                  Import JSON
+                </span>
+                <span className="mt-0.5 block text-[11px] text-muted">
+                  Merge backup; duplicates skipped
+                </span>
+              </span>
+              {importing && (
+                <Loader2 size={15} className="shrink-0 animate-spin text-muted" />
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void handleImportFile(file);
+              }}
             />
-            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-3">
-              <div>
-                <p className="text-xs font-medium text-cream">
-                  {cacheInfo ? pluralize(cacheInfo.count, 'cached entry', 'cached entries') : '—'}
-                </p>
-                <p className="mt-0.5 text-[10px] text-muted/60">
-                  Searches 30 min · details 7 days
-                </p>
-              </div>
+
+          </div>
+
+          <div className="mt-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[11px] text-muted">
+            {pluralize(stats?.total ?? 0, 'release')} ·{' '}
+            {pluralize(stats?.totalTracks ?? 0, 'track')} stored locally
+          </div>
+        </Section>
+
+        <Section
+          title="Metadata & cache"
+        >
+          <div>
+            <SettingRow
+              label={
+                cacheInfo
+                  ? pluralize(cacheInfo.count, 'cached entry', 'cached entries')
+                  : 'Cached entries'
+              }
+              description="Searches 30 min · details 7 days"
+            >
               <button
                 type="button"
                 onClick={() => clearMetadataCache.mutate()}
                 disabled={clearMetadataCache.isPending || !cacheInfo?.count}
-                className="btn btn-secondary shrink-0 py-2 text-xs"
+                className="btn btn-secondary py-2 text-xs"
               >
-                {clearMetadataCache.isPending ? (
+                {clearMetadataCache.isPending && (
                   <Loader2 size={13} className="animate-spin" />
-                ) : (
-                  <RefreshCw size={13} />
                 )}
-                Clear
+                Clear cache
               </button>
-            </div>
-            <p className="mt-3 text-[10px] leading-relaxed text-muted/60">
-              Refresh individual releases from their release page.
-            </p>
-          </section>
+            </SettingRow>
+          </div>
 
-          <section className="panel p-5 sm:p-6">
-            <SectionHeading
-              icon={RotateCcw}
-              title="Reset preferences"
-              description="Restore the amber theme and default library settings. Your collection stays untouched."
+          <p className="mt-4 text-[10px] leading-relaxed text-muted/60">
+            Refresh individual releases from their release page.
+          </p>
+        </Section>
+
+        <Section
+          title="About Sleeve"
+        >
+          <dl>
+            <InfoRow label="Version" value="0.1.0" />
+            <InfoRow label="Storage" value="SQLite · local" />
+            <InfoRow
+              label="Metadata"
+              value="MusicBrainz + Cover Art Archive"
+            />
+            <InfoRow label="Runtime" value="Bun + React" />
+            <InfoRow
+              label="Collection"
+              value={`${pluralize(stats?.total ?? 0, 'release')} · ${pluralize(stats?.totalTracks ?? 0, 'track')}`}
+            />
+          </dl>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <a
+              href="https://musicbrainz.org"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 text-[10px] text-muted transition hover:border-white/20 hover:text-cream"
+            >
+              MusicBrainz
+            </a>
+            <a
+              href="https://coverartarchive.org"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 text-[10px] text-muted transition hover:border-white/20 hover:text-cream"
+            >
+              Cover Art Archive
+            </a>
+          </div>
+        </Section>
+
+        <Section
+          title="Preferences"
+        >
+          <div>
+            <SettingRow
+              label="Reset preferences"
+              description="Restore the amber theme and default library settings."
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  resetSettings();
+                  toast('Preferences reset', 'info');
+                }}
+                className="btn btn-secondary py-2 text-xs"
+              >
+                Reset defaults
+              </button>
+            </SettingRow>
+          </div>
+        </Section>
+
+        <Section
+          title="Danger zone"
+          danger
+        >
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              value={deleteText}
+              onChange={(event) => setDeleteText(event.target.value)}
+              placeholder="Type DELETE to confirm"
+              className="input flex-1"
+              aria-label="Type DELETE to confirm"
             />
             <button
               type="button"
-              onClick={() => {
-                resetSettings();
-                toast('Preferences reset', 'info');
-              }}
-              className="btn btn-secondary mt-4 w-full"
+              onClick={() => clearLibrary.mutate()}
+              disabled={deleteText !== 'DELETE' || clearLibrary.isPending}
+              className="btn btn-danger shrink-0"
             >
-              <RotateCcw size={14} />
-              Reset to defaults
+              {clearLibrary.isPending ? 'Clearing…' : 'Clear library'}
             </button>
-          </section>
-
-          <section className="panel p-5">
-            <p className="text-[10px] leading-relaxed text-muted/60">
-              Preferences are stored in this browser. Export your collection
-              regularly if you want a portable backup.
-            </p>
-          </section>
-        </div>
+          </div>
+        </Section>
       </div>
     </div>
   );

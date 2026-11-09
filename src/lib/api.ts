@@ -1,5 +1,6 @@
 import type {
   ArtistDetail,
+  ArtistReleaseGroupsPage,
   ArtistSearchResult,
   DiscoverResponse,
   ImportResult,
@@ -187,6 +188,18 @@ export const api = {
   getArtist(mbid: string, signal?: AbortSignal) {
     return request<{ artist: ArtistDetail }>(
       `/api/musicbrainz/artists/${encodeURIComponent(mbid)}`,
+      { signal },
+    );
+  },
+
+  getArtistReleaseGroups(
+    mbid: string,
+    offset: number,
+    limit = 100,
+    signal?: AbortSignal,
+  ) {
+    return request<ArtistReleaseGroupsPage>(
+      `/api/musicbrainz/artists/${encodeURIComponent(mbid)}/release-groups?offset=${offset}&limit=${limit}`,
       { signal },
     );
   },

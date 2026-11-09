@@ -160,6 +160,11 @@ export type ArtistReleaseGroup = {
   artistId: string | null;
 };
 
+export type ArtistReleaseGroupsPage = {
+  groups: ArtistReleaseGroup[];
+  total: number;
+};
+
 export type ArtistDetail = Omit<ArtistSearchResult, 'score'> & {
   genres: string[];
   links: ArtistLink[];
@@ -728,4 +733,40 @@ export async function refreshRelease(
   const detail = mapRelease(data);
   await cacheSet(`mb:release:${mbid}`, detail, CACHE_TTL_MS.detail);
   return detail;
+}
+
+
+export async function getArtistReleaseGroups(
+  mbid: string,
+  offset = 0,
+  limit = 100,
+  signal?: AbortSignal,
+): Promise<ArtistReleaseGroupsPage> {
+  const safeOffset = Math.max(0, Math.floor(offset));
+  const safeLimit = Math.min(100, Math.max(1, Math.floor(limit)));
+  return withCache(
+    `mb:artist-groups:${mbid}:${safeOffset}:${safeLimit}`,
+    'detail',
+    async (flightSignal) => {
+      const data = await mbFetch<{
+        'release-groups'?: MbReleaseGroup[];
+        'release-group-count'?: number;
+      }>(
+        `release-group?artist=${encodeURIComponent(mbid)}&inc=artist-credits&fmt=json&limit=${safeLimit}&offset=${safeOffset}`,
+        flightSignal,
+      );
+      const groups = (data['release-groups'] ?? [])
+        .map((group) => mapArtistReleaseGroup(group, 'Unknown artist'))
+        .sort(
+          (a, b) =>
+            (b.firstReleaseDate ?? '').localeCompare(a.firstReleaseDate ?? '') ||
+            a.title.localeCompare(b.title),
+        );
+      return {
+        groups,
+        total: data['release-group-count'] ?? groups.length,
+      };
+    },
+    signal,
+  );
 }

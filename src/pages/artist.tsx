@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   ArrowLeft,
+  ChevronDown,
   Disc3,
   ExternalLink,
+  Loader2,
   Plus,
   UserRound,
 } from 'lucide-react';
@@ -14,6 +16,7 @@ import { cn, pluralize } from '@/lib/utils';
 import { ArtistAvatar } from '@/components/artist-avatar';
 import { CoverArt } from '@/components/cover-art';
 import { useApp } from '@/components/app-context';
+import { useToast } from '@/components/toast';
 
 const LINK_LABELS: Record<string, string> = {
   'official homepage': 'Website',
@@ -132,7 +135,15 @@ function ReleaseGroupCard({
 export function ArtistPage() {
   const { mbid } = useParams();
   const { openAdd } = useApp();
+  const { toast } = useToast();
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [extraGroups, setExtraGroups] = useState<ArtistReleaseGroup[]>([]);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  useEffect(() => {
+    setExtraGroups([]);
+    setTypeFilter(null);
+  }, [mbid]);
 
   const artistQuery = useQuery({
     queryKey: ['artist', mbid],
@@ -144,14 +155,29 @@ export function ArtistPage() {
 
   const artist = artistQuery.data?.artist;
 
+  const allGroups = useMemo(() => {
+    const map = new Map<string, ArtistReleaseGroup>();
+    for (const group of [
+      ...(artist?.releaseGroups ?? []),
+      ...extraGroups,
+    ]) {
+      map.set(group.id, group);
+    }
+    return [...map.values()].sort(
+      (a, b) =>
+        (b.firstReleaseDate ?? '').localeCompare(a.firstReleaseDate ?? '') ||
+        a.title.localeCompare(b.title),
+    );
+  }, [artist, extraGroups]);
+
   const counts = useMemo(() => {
     const map = new Map<string, number>();
-    for (const group of artist?.releaseGroups ?? []) {
+    for (const group of allGroups) {
       const category = categoryOf(group);
       map.set(category, (map.get(category) ?? 0) + 1);
     }
     return map;
-  }, [artist]);
+  }, [allGroups]);
 
   if (artistQuery.isLoading) return <ArtistSkeleton />;
 
@@ -188,10 +214,8 @@ export function ArtistPage() {
   const activeFilter = typeFilter ?? defaultFilter;
   const filteredGroups =
     activeFilter === 'all'
-      ? artist.releaseGroups
-      : artist.releaseGroups.filter(
-          (group) => categoryOf(group) === activeFilter,
-        );
+      ? allGroups
+      : allGroups.filter((group) => categoryOf(group) === activeFilter);
 
   const lifespan = artist.beginYear
     ? `${artist.beginYear}${artist.endYear ? `–${artist.endYear}` : artist.ended ? '' : '–present'}`
@@ -212,6 +236,30 @@ export function ArtistPage() {
       query: `artist:"${artist.name.replace(/"/g, '')}"`,
       display: artist.name,
     });
+  }
+
+  async function loadMore() {
+    if (!artist || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const page = await api.getArtistReleaseGroups(
+        artist.id,
+        allGroups.length,
+        100,
+      );
+      setExtraGroups((current) => {
+        const map = new Map(current.map((group) => [group.id, group]));
+        for (const group of page.groups) map.set(group.id, group);
+        return [...map.values()];
+      });
+    } catch (error) {
+      toast(
+        error instanceof Error ? error.message : 'Could not load more release groups',
+        'error',
+      );
+    } finally {
+      setLoadingMore(false);
+    }
   }
 
   return (
@@ -251,9 +299,9 @@ export function ArtistPage() {
               )}
               {lifespan && <span>{lifespan}</span>}
               <span>
-                {artist.releaseGroupTotal > artist.releaseGroups.length
-                  ? `${artist.releaseGroups.length} of ${artist.releaseGroupTotal} release groups`
-                  : pluralize(artist.releaseGroups.length, 'release group')}
+                {artist.releaseGroupTotal > allGroups.length
+                  ? `${allGroups.length} of ${artist.releaseGroupTotal} release groups`
+                  : pluralize(allGroups.length, 'release group')}
               </span>
             </div>
 
@@ -322,6 +370,9 @@ export function ArtistPage() {
           </div>
           <p className="text-[11px] text-muted/60">
             {pluralize(filteredGroups.length, 'release group')}
+            {allGroups.length < artist.releaseGroupTotal
+              ? ` · ${allGroups.length} of ${artist.releaseGroupTotal} loaded`
+              : ''}
           </p>
         </div>
 
@@ -331,7 +382,7 @@ export function ArtistPage() {
             onClick={() => setTypeFilter('all')}
             className={cn('chip', activeFilter === 'all' && 'chip-active')}
           >
-            All ({artist.releaseGroups.length})
+            All ({allGroups.length})
           </button>
           {TYPE_ORDER.filter((type) => counts.has(type)).map((type) => (
             <button
@@ -371,6 +422,26 @@ export function ArtistPage() {
                 onAdd={addReleaseGroup}
               />
             ))}
+          </div>
+        )}
+
+        {allGroups.length < artist.releaseGroupTotal && (
+          <div className="mt-8 flex justify-center">
+            <button
+              type="button"
+              onClick={() => void loadMore()}
+              disabled={loadingMore}
+              className="btn btn-secondary"
+            >
+              {loadingMore ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <ChevronDown size={14} />
+              )}
+              {loadingMore
+                ? 'Loading…'
+                : `Load more · ${allGroups.length} of ${artist.releaseGroupTotal}`}
+            </button>
           </div>
         )}
       </section>

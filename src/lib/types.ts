@@ -117,6 +117,11 @@ export type DiscoverResponse = {
   generatedAt: string;
 };
 
+export type ArtistReleaseGroupsPage = {
+  groups: ArtistReleaseGroup[];
+  total: number;
+};
+
 export type ArtistDetail = Omit<ArtistSearchResult, 'score'> & {
   genres: string[];
   links: ArtistLink[];

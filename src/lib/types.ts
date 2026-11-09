@@ -1,0 +1,111 @@
+export type Track = {
+  id: string;
+  releaseId: string;
+  position: number;
+  disc: number | null;
+  number: number | null;
+  title: string;
+  duration: number | null;
+  artist: string | null;
+};
+
+export type Release = {
+  id: string;
+  musicbrainzId: string | null;
+  title: string;
+  artist: string;
+  year: number | null;
+  releaseDate: string | null;
+  country: string | null;
+  label: string | null;
+  catalogNumber: string | null;
+  barcode: string | null;
+  format: string;
+  formatDetail: string | null;
+  coverUrl: string | null;
+  notes: string | null;
+  rating: number | null;
+  condition: string | null;
+  genres: string | null;
+  trackCount: number | null;
+  createdAt: string;
+  updatedAt: string;
+  tracks?: Track[];
+};
+
+export type SearchResult = {
+  musicbrainzId: string;
+  title: string;
+  artist: string;
+  year: number | null;
+  releaseDate: string | null;
+  country: string | null;
+  label: string | null;
+  catalogNumber: string | null;
+  barcode: string | null;
+  format: string;
+  formatDetail: string | null;
+  trackCount: number | null;
+  coverUrl: string;
+  type: string | null;
+};
+
+export type MbRelease = SearchResult & {
+  status: string | null;
+  packaging: string | null;
+  genres: string[];
+  tracks: Array<{
+    position: number;
+    disc: number | null;
+    number: number | null;
+    title: string;
+    duration: number | null;
+    artist: string | null;
+  }>;
+};
+
+export type Stats = {
+  total: number;
+  totalTracks: number;
+  totalArtists: number;
+  totalGenres: number;
+  byFormat: Array<{ format: string; count: number }>;
+  byDecade: Array<{ decade: string; value: number; count: number }>;
+  topArtists: Array<{ artist: string; count: number }>;
+  topGenres: Array<{ genre: string; count: number }>;
+  recentlyAdded: Release[];
+};
+
+export type Meta = {
+  formats: string[];
+  genres: string[];
+  decades: number[];
+};
+
+export type ReleasePayload = {
+  musicbrainzId?: string | null;
+  title: string;
+  artist: string;
+  year?: number | null;
+  releaseDate?: string | null;
+  country?: string | null;
+  label?: string | null;
+  catalogNumber?: string | null;
+  barcode?: string | null;
+  format: string;
+  formatDetail?: string | null;
+  coverUrl?: string | null;
+  notes?: string | null;
+  rating?: number | null;
+  condition?: string | null;
+  genres?: string[];
+  trackCount?: number | null;
+  tracks?: Array<{
+    position?: number;
+    disc?: number | null;
+    number?: number | null;
+    title: string;
+    duration?: number | null;
+    artist?: string | null;
+  }>;
+};

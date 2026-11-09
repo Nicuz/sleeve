@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Release {
+  id              String   @id @default(cuid())
+  musicbrainzId   String?  @unique
+  title           String
+  artist          String
+  year            Int?
+  releaseDate     String?
+  country         String?
+  label           String?
+  catalogNumber   String?
+  barcode         String?
+  format          String
+  formatDetail    String?
+  coverUrl        String?
+  notes           String?
+  rating          Int?
+  condition       String?
+  genres          String?
+  trackCount      Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tracks Track[]
+
+  @@index([artist])
+  @@index([format])
+  @@index([year])
+  @@index([createdAt])
+}
+
+model Track {
+  id        String  @id @default(cuid())
+  releaseId String
+  position  Int
+  disc      Int?
+  number    Int?
+  title     String
+  duration  Int?
+  artist    String?
+
+  release Release @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+
+  @@index([releaseId])
+}

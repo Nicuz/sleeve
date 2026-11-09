@@ -81,6 +81,7 @@ export function LibraryPage() {
   const format = params.get('format') ?? 'All';
   const genre = params.get('genre') ?? 'All';
   const decade = params.get('decade') ?? 'All';
+  const missing = params.get('missing') ?? 'All';
   const sort = params.get('sort') ?? settings.defaultSort;
   const viewParam = params.get('view');
   const view =
@@ -88,14 +89,14 @@ export function LibraryPage() {
       ? viewParam
       : settings.defaultView;
 
-  const filters = { q, format, genre, decade, sort };
+  const filters = { q, format, genre, decade, missing, sort };
   const releasesQuery = useQuery({
     queryKey: ['releases', filters],
     queryFn: () => api.listReleases(filters),
   });
   const statsQuery = useQuery({
     queryKey: ['stats'],
-    queryFn: api.stats,
+    queryFn: () => api.stats(),
     staleTime: 60_000,
   });
   const metaQuery = useQuery({
@@ -107,7 +108,11 @@ export function LibraryPage() {
   const stats = statsQuery.data;
   const releases = releasesQuery.data?.releases ?? [];
   const hasFilters =
-    Boolean(q) || format !== 'All' || genre !== 'All' || decade !== 'All';
+    Boolean(q) ||
+    format !== 'All' ||
+    genre !== 'All' ||
+    decade !== 'All' ||
+    missing !== 'All';
 
   const formatCounts = useMemo(
     () =>
@@ -124,7 +129,7 @@ export function LibraryPage() {
 
   function clearFilters() {
     const next = new URLSearchParams(params);
-    for (const key of ['q', 'format', 'genre', 'decade', 'sort']) {
+    for (const key of ['q', 'format', 'genre', 'decade', 'missing', 'sort']) {
       next.delete(key);
     }
     setParams(next, { replace: true });
@@ -276,6 +281,17 @@ export function LibraryPage() {
                   value: String(item),
                   label: `${item}s`,
                 })),
+              ]}
+            />
+            <Select
+              label="Review missing info"
+              value={missing}
+              onChange={(value) => setParam('missing', value)}
+              options={[
+                { value: 'All', label: 'Nothing missing' },
+                { value: 'genre', label: 'Missing genre' },
+                { value: 'purchase', label: 'Missing price or date' },
+                { value: 'metadata', label: 'Missing metadata' },
               ]}
             />
             <Select

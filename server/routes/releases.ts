@@ -92,6 +92,7 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
     const format = typeof query.format === 'string' ? query.format : '';
     const genre = typeof query.genre === 'string' ? query.genre : '';
     const decade = typeof query.decade === 'string' ? query.decade : '';
+    const missing = typeof query.missing === 'string' ? query.missing : '';
     const sort = typeof query.sort === 'string' ? query.sort : 'recent';
 
     const where: Prisma.ReleaseWhereInput = {};
@@ -110,6 +111,21 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
       if (Number.isFinite(start)) {
         where.year = { gte: start, lt: start + 10 };
       }
+    }
+    if (missing === 'genre') {
+      where.AND = [{ OR: [{ genres: null }, { genres: '' }] }];
+    } else if (missing === 'purchase') {
+      where.AND = [{ OR: [{ purchasePrice: null }, { purchaseDate: null }] }];
+    } else if (missing === 'metadata') {
+      where.AND = [
+        {
+          OR: [
+            { musicbrainzId: null },
+            { coverUrl: null },
+            { trackCount: null },
+          ],
+        },
+      ];
     }
 
     const orderBy: Prisma.ReleaseOrderByWithRelationInput[] =

@@ -194,15 +194,19 @@ export type WishlistPayload = {
   targetCurrency?: string | null;
 };
 
+export type StatsRange = 'all' | 'year' | '12m';
+
 export type Stats = {
   total: number;
   missingMetadata: number;
+  missingGenre: number;
+  missingPurchaseInfo: number;
   totalTracks: number;
   totalArtists: number;
   totalGenres: number;
   byFormat: Array<{ format: string; count: number }>;
   byDecade: Array<{ decade: string; value: number; count: number }>;
-  topArtists: Array<{ artist: string; count: number }>;
+  topArtists: Array<{ artist: string; artistId?: string | null; count: number }>;
   topGenres: Array<{ genre: string; count: number }>;
   recentlyAdded: Release[];
 };

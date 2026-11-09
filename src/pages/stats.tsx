@@ -1,8 +1,9 @@
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   ArrowLeft,
   ArrowUpRight,
+  ChevronDown,
   Disc3,
   ListMusic,
   Sparkles,
@@ -12,10 +13,10 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { api } from '@/lib/api';
+import type { StatsRange } from '@/lib/types';
 import { cn, pluralize } from '@/lib/utils';
 import { useApp } from '@/components/app-context';
 import { EmptyState } from '@/components/empty-state';
-import { ReleaseCard } from '@/components/release-card';
 import { SpendingInsights } from '@/components/spending-insights';
 
 const formatColor: Record<string, string> = {
@@ -36,30 +37,26 @@ const formatDot: Record<string, string> = {
 
 function StatCard({
   icon: Icon,
-  label,
   value,
   hint,
 }: {
   icon: LucideIcon;
-  label: string;
   value: number;
   hint: string;
 }) {
   return (
     <div className="panel relative overflow-hidden p-5">
-      <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-accent/[0.05]" />
-      <div className="flex items-start justify-between">
-        <span className="grid h-9 w-9 place-items-center rounded-full border border-white/[0.07] bg-white/[0.03] text-accent">
+      <div className="flex items-center gap-2.5">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/[0.07] bg-white/[0.03] text-accent">
           <Icon size={16} />
         </span>
-        <span className="text-[9px] tracking-[0.14em] text-muted/40 uppercase">
+        <span className="text-sm font-medium text-cream">
           {hint}
         </span>
       </div>
       <p className="mt-4 font-display text-3xl font-semibold tabular-nums text-cream">
         {value.toLocaleString()}
       </p>
-      <p className="mt-0.5 text-xs text-muted">{label}</p>
     </div>
   );
 }
@@ -74,24 +71,39 @@ function PanelSkeleton({ className }: { className?: string }) {
   );
 }
 
+const RANGES: Array<{ value: StatsRange; label: string }> = [
+  { value: 'all', label: 'All time' },
+  { value: 'year', label: 'This year' },
+  { value: '12m', label: 'Last 12 months' },
+];
+
 export function StatsPage() {
   const { openAdd } = useApp();
-  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const tab = params.get('tab') === 'spending' ? 'spending' : 'collection';
   const spending = tab === 'spending';
-  const openRelease = (id: string) => navigate(`/releases/${id}`);
+  const rangeParam = params.get('range');
+  const range: StatsRange =
+    rangeParam === 'year' || rangeParam === '12m' ? rangeParam : 'all';
 
-  function changeTab(next: 'collection' | 'spending') {
+  function changeRange(next: StatsRange) {
     const query = new URLSearchParams(params);
-    if (next === 'spending') query.set('tab', 'spending');
-    else query.delete('tab');
+    if (next === 'all') query.delete('range');
+    else query.set('range', next);
     setParams(query, { replace: true });
   }
 
+  function tabSearch(next: 'overview' | 'spending') {
+    const query = new URLSearchParams(params);
+    if (next === 'spending') query.set('tab', 'spending');
+    else query.delete('tab');
+    const search = query.toString();
+    return { pathname: '/stats', search: search ? `?${search}` : '' };
+  }
+
   const { data: stats, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['stats'],
-    queryFn: api.stats,
+    queryKey: ['stats', range],
+    queryFn: () => api.stats(range),
     staleTime: 60_000,
   });
 
@@ -100,6 +112,33 @@ export function StatsPage() {
     1,
     ...(stats?.topArtists.map((item) => item.count) ?? [1]),
   );
+  const topFormat = stats?.byFormat[0];
+  const topDecade = stats?.byDecade.length
+    ? [...stats.byDecade].sort((a, b) => b.count - a.count)[0]
+    : undefined;
+  const topGenre = stats?.topGenres[0];
+  const attention = stats
+    ? [
+        {
+          count: stats.missingMetadata,
+          label: 'Missing cover, tracks or MusicBrainz ID',
+          hint: 'Incomplete release metadata',
+          missing: 'metadata',
+        },
+        {
+          count: stats.missingGenre,
+          label: 'Missing genre',
+          hint: 'Add genres when editing a release',
+          missing: 'genre',
+        },
+        {
+          count: stats.missingPurchaseInfo,
+          label: 'Missing price or purchase date',
+          hint: 'Needed for spending insights',
+          missing: 'purchase',
+        },
+      ].filter((item) => item.count > 0)
+    : [];
 
   return (
     <div className="pb-24">
@@ -124,37 +163,65 @@ export function StatsPage() {
         </Link>
       </header>
 
-      <div className="mt-6 inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
-        <button
-          type="button"
-          onClick={() => changeTab('collection')}
-          className={cn(
-            'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition',
-            !spending
-              ? 'bg-white/10 text-cream'
-              : 'text-muted hover:text-cream',
-          )}
-        >
-          <Disc3 size={13} />
-          Collection
-        </button>
-        <button
-          type="button"
-          onClick={() => changeTab('spending')}
-          className={cn(
-            'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition',
-            spending
-              ? 'bg-white/10 text-cream'
-              : 'text-muted hover:text-cream',
-          )}
-        >
-          <Wallet size={13} />
-          Spending
-        </button>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
+          <Link
+            to={tabSearch('overview')}
+            aria-current={!spending ? 'page' : undefined}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition',
+              !spending
+                ? 'bg-white/10 text-cream'
+                : 'text-muted hover:text-cream',
+            )}
+          >
+            <Disc3 size={13} />
+            Overview
+          </Link>
+          <Link
+            to={tabSearch('spending')}
+            aria-current={spending ? 'page' : undefined}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition',
+              spending
+                ? 'bg-white/10 text-cream'
+                : 'text-muted hover:text-cream',
+            )}
+          >
+            <Wallet size={13} />
+            Spending
+          </Link>
+        </div>
+
+        <label className="flex items-center gap-2 text-xs text-muted">
+          <span className="text-[10px] font-semibold tracking-[0.14em] text-muted/60 uppercase">
+            Period
+          </span>
+          <span className="relative">
+            <select
+              value={range}
+              onChange={(event) =>
+                changeRange(event.target.value as StatsRange)
+              }
+              className="select w-40 pr-8 text-xs"
+              aria-label="Insights period"
+            >
+              {RANGES.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={13}
+              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted"
+            />
+          </span>
+        </label>
       </div>
 
       {spending ? (
-        <SpendingInsights />
+        <SpendingInsights range={range} />
       ) : isLoading ? (
         <>
           <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -195,56 +262,98 @@ export function StatsPage() {
       ) : stats.total === 0 ? (
         <div className="panel mt-8">
           <EmptyState
-            title="No data yet"
-            description="Add a few records and this page will start drawing the shape of your collection — formats, decades and favourite artists."
-            actionLabel="Add your first release"
+            title={range === 'all' ? 'No data yet' : 'Nothing in this period'}
+            description={
+              range === 'all'
+                ? 'Add a few records and this page will start drawing the shape of your collection — formats, decades and favourite artists.'
+                : 'No records were added in the selected period. Try a wider range.'
+            }
+            actionLabel={range === 'all' ? 'Add your first release' : 'Add a release'}
             onAction={openAdd}
           />
         </div>
       ) : (
         <>
-          <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {topFormat && (
+            <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted">
+              <span className="text-cream">{topFormat.format}</span> leads your
+              shelf
+              {topDecade
+                ? `, the ${topDecade.decade} is the most represented era`
+                : ''}
+              {topGenre ? `, and ${topGenre.genre} is the top genre` : ''}.
+            </p>
+          )}
+
+          <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard
               icon={Disc3}
-              label="Releases on the shelf"
               value={stats.total}
-              hint="Total"
+              hint="Releases"
             />
             <StatCard
               icon={Users}
-              label="Distinct artists"
               value={stats.totalArtists}
               hint="Artists"
             />
             <StatCard
               icon={ListMusic}
-              label="Tracks catalogued"
               value={stats.totalTracks}
               hint="Tracks"
             />
             <StatCard
               icon={Tags}
-              label="Genres in rotation"
               value={stats.totalGenres}
               hint="Genres"
             />
           </div>
 
-          <div className="mt-3 grid gap-3 lg:grid-cols-2">
-            <section className="panel p-5 sm:p-6">
+          {attention.length > 0 && (
+            <section className="panel mt-3 p-4 sm:p-5">
+              <p className="eyebrow">Needs attention</p>
+              <ul className="mt-2 divide-y divide-white/[0.04]">
+                {attention.map((item) => (
+                  <li
+                    key={item.label}
+                    className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
+                  >
+                    <div>
+                      <p className="text-xs font-medium text-cream">
+                        {pluralize(item.count, 'record')} · {item.label}
+                      </p>
+                      <p className="mt-0.5 text-[10px] text-muted">
+                        {item.hint}
+                      </p>
+                    </div>
+                    <Link
+                      to={`/?missing=${item.missing}`}
+                      className="shrink-0 text-[11px] font-medium text-accent transition hover:text-accent-soft"
+                    >
+                      Review
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <section className="panel mt-3 p-5 sm:p-6">
+            <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+            <div>
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-base font-semibold text-cream">
                   By format
                 </h2>
-                <span className="text-[10px] text-muted/60">
-                  {pluralize(stats.total, 'release')}
-                </span>
               </div>
               <div className="mt-6 space-y-4">
                 {stats.byFormat.map((item) => {
                   const percent = Math.round((item.count / stats.total) * 100);
                   return (
-                    <div key={item.format}>
+                    <Link
+                      key={item.format}
+                      to={`/?format=${encodeURIComponent(item.format)}`}
+                      className="group block rounded-lg py-0.5 transition hover:bg-white/[0.02]"
+                    >
                       <div className="mb-1.5 flex items-center gap-2 text-xs">
                         <span
                           className={cn(
@@ -252,7 +361,9 @@ export function StatsPage() {
                             formatDot[item.format] ?? formatDot.Other,
                           )}
                         />
-                        <span className="text-cream/80">{item.format}</span>
+                        <span className="text-cream/80 transition group-hover:text-cream">
+                          {item.format}
+                        </span>
                         <span className="ml-auto tabular-nums text-muted">
                           {item.count}
                           <span className="ml-1.5 text-muted/50">
@@ -269,13 +380,13 @@ export function StatsPage() {
                           style={{ width: `${Math.max(percent, 2)}%` }}
                         />
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
-            </section>
+            </div>
 
-            <section className="panel p-5 sm:p-6">
+            <div className="lg:border-l lg:border-white/[0.06] lg:pl-8">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-base font-semibold text-cream">
                   By decade
@@ -297,12 +408,13 @@ export function StatsPage() {
                         Math.round((item.count / maxDecade) * 100),
                       );
                       return (
-                        <div
+                        <Link
                           key={item.decade}
+                          to={`/?decade=${item.value}`}
                           className="group flex h-full min-w-[34px] flex-1 flex-col items-center gap-2"
                           title={`${item.decade}: ${item.count}`}
                         >
-                          <span className="text-[10px] tabular-nums text-muted/70 opacity-0 transition group-hover:opacity-100">
+                          <span className="text-[10px] tabular-nums text-muted/70">
                             {item.count}
                           </span>
                           <div className="flex w-full flex-1 items-end">
@@ -311,20 +423,22 @@ export function StatsPage() {
                               style={{ height: `${height}%` }}
                             />
                           </div>
-                          <span className="text-[9px] tracking-wide text-muted/50">
+                          <span className="text-[9px] tracking-wide text-muted/50 transition group-hover:text-cream">
                             {`’${String(item.value).slice(2)}s`}
                           </span>
-                        </div>
+                        </Link>
                       );
                     })}
                   </div>
                 </div>
               )}
-            </section>
-          </div>
+            </div>
+            </div>
+          </section>
 
-          <div className="mt-3 grid gap-3 lg:grid-cols-2">
-            <section className="panel p-5 sm:p-6">
+          <section className="panel mt-3 p-5 sm:p-6">
+            <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+            <div>
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-base font-semibold text-cream">
                   Most collected artists
@@ -334,16 +448,9 @@ export function StatsPage() {
                 </span>
               </div>
               <ol className="mt-4 space-y-1">
-                {stats.topArtists.map((item, index) => (
-                  <li
-                    key={item.artist}
-                    className="relative overflow-hidden rounded-lg"
-                  >
-                    <div
-                      className="absolute inset-y-0 left-0 bg-accent/[0.06]"
-                      style={{ width: `${(item.count / maxArtist) * 100}%` }}
-                    />
-                    <div className="relative flex items-center gap-3 px-3 py-2.5">
+                {stats.topArtists.map((item, index) => {
+                  const row = (
+                    <>
                       <span className="w-5 text-[10px] tabular-nums text-muted/40">
                         {String(index + 1).padStart(2, '0')}
                       </span>
@@ -353,20 +460,46 @@ export function StatsPage() {
                       <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] tabular-nums text-muted">
                         {item.count}
                       </span>
-                    </div>
-                  </li>
-                ))}
+                      {item.artistId && (
+                        <ArrowUpRight
+                          size={12}
+                          className="shrink-0 text-muted/40 opacity-0 transition group-hover:opacity-100"
+                        />
+                      )}
+                    </>
+                  );
+                  return (
+                    <li
+                      key={item.artistId ?? item.artist}
+                      className="relative overflow-hidden rounded-lg"
+                    >
+                      <div
+                        className="absolute inset-y-0 left-0 bg-accent/[0.06]"
+                        style={{ width: `${(item.count / maxArtist) * 100}%` }}
+                      />
+                      {item.artistId ? (
+                        <Link
+                          to={`/artists/${item.artistId}`}
+                          className="group relative flex items-center gap-3 px-3 py-2.5 transition hover:bg-white/[0.03]"
+                        >
+                          {row}
+                        </Link>
+                      ) : (
+                        <div className="relative flex items-center gap-3 px-3 py-2.5">
+                          {row}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
               </ol>
-            </section>
+            </div>
 
-            <section className="panel p-5 sm:p-6">
+            <div className="lg:border-l lg:border-white/[0.06] lg:pl-8">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-base font-semibold text-cream">
                   Genres in rotation
                 </h2>
-                <span className="text-[10px] text-muted/60">
-                  {stats.totalGenres} total
-                </span>
               </div>
               {stats.topGenres.length === 0 ? (
                 <div className="mt-6 rounded-xl border border-dashed border-white/10 px-4 py-8 text-center">
@@ -378,10 +511,11 @@ export function StatsPage() {
               ) : (
                 <div className="mt-5 flex flex-wrap gap-2">
                   {stats.topGenres.map((item, index) => (
-                    <span
+                    <Link
                       key={item.genre}
+                      to={`/?genre=${encodeURIComponent(item.genre)}`}
                       className={cn(
-                        'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition',
+                        'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition hover:border-white/20',
                         index < 3
                           ? 'border-accent/25 bg-accent/[0.08] text-cream'
                           : 'border-white/10 bg-white/[0.02] text-muted',
@@ -396,41 +530,13 @@ export function StatsPage() {
                       >
                         {item.count}
                       </span>
-                    </span>
+                    </Link>
                   ))}
                 </div>
               )}
-            </section>
-          </div>
-
-          {stats.recentlyAdded.length > 0 && (
-            <section className="mt-10">
-              <div className="flex items-end justify-between">
-                <div>
-                  <p className="eyebrow">Fresh on the shelf</p>
-                  <h2 className="mt-2 font-display text-2xl font-semibold text-cream">
-                    Recently added
-                  </h2>
-                </div>
-                <Link
-                  to="/"
-                  className="inline-flex items-center gap-1 text-xs text-muted transition hover:text-cream"
-                >
-                  See all
-                  <ArrowUpRight size={13} />
-                </Link>
-              </div>
-              <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
-                {stats.recentlyAdded.map((release) => (
-                  <ReleaseCard
-                    key={release.id}
-                    release={release}
-                    onOpen={openRelease}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+            </div>
+            </div>
+          </section>
         </>
       )}
     </div>

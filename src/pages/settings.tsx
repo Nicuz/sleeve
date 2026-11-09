@@ -101,7 +101,7 @@ export function SettingsPage() {
 
   const { data: stats } = useQuery({
     queryKey: ['stats'],
-    queryFn: api.stats,
+    queryFn: () => api.stats(),
     staleTime: 60_000,
   });
 

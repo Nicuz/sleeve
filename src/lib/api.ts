@@ -15,6 +15,7 @@ import type {
   WishlistPayload,
   SpendingStats,
   Stats,
+  StatsRange,
 } from './types';
 
 export class ApiError extends Error {
@@ -51,6 +52,7 @@ export type ReleaseFilters = {
   format?: string;
   genre?: string;
   decade?: string;
+  missing?: string;
   sort?: string;
 };
 
@@ -218,14 +220,16 @@ export const api = {
     );
   },
 
-  stats() {
-    return request<Stats>('/api/stats');
+  stats(range: StatsRange = 'all') {
+    const suffix = range === 'all' ? '' : `?range=${range}`;
+    return request<Stats>(`/api/stats${suffix}`);
   },
 
-  spending(currency?: string) {
-    const suffix = currency
-      ? `?currency=${encodeURIComponent(currency)}`
-      : '';
+  spending(currency?: string, range: StatsRange = 'all') {
+    const query = new URLSearchParams();
+    if (currency) query.set('currency', currency);
+    if (range !== 'all') query.set('range', range);
+    const suffix = query.size ? `?${query.toString()}` : '';
     return request<SpendingStats>(`/api/stats/spending${suffix}`);
   },
 

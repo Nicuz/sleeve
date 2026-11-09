@@ -13,6 +13,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useSettings } from '@/lib/settings';
+import type { StatsRange } from '@/lib/types';
 import { cn, formatPrice, pluralize } from '@/lib/utils';
 
 const FORMAT_COLORS: Record<string, string> = {
@@ -25,29 +26,31 @@ const FORMAT_COLORS: Record<string, string> = {
 
 function MoneyCard({
   icon: Icon,
-  label,
+  title,
   value,
-  hint,
+  detail,
 }: {
   icon: LucideIcon;
-  label: string;
+  title: string;
   value: string;
-  hint: string;
+  detail?: string;
 }) {
   return (
     <div className="panel p-5">
-      <div className="flex items-start justify-between">
-        <span className="grid h-9 w-9 place-items-center rounded-full border border-white/[0.07] bg-white/[0.03] text-accent">
+      <div className="flex items-center gap-2.5">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/[0.07] bg-white/[0.03] text-accent">
           <Icon size={16} />
         </span>
-        <span className="text-[9px] tracking-[0.14em] text-muted/40 uppercase">
-          {hint}
-        </span>
+        <span className="text-sm font-medium text-cream">{title}</span>
+        {detail && (
+          <span className="ml-auto text-[9px] tracking-[0.14em] text-muted/40 uppercase">
+            {detail}
+          </span>
+        )}
       </div>
       <p className="mt-4 truncate font-display text-2xl font-semibold tabular-nums text-cream">
         {value}
       </p>
-      <p className="mt-0.5 text-xs text-muted">{label}</p>
     </div>
   );
 }
@@ -86,12 +89,12 @@ function SpendingSkeleton() {
   );
 }
 
-export function SpendingInsights() {
+export function SpendingInsights({ range }: { range: StatsRange }) {
   const { settings } = useSettings();
   const [currency, setCurrency] = useState<string | null>(null);
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['spending', currency],
-    queryFn: () => api.spending(currency ?? undefined),
+    queryKey: ['spending', currency, range],
+    queryFn: () => api.spending(currency ?? undefined, range),
     staleTime: 60_000,
   });
 
@@ -197,15 +200,21 @@ export function SpendingInsights() {
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <MoneyCard
           icon={Wallet}
-          label="Total invested"
+          title="Total invested"
           value={formatPrice(data.totalSpent, activeCurrency)}
-          hint="All time"
+          detail={
+            range === 'all'
+              ? 'All time'
+              : range === 'year'
+                ? 'This year'
+                : 'Last 12 months'
+          }
         />
         <MoneyCard
           icon={Receipt}
-          label="Average per record"
+          title="Average per record"
           value={formatPrice(data.averagePrice, activeCurrency)}
-          hint={
+          detail={
             data.medianPrice !== null
               ? `Median ${formatPrice(data.medianPrice, activeCurrency)}`
               : 'Median —'
@@ -213,9 +222,9 @@ export function SpendingInsights() {
         />
         <MoneyCard
           icon={CalendarDays}
-          label={`Spent in ${data.currentYear}`}
+          title={`Spent in ${data.currentYear}`}
           value={formatPrice(data.spentThisYear, activeCurrency)}
-          hint="This year"
+          detail="This year"
         />
       </div>
 
@@ -266,10 +275,13 @@ export function SpendingInsights() {
               return (
                 <div
                   key={month.key}
-                  className="group flex h-full min-w-0 flex-1 flex-col items-center gap-2"
+                  tabIndex={0}
+                  role="group"
+                  aria-label={`${month.label}: ${formatPrice(month.amount, activeCurrency)} · ${pluralize(month.count, 'record')}`}
+                  className="group flex h-full min-w-0 flex-1 flex-col items-center gap-2 rounded outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                   title={`${month.label}: ${formatPrice(month.amount, activeCurrency)} · ${pluralize(month.count, 'record')}`}
                 >
-                  <span className="text-[9px] tabular-nums whitespace-nowrap text-muted/70 opacity-0 transition group-hover:opacity-100">
+                  <span className="text-[9px] tabular-nums whitespace-nowrap text-muted/70 opacity-0 transition group-hover:opacity-100 group-focus:opacity-100">
                     {month.amount > 0
                       ? formatPrice(month.amount, activeCurrency)
                       : ''}

@@ -3,12 +3,15 @@ import { prisma } from '../db';
 
 type ReleaseRow = {
   artist: string;
+  artistId: string | null;
   format: string;
   year: number | null;
   genres: string | null;
   trackCount: number | null;
   musicbrainzId: string | null;
   coverUrl: string | null;
+  purchasePrice: number | null;
+  purchaseDate: string | null;
 };
 
 type SpendRow = {
@@ -39,18 +42,39 @@ function currencyOf(row: SpendRow): string {
   return (row.purchaseCurrency || 'EUR').toUpperCase();
 }
 
+type StatsRange = 'all' | 'year' | '12m';
+
+function parseRange(value: unknown): StatsRange {
+  return value === 'year' || value === '12m' ? value : 'all';
+}
+
+function rangeStart(range: StatsRange): Date | null {
+  if (range === 'all') return null;
+  const now = new Date();
+  if (range === 'year') {
+    return new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
+  }
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1));
+}
+
 export const statsRoutes = new Elysia({ prefix: '/api/stats' })
-  .get('/', async () => {
+  .get('/', async ({ query }) => {
+    const range = parseRange(query.range);
+    const start = rangeStart(range);
     const [releases, recent] = await Promise.all([
       prisma.release.findMany({
+        where: start ? { createdAt: { gte: start } } : undefined,
         select: {
           artist: true,
+          artistId: true,
           format: true,
           year: true,
           genres: true,
           trackCount: true,
           musicbrainzId: true,
           coverUrl: true,
+          purchasePrice: true,
+          purchaseDate: true,
         },
       }),
       prisma.release.findMany({
@@ -61,7 +85,21 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
 
     const rows = releases as ReleaseRow[];
     const formatMap = countMap(rows.map((row) => row.format || 'Other'));
-    const artistMap = countMap(rows.map((row) => row.artist));
+    const artistMap = new Map<
+      string,
+      { artist: string; artistId: string | null; count: number }
+    >();
+    for (const row of rows) {
+      const key = row.artistId ?? `name:${row.artist}`;
+      const current = artistMap.get(key) ?? {
+        artist: row.artist,
+        artistId: row.artistId,
+        count: 0,
+      };
+      if (!current.artistId && row.artistId) current.artistId = row.artistId;
+      current.count += 1;
+      artistMap.set(key, current);
+    }
     const genreMap = new Map<string, number>();
     for (const row of rows) {
       for (const genre of (row.genres ?? '')
@@ -87,6 +125,10 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
       .map(([decade, count]) => ({ decade: `${decade}s`, value: decade, count }))
       .sort((a, b) => a.value - b.value);
 
+    const sortedArtists = [...artistMap.values()].sort(
+      (a, b) => b.count - a.count || a.artist.localeCompare(b.artist),
+    );
+
     return {
       total: rows.length,
       totalTracks: rows.reduce((sum, row) => sum + (row.trackCount ?? 0), 0),
@@ -95,10 +137,15 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
       missingMetadata: rows.filter(
         (row) => !row.musicbrainzId || !row.coverUrl || !row.trackCount,
       ).length,
+      missingGenre: rows.filter((row) => !row.genres?.trim()).length,
+      missingPurchaseInfo: rows.filter(
+        (row) => row.purchasePrice === null || !row.purchaseDate,
+      ).length,
       byFormat,
       byDecade,
-      topArtists: ranked(artistMap, 6).map((item) => ({
-        artist: item.name,
+      topArtists: sortedArtists.slice(0, 6).map((item) => ({
+        artist: item.artist,
+        artistId: item.artistId,
         count: item.count,
       })),
       topGenres: ranked(genreMap, 12).map((item) => ({
@@ -109,18 +156,25 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
     };
   })
   .get('/spending', async ({ query }) => {
-    const rows = (await prisma.release.findMany({
-      select: {
-        id: true,
-        title: true,
-        artist: true,
-        format: true,
-        purchaseDate: true,
-        purchasePrice: true,
-        purchaseCurrency: true,
-        purchaseLocation: true,
-      },
-    })) as SpendRow[];
+    const range = parseRange(query.range);
+    const start = rangeStart(range);
+    const cutoff = start ? start.toISOString().slice(0, 10) : null;
+    const rows = (
+      await prisma.release.findMany({
+        select: {
+          id: true,
+          title: true,
+          artist: true,
+          format: true,
+          purchaseDate: true,
+          purchasePrice: true,
+          purchaseCurrency: true,
+          purchaseLocation: true,
+        },
+      })
+    ).filter(
+      (row) => !cutoff || (row.purchaseDate && row.purchaseDate >= cutoff),
+    ) as SpendRow[];
 
     const priced = rows.filter((row) => row.purchasePrice !== null);
     const currencyMap = new Map<string, { count: number; total: number }>();

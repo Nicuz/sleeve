@@ -50,7 +50,9 @@ export function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[264px] flex-col border-r border-white/[0.06] bg-ink-900/40 px-4 py-6 backdrop-blur-xl lg:flex">
       <div className="px-2">
-        <Logo />
+        <Link to="/" aria-label="Sleeve home">
+          <Logo />
+        </Link>
       </div>
 
       <nav className="mt-9 space-y-1">

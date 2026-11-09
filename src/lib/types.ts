@@ -26,6 +26,10 @@ export type Release = {
   notes: string | null;
   rating: number | null;
   condition: string | null;
+  purchaseDate: string | null;
+  purchaseLocation: string | null;
+  purchasePrice: number | null;
+  purchaseCurrency: string | null;
   genres: string | null;
   trackCount: number | null;
   createdAt: string;
@@ -82,6 +86,35 @@ export type Meta = {
   decades: number[];
 };
 
+export type SpendingStats = {
+  currency: string;
+  currencies: Array<{ currency: string; count: number; total: number }>;
+  totalSpent: number;
+  releasesWithPrice: number;
+  averagePrice: number | null;
+  medianPrice: number | null;
+  spentThisYear: number;
+  currentYear: number;
+  firstPurchaseYear: number | null;
+  monthly: Array<{
+    key: string;
+    label: string;
+    amount: number;
+    count: number;
+  }>;
+  byFormat: Array<{ format: string; amount: number; count: number }>;
+  topShops: Array<{ location: string; amount: number; count: number }>;
+  mostExpensive: {
+    id: string;
+    title: string;
+    artist: string;
+    price: number;
+    currency: string;
+    purchaseDate: string | null;
+  } | null;
+  missingPurchaseInfo: number;
+};
+
 export type ReleasePayload = {
   musicbrainzId?: string | null;
   title: string;
@@ -98,6 +131,10 @@ export type ReleasePayload = {
   notes?: string | null;
   rating?: number | null;
   condition?: string | null;
+  purchaseDate?: string | null;
+  purchaseLocation?: string | null;
+  purchasePrice?: number | null;
+  purchaseCurrency?: string | null;
   genres?: string[];
   trackCount?: number | null;
   tracks?: Array<{

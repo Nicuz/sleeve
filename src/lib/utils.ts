@@ -36,11 +36,41 @@ export function formatTotalDuration(seconds: number): string {
 
 export function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
-  return new Date(value).toLocaleDateString(undefined, {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  return date.toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    ...(dateOnly ? { timeZone: 'UTC' } : {}),
   });
+}
+
+export function formatPrice(
+  value: number | null | undefined,
+  currency: string | null | undefined,
+): string {
+  if (value === null || value === undefined) return '—';
+  const code = currency || 'EUR';
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: code,
+    }).format(value);
+  } catch {
+    return `${value.toFixed(2)} ${code}`.trim();
+  }
+}
+
+export function todayInputValue(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export function parsePriceInput(value: string): number | null {
+  if (!value.trim()) return null;
+  const price = Number.parseFloat(value);
+  return Number.isFinite(price) && price >= 0 ? price : null;
 }
 
 export function hueFromString(value: string): number {
@@ -66,3 +96,13 @@ export const CONDITIONS = [
 ];
 
 export const FORMAT_OPTIONS = ['CD', 'Vinyl', 'Cassette', 'Digital', 'Other'];
+
+export const CURRENCIES = [
+  'EUR',
+  'USD',
+  'GBP',
+  'CHF',
+  'JPY',
+  'CAD',
+  'AUD',
+] as const;

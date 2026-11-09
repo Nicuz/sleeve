@@ -4,6 +4,7 @@ import type {
   Release,
   ReleasePayload,
   SearchResult,
+  SpendingStats,
   Stats,
 } from './types';
 
@@ -111,6 +112,13 @@ export const api = {
 
   stats() {
     return request<Stats>('/api/stats');
+  },
+
+  spending(currency?: string) {
+    const suffix = currency
+      ? `?currency=${encodeURIComponent(currency)}`
+      : '';
+    return request<SpendingStats>(`/api/stats/spending${suffix}`);
   },
 
   meta() {

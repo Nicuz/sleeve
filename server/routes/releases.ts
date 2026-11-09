@@ -28,6 +28,14 @@ const releaseBaseSchema = z.object({
   notes: z.string().nullable().optional(),
   rating: z.number().int().min(1).max(5).nullable().optional(),
   condition: z.string().nullable().optional(),
+  purchaseDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use a valid purchase date')
+    .nullable()
+    .optional(),
+  purchaseLocation: z.string().nullable().optional(),
+  purchasePrice: z.number().nonnegative().nullable().optional(),
+  purchaseCurrency: z.string().nullable().optional(),
   genres: z.array(z.string()).optional(),
   trackCount: z.number().int().nonnegative().nullable().optional(),
   tracks: z.array(trackSchema).optional(),
@@ -148,6 +156,10 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
           notes: data.notes ?? null,
           rating: data.rating ?? null,
           condition: data.condition ?? null,
+          purchaseDate: data.purchaseDate ?? null,
+          purchaseLocation: data.purchaseLocation ?? null,
+          purchasePrice: data.purchasePrice ?? null,
+          purchaseCurrency: data.purchaseCurrency ?? null,
           genres: data.genres?.length ? data.genres.join(', ') : null,
           trackCount: data.trackCount ?? data.tracks?.length ?? 0,
           tracks: data.tracks?.length
@@ -193,6 +205,10 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
       notes: data.notes,
       rating: data.rating,
       condition: data.condition,
+      purchaseDate: data.purchaseDate,
+      purchaseLocation: data.purchaseLocation,
+      purchasePrice: data.purchasePrice,
+      purchaseCurrency: data.purchaseCurrency,
       genres: data.genres ? data.genres.join(', ') : undefined,
       trackCount:
         data.tracks !== undefined

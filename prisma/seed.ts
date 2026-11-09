@@ -95,6 +95,25 @@ const seeds: Seed[] = [
   },
 ];
 
+const purchases = [
+  { monthsAgo: 5, location: 'Blue Note Milano, Milan', price: 14.9, currency: 'EUR' },
+  { monthsAgo: 1, location: 'Rough Trade, London', price: 32, currency: 'GBP' },
+  { monthsAgo: 11, location: 'Portobello Market, London', price: 18, currency: 'GBP' },
+  { monthsAgo: 9, location: 'Discoteca Laziale, Rome', price: 16.5, currency: 'EUR' },
+  { monthsAgo: 6, location: 'Porta Portese, Rome', price: 12, currency: 'EUR' },
+  { monthsAgo: 4, location: 'Rough Trade, London', price: 27.5, currency: 'GBP' },
+  { monthsAgo: 7, location: 'Blue Note Milano, Milan', price: 19.9, currency: 'EUR' },
+  { monthsAgo: 2, location: 'Fnac, Milan', price: 25, currency: 'EUR' },
+  { monthsAgo: 14, location: 'Charity shop, Brighton', price: 6, currency: 'GBP' },
+];
+
+function purchaseDate(monthsAgo: number): string {
+  const date = new Date();
+  date.setDate(1);
+  date.setMonth(date.getMonth() - monthsAgo);
+  return date.toISOString().slice(0, 10);
+}
+
 function normalize(value: string) {
   return value
     .toLowerCase()
@@ -130,7 +149,7 @@ async function main() {
     existing.map((item) => item.musicbrainzId).filter(Boolean) as string[],
   );
 
-  for (const seed of seeds) {
+  for (const [index, seed] of seeds.entries()) {
     try {
       const query = `artist:"${seed.artist}" AND release:"${seed.album}" AND primarytype:album`;
       const results = await searchReleases(query, 15);
@@ -163,6 +182,7 @@ async function main() {
           genres.push(genre);
         }
       }
+      const purchase = purchases[index];
       await prisma.release.create({
         data: {
           musicbrainzId: detail.musicbrainzId,
@@ -180,6 +200,10 @@ async function main() {
           notes: seed.notes,
           rating: seed.rating,
           condition: seed.condition,
+          purchaseDate: purchase ? purchaseDate(purchase.monthsAgo) : null,
+          purchaseLocation: purchase?.location ?? null,
+          purchasePrice: purchase?.price ?? null,
+          purchaseCurrency: purchase?.currency ?? null,
           genres: genres.join(', '),
           trackCount: detail.trackCount,
           tracks: {

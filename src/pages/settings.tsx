@@ -26,7 +26,13 @@ import {
   useSettings,
   type AccentKey,
 } from '@/lib/settings';
-import { CONDITIONS, cn, FORMAT_OPTIONS, pluralize } from '@/lib/utils';
+import {
+  CONDITIONS,
+  CURRENCIES,
+  cn,
+  FORMAT_OPTIONS,
+  pluralize,
+} from '@/lib/utils';
 import { useToast } from '@/components/toast';
 
 function SectionHeading({
@@ -239,6 +245,21 @@ export function SettingsPage() {
                 >
                   {CONDITIONS.map((condition) => (
                     <option key={condition}>{condition}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                <span className="field-label">Default currency</span>
+                <select
+                  value={settings.defaultCurrency}
+                  onChange={(event) =>
+                    updateSettings({ defaultCurrency: event.target.value })
+                  }
+                  className="input"
+                >
+                  {CURRENCIES.map((currency) => (
+                    <option key={currency}>{currency}</option>
                   ))}
                 </select>
               </label>

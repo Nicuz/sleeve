@@ -19,9 +19,12 @@ import type { MbRelease, ReleasePayload } from '@/lib/types';
 import {
   cn,
   CONDITIONS,
+  CURRENCIES,
   FORMAT_OPTIONS,
   formatDuration,
+  parsePriceInput,
   splitList,
+  todayInputValue,
 } from '@/lib/utils';
 import { useApp } from './app-context';
 import { CoverArt } from './cover-art';
@@ -36,6 +39,10 @@ type Draft = {
   genres: string;
   notes: string;
   rating: number | null;
+  purchaseDate: string;
+  purchaseLocation: string;
+  purchasePrice: string;
+  purchaseCurrency: string;
 };
 
 type ManualDraft = {
@@ -48,6 +55,10 @@ type ManualDraft = {
   genres: string;
   notes: string;
   rating: number | null;
+  purchaseDate: string;
+  purchaseLocation: string;
+  purchasePrice: string;
+  purchaseCurrency: string;
 };
 
 const emptyManual: ManualDraft = {
@@ -60,6 +71,10 @@ const emptyManual: ManualDraft = {
   genres: '',
   notes: '',
   rating: null,
+  purchaseDate: '',
+  purchaseLocation: '',
+  purchasePrice: '',
+  purchaseCurrency: 'EUR',
 };
 
 const emptyDraft: Draft = {
@@ -68,7 +83,13 @@ const emptyDraft: Draft = {
   genres: '',
   notes: '',
   rating: null,
+  purchaseDate: '',
+  purchaseLocation: '',
+  purchasePrice: '',
+  purchaseCurrency: 'EUR',
 };
+
+
 
 function Stars({
   value,
@@ -135,11 +156,13 @@ export function AddReleaseDialog() {
       ...emptyDraft,
       format: settings.defaultFormat,
       condition: settings.defaultCondition,
+      purchaseCurrency: settings.defaultCurrency,
     });
     setManual({
       ...emptyManual,
       format: settings.defaultFormat,
       condition: settings.defaultCondition,
+      purchaseCurrency: settings.defaultCurrency,
     });
   }, [addOpen]);
 
@@ -193,6 +216,10 @@ export function AddReleaseDialog() {
       genres: detail.genres.join(', '),
       notes: '',
       rating: null,
+      purchaseDate: '',
+      purchaseLocation: '',
+      purchasePrice: '',
+      purchaseCurrency: settings.defaultCurrency,
     });
   }, [detail]);
 
@@ -232,6 +259,12 @@ export function AddReleaseDialog() {
       notes: draft.notes.trim() || null,
       rating: draft.rating,
       condition: draft.condition || null,
+      purchaseDate: draft.purchaseDate || null,
+      purchaseLocation: draft.purchaseLocation.trim() || null,
+      purchasePrice: parsePriceInput(draft.purchasePrice),
+      purchaseCurrency: draft.purchasePrice
+        ? draft.purchaseCurrency
+        : null,
       genres: splitList(draft.genres),
       trackCount: detail.trackCount,
       tracks: detail.tracks.map((track) => ({
@@ -261,6 +294,12 @@ export function AddReleaseDialog() {
       genres: splitList(manual.genres),
       notes: manual.notes.trim() || null,
       rating: manual.rating,
+      purchaseDate: manual.purchaseDate || null,
+      purchaseLocation: manual.purchaseLocation.trim() || null,
+      purchasePrice: parsePriceInput(manual.purchasePrice),
+      purchaseCurrency: manual.purchasePrice
+        ? manual.purchaseCurrency
+        : null,
       trackCount: 0,
     });
   }
@@ -623,6 +662,76 @@ export function AddReleaseDialog() {
                     ))}
                   </select>
                 </label>
+
+                <div className="mt-1 flex items-center gap-3 sm:col-span-2">
+                  <span className="eyebrow">Purchase</span>
+                  <div className="h-px flex-1 bg-white/[0.06]" />
+                </div>
+                <label>
+                  <span className="field-label">Purchase date</span>
+                  <input
+                    type="date"
+                    value={manual.purchaseDate}
+                    max={todayInputValue()}
+                    onChange={(event) =>
+                      setManual({
+                        ...manual,
+                        purchaseDate: event.target.value,
+                      })
+                    }
+                    className="input"
+                  />
+                </label>
+                <label>
+                  <span className="field-label">Purchase location</span>
+                  <input
+                    value={manual.purchaseLocation}
+                    onChange={(event) =>
+                      setManual({
+                        ...manual,
+                        purchaseLocation: event.target.value,
+                      })
+                    }
+                    className="input"
+                    placeholder="Rough Trade, London"
+                  />
+                </label>
+                <label>
+                  <span className="field-label">Price</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    inputMode="decimal"
+                    value={manual.purchasePrice}
+                    onChange={(event) =>
+                      setManual({
+                        ...manual,
+                        purchasePrice: event.target.value,
+                      })
+                    }
+                    className="input"
+                    placeholder="24.99"
+                  />
+                </label>
+                <label>
+                  <span className="field-label">Currency</span>
+                  <select
+                    value={manual.purchaseCurrency}
+                    onChange={(event) =>
+                      setManual({
+                        ...manual,
+                        purchaseCurrency: event.target.value,
+                      })
+                    }
+                    className="input"
+                  >
+                    {CURRENCIES.map((currency) => (
+                      <option key={currency}>{currency}</option>
+                    ))}
+                  </select>
+                </label>
+
                 <label>
                   <span className="field-label">Cover image URL</span>
                   <input
@@ -814,6 +923,63 @@ function ReleaseEditor({
             className="input min-h-20 resize-y"
             placeholder="Pressing details, where you found it, memories…"
           />
+        </label>
+
+        <div className="mt-1 flex items-center gap-3 sm:col-span-2">
+          <span className="eyebrow">Purchase</span>
+          <div className="h-px flex-1 bg-white/[0.06]" />
+        </div>
+        <label>
+          <span className="field-label">Purchase date</span>
+          <input
+            type="date"
+            value={draft.purchaseDate}
+            max={todayInputValue()}
+            onChange={(event) =>
+              setDraft({ ...draft, purchaseDate: event.target.value })
+            }
+            className="input"
+          />
+        </label>
+        <label>
+          <span className="field-label">Purchase location</span>
+          <input
+            value={draft.purchaseLocation}
+            onChange={(event) =>
+              setDraft({ ...draft, purchaseLocation: event.target.value })
+            }
+            className="input"
+            placeholder="Rough Trade, London"
+          />
+        </label>
+        <label>
+          <span className="field-label">Price</span>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            inputMode="decimal"
+            value={draft.purchasePrice}
+            onChange={(event) =>
+              setDraft({ ...draft, purchasePrice: event.target.value })
+            }
+            className="input"
+            placeholder="24.99"
+          />
+        </label>
+        <label>
+          <span className="field-label">Currency</span>
+          <select
+            value={draft.purchaseCurrency}
+            onChange={(event) =>
+              setDraft({ ...draft, purchaseCurrency: event.target.value })
+            }
+            className="input"
+          >
+            {CURRENCIES.map((currency) => (
+              <option key={currency}>{currency}</option>
+            ))}
+          </select>
         </label>
       </div>
 

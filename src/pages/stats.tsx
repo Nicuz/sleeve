@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   ArrowLeft,
@@ -8,6 +8,7 @@ import {
   Sparkles,
   Tags,
   Users,
+  Wallet,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -15,6 +16,7 @@ import { cn, pluralize } from '@/lib/utils';
 import { useApp } from '@/components/app-context';
 import { EmptyState } from '@/components/empty-state';
 import { ReleaseCard } from '@/components/release-card';
+import { SpendingInsights } from '@/components/spending-insights';
 
 const formatColor: Record<string, string> = {
   CD: 'bg-accent',
@@ -75,7 +77,18 @@ function PanelSkeleton({ className }: { className?: string }) {
 export function StatsPage() {
   const { openAdd } = useApp();
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const tab = params.get('tab') === 'spending' ? 'spending' : 'collection';
+  const spending = tab === 'spending';
   const openRelease = (id: string) => navigate(`/releases/${id}`);
+
+  function changeTab(next: 'collection' | 'spending') {
+    const query = new URLSearchParams(params);
+    if (next === 'spending') query.set('tab', 'spending');
+    else query.delete('tab');
+    setParams(query, { replace: true });
+  }
+
   const { data: stats, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['stats'],
     queryFn: api.stats,
@@ -93,15 +106,16 @@ export function StatsPage() {
       <header className="mt-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow flex items-center gap-2">
-            <Sparkles size={12} />
-            Collection insights
+            {spending ? <Wallet size={12} /> : <Sparkles size={12} />}
+            {spending ? 'Spending insights' : 'Collection insights'}
           </p>
           <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-cream md:text-5xl">
-            The shape of your sound.
+            {spending ? 'Where the money went.' : 'The shape of your sound.'}
           </h1>
           <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted">
-            A read on what is on your shelves — formats, eras, artists and the
-            genres you keep coming back to.
+            {spending
+              ? 'How much you invest, when you buy and where your records come from.'
+              : 'A read on what is on your shelves — formats, eras, artists and the genres you keep coming back to.'}
           </p>
         </div>
         <Link to="/" className="btn btn-secondary self-start sm:self-auto">
@@ -110,7 +124,38 @@ export function StatsPage() {
         </Link>
       </header>
 
-      {isLoading ? (
+      <div className="mt-6 inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
+        <button
+          type="button"
+          onClick={() => changeTab('collection')}
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition',
+            !spending
+              ? 'bg-white/10 text-cream'
+              : 'text-muted hover:text-cream',
+          )}
+        >
+          <Disc3 size={13} />
+          Collection
+        </button>
+        <button
+          type="button"
+          onClick={() => changeTab('spending')}
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition',
+            spending
+              ? 'bg-white/10 text-cream'
+              : 'text-muted hover:text-cream',
+          )}
+        >
+          <Wallet size={13} />
+          Spending
+        </button>
+      </div>
+
+      {spending ? (
+        <SpendingInsights />
+      ) : isLoading ? (
         <>
           <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (

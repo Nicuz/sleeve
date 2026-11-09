@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { CONDITIONS, FORMAT_OPTIONS } from './utils';
+import { CONDITIONS, CURRENCIES, FORMAT_OPTIONS } from './utils';
 
 export const ACCENTS = {
   amber: { label: 'Amber', accent: '#f4b860', soft: '#ffd9a0' },
@@ -34,6 +34,7 @@ export type Settings = {
   accent: AccentKey;
   defaultFormat: string;
   defaultCondition: string;
+  defaultCurrency: string;
   defaultView: ViewKey;
   defaultSort: SortKey;
 };
@@ -42,6 +43,7 @@ export const DEFAULT_SETTINGS: Settings = {
   accent: 'amber',
   defaultFormat: 'CD',
   defaultCondition: 'Near Mint',
+  defaultCurrency: 'EUR',
   defaultView: 'grid',
   defaultSort: 'recent',
 };
@@ -66,6 +68,11 @@ function loadSettings(): Settings {
       parsed.defaultCondition && CONDITIONS.includes(parsed.defaultCondition)
         ? parsed.defaultCondition
         : DEFAULT_SETTINGS.defaultCondition;
+    const defaultCurrency =
+      parsed.defaultCurrency &&
+      (CURRENCIES as readonly string[]).includes(parsed.defaultCurrency)
+        ? parsed.defaultCurrency
+        : DEFAULT_SETTINGS.defaultCurrency;
     const defaultView =
       parsed.defaultView === 'grid' || parsed.defaultView === 'list'
         ? parsed.defaultView
@@ -79,6 +86,7 @@ function loadSettings(): Settings {
       accent,
       defaultFormat,
       defaultCondition,
+      defaultCurrency,
       defaultView,
       defaultSort,
     };

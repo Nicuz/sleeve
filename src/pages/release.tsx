@@ -15,12 +15,16 @@ import { api, ApiError } from '@/lib/api';
 import {
   cn,
   CONDITIONS,
+  CURRENCIES,
   FORMAT_OPTIONS,
   formatDate,
   formatDuration,
+  formatPrice,
   formatTotalDuration,
   parseGenres,
+  parsePriceInput,
   splitList,
+  todayInputValue,
 } from '@/lib/utils';
 import { CoverArt } from '@/components/cover-art';
 import { FormatBadge } from '@/components/release-card';
@@ -32,6 +36,10 @@ type Draft = {
   genres: string;
   notes: string;
   rating: number | null;
+  purchaseDate: string;
+  purchaseLocation: string;
+  purchasePrice: string;
+  purchaseCurrency: string;
 };
 
 function MetaRow({ label, value }: { label: string; value: string }) {
@@ -106,6 +114,10 @@ export function ReleasePage() {
       genres: string[];
       notes: string | null;
       rating: number | null;
+      purchaseDate: string | null;
+      purchaseLocation: string | null;
+      purchasePrice: number | null;
+      purchaseCurrency: string | null;
     }) => api.updateRelease(id as string, payload),
     onSuccess: ({ release }) => {
       queryClient.setQueryData(['release', id], { release });
@@ -184,6 +196,11 @@ export function ReleasePage() {
     (sum, track) => sum + (track.duration ?? 0),
     0,
   );
+  const hasPurchase = Boolean(
+    release.purchaseDate ||
+      release.purchaseLocation ||
+      release.purchasePrice !== null,
+  );
 
   function startEdit() {
     if (!release) return;
@@ -193,6 +210,11 @@ export function ReleasePage() {
       genres: genres.join(', '),
       notes: release.notes ?? '',
       rating: release.rating,
+      purchaseDate: release.purchaseDate ?? '',
+      purchaseLocation: release.purchaseLocation ?? '',
+      purchasePrice:
+        release.purchasePrice !== null ? String(release.purchasePrice) : '',
+      purchaseCurrency: release.purchaseCurrency ?? 'EUR',
     });
     setEditing(true);
     setConfirmDelete(false);
@@ -206,6 +228,10 @@ export function ReleasePage() {
       genres: splitList(draft.genres),
       notes: draft.notes.trim() || null,
       rating: draft.rating,
+      purchaseDate: draft.purchaseDate || null,
+      purchaseLocation: draft.purchaseLocation.trim() || null,
+      purchasePrice: parsePriceInput(draft.purchasePrice),
+      purchaseCurrency: draft.purchasePrice ? draft.purchaseCurrency : null,
     });
   }
 
@@ -472,6 +498,63 @@ export function ReleasePage() {
                 placeholder="Pressing details, where you found it, memories…"
               />
             </label>
+
+            <div className="mt-1 flex items-center gap-3 sm:col-span-2 lg:col-span-4">
+              <span className="eyebrow">Purchase</span>
+              <div className="h-px flex-1 bg-white/[0.06]" />
+            </div>
+            <label>
+              <span className="field-label">Purchase date</span>
+              <input
+                type="date"
+                value={draft.purchaseDate}
+                max={todayInputValue()}
+                onChange={(event) =>
+                  setDraft({ ...draft, purchaseDate: event.target.value })
+                }
+                className="input"
+              />
+            </label>
+            <label>
+              <span className="field-label">Purchase location</span>
+              <input
+                value={draft.purchaseLocation}
+                onChange={(event) =>
+                  setDraft({ ...draft, purchaseLocation: event.target.value })
+                }
+                className="input"
+                placeholder="Rough Trade, London"
+              />
+            </label>
+            <label>
+              <span className="field-label">Price</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                value={draft.purchasePrice}
+                onChange={(event) =>
+                  setDraft({ ...draft, purchasePrice: event.target.value })
+                }
+                className="input"
+                placeholder="24.99"
+              />
+            </label>
+            <label>
+              <span className="field-label">Currency</span>
+              <select
+                value={draft.purchaseCurrency}
+                onChange={(event) =>
+                  setDraft({ ...draft, purchaseCurrency: event.target.value })
+                }
+                className="input"
+              >
+                {CURRENCIES.map((currency) => (
+                  <option key={currency}>{currency}</option>
+                ))}
+              </select>
+            </label>
           </div>
           <div className="mt-4 flex justify-end gap-2">
             <button
@@ -586,6 +669,48 @@ export function ReleasePage() {
                 />
               </div>
             </dl>
+          </section>
+
+          <section className="panel p-5">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-display text-base font-semibold text-cream">
+                Purchase
+              </h2>
+              <button
+                type="button"
+                onClick={startEdit}
+                className="inline-flex items-center gap-1 text-[10px] text-muted transition hover:text-cream"
+              >
+                <Pencil size={11} />
+                Edit
+              </button>
+            </div>
+            {hasPurchase ? (
+              <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-4">
+                <MetaRow
+                  label="Bought on"
+                  value={formatDate(release.purchaseDate)}
+                />
+                <MetaRow
+                  label="Price"
+                  value={formatPrice(
+                    release.purchasePrice,
+                    release.purchaseCurrency,
+                  )}
+                />
+                <div className="col-span-2">
+                  <MetaRow
+                    label="Location"
+                    value={release.purchaseLocation ?? '—'}
+                  />
+                </div>
+              </dl>
+            ) : (
+              <p className="mt-3 text-xs leading-relaxed text-muted">
+                No purchase details yet. Add the date, shop and price from Edit
+                details.
+              </p>
+            )}
           </section>
 
           {release.notes && (

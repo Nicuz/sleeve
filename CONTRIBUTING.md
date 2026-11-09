@@ -123,3 +123,16 @@ refactor(api): extract release payload validation
 - Add accessible names (`aria-label`) to icon-only controls.
 - Do not add comments unless they explain non-obvious intent.
 - Keep the MusicBrainz `musicbrainzId` unique; manual entries may omit it.
+
+## Documentation map
+
+- `AGENTS.md` — instructions for OpenCode sessions
+- `README.md` — setup, features, scripts
+- `docs/ARCHITECTURE.md` — runtime, modules, flows
+- `docs/API.md` — endpoints and payloads
+- `docs/DATA_MODEL.md` — Prisma models, invariants, import/export
+- `docs/OPERATIONS.md` — backups, caches, troubleshooting
+- `docs/ROADMAP.md` — done, next, deferred
+- `docs/DECISIONS.md` — architectural decisions
+
+Update the relevant docs when changing schema, API contracts, commands or architecture.

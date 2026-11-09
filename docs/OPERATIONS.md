@@ -1,0 +1,211 @@
+# Operations
+
+## Local development
+
+```bash
+bun install
+cp .env.example .env
+bun run db:push
+bun run dev
+```
+
+- Vite: `http://localhost:5173`
+- API: `http://localhost:3001`
+- Vite proxies `/api` to the Bun API.
+- SQLite: `prisma/dev.db`
+- Cover cache: `data/covers/`
+- MusicBrainz cache: `MetadataCache` inside the SQLite DB
+
+Bun is required. Node is not used at runtime.
+
+## Production
+
+```bash
+bun run build
+bun run start
+```
+
+- `NODE_ENV=production`
+- Serves `dist/` and API from one Bun process.
+- Port comes from `.env` (`3001` locally).
+- Service worker is registered only in production.
+- Use a reverse proxy (Caddy/Nginx) for TLS and a real domain; secure context is required for PWA install.
+
+Recommended deploy steps:
+
+1. `bun install --frozen-lockfile` (or `bun install`)
+2. `bun run db:push`
+3. `bun run build`
+4. Start `bun run start` under a process manager (systemd, pm2, container).
+5. Persist `prisma/dev.db` and `data/covers/` on a volume.
+6. Set a real `MUSICBRAINZ_USER_AGENT` with contact info.
+
+## Environment variables
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | `file:./dev.db` | Prisma SQLite URL |
+| `PORT` | `3001` | API/production server port |
+| `MUSICBRAINZ_USER_AGENT` | local placeholder | Required UA/contact for MusicBrainz |
+| `COVER_CACHE_DIR` | `./data/covers` | Optional cover cache directory |
+| `NODE_ENV` | — | `production` for production mode |
+
+Do not commit `.env`.
+
+## Database changes
+
+The project uses `prisma db push`, not migrations:
+
+```bash
+# edit prisma/schema.prisma
+bun run db:push
+bun run db:generate
+# restart bun run dev so Bun reloads @prisma/client
+```
+
+Symptoms of a stale Prisma client:
+
+- `prisma.<newModel>` is undefined
+- new fields missing from JSON responses
+- `Unknown argument` errors after schema changes
+
+Fix: stop/restart the dev API. A production restart always reloads the client.
+
+## Seed and destructive operations
+
+```bash
+bun run seed            # adds missing demo records; skips MBIDs already present
+bun run seed -- --reset # DESTRUCTIVE: deletes all releases/tracks, then seeds demo library
+```
+
+Never run `--reset` on a real collection. It does not remove wishlist items or metadata cache, but it does wipe owned releases and tracks.
+
+The clear-library action in Settings requires typing `DELETE`; it removes releases/tracks only.
+
+## Backups
+
+Preferred:
+
+- Settings → Library data → **Export JSON** (releases, tracks, wishlist)
+- Settings → **Export CSV** for spreadsheet use
+
+Disk-level:
+
+```bash
+# stop the server first
+cp prisma/dev.db /path/to/backups/sleeve-$(date +%F).db
+cp -a data/covers /path/to/backups/covers-$(date +%F)
+```
+
+Restore:
+
+```bash
+# stop server
+cp /path/to/backups/sleeve-YYYY-MM-DD.db prisma/dev.db
+# start server
+```
+
+JSON import is merge-safe and skips duplicates, so it is generally safer than replacing the DB for partial restores.
+
+## Caches
+
+### MusicBrainz metadata cache
+
+- Location: SQLite `MetadataCache` table
+- TTLs: search 30m, detail 7d, negative 10m
+- Clear: Settings → Metadata cache, or `DELETE /api/metadata/cache`
+- Safe to clear; next requests will hit MusicBrainz again
+
+### Cover cache
+
+- Location: `data/covers/`
+- One `.bin` + one `.json` per URL
+- Clear: stop server and `rm -rf data/covers/*`
+- Safe to clear; covers re-download on demand
+
+### PWA / service worker
+
+- Production only.
+- Cache groups include shell, runtime assets, API responses and covers.
+- To force-refresh after a deploy: hard reload, unregister the service worker, or clear site data.
+- The offline API cache is network-first online, so normal navigation refreshes data.
+
+## MusicBrainz operations
+
+- All calls go through `server/musicbrainz.ts`.
+- Minimum spacing: 1.2s.
+- 503 retries: up to 3 attempts, then a 30s cooldown.
+- Requests are serialized; identical in-flight requests share one call.
+- Client query requests pass an `AbortSignal` so cancelled searches do not consume queued rate-limit slots.
+- If you see “MusicBrainz is cooling down”, wait ~30s. Do not bypass the service layer.
+
+Set `MUSICBRAINZ_USER_AGENT` to a real contact before heavy use.
+
+## Metadata enrichment
+
+Entry points:
+
+- Library banner → **Download metadata** (batch, sequential, progress)
+- Release page → **Fetch metadata** (manual release auto-match)
+- Release page → **Search match** (always available; choose an edition)
+- Release page → **Refresh** (existing MBID, force fresh detail)
+
+Enrichment preserves notes, rating, condition, purchase fields and chosen format. It updates title/artist, MB IDs, cover, label, year, genres and tracks.
+
+If CAA has no image for the selected edition:
+
+1. Open the release.
+2. Click **Search match** (or the “Cover not found” CTA).
+3. Pick a different edition with a cover.
+4. Apply metadata.
+
+## Imports
+
+### JSON restore
+
+Settings → Library data → **Import JSON**.
+
+- Skips releases with an existing MBID.
+- Skips manual duplicates by normalized title/artist/format.
+- Imports wishlist items too.
+
+### Discogs CSV
+
+Settings or Library → **Import CSV**.
+
+- Upload/drop CSV.
+- Check auto-detected mapping.
+- Live preview updates as mapping changes.
+- Rows without title or artist are skipped.
+- Import reuses the merge-safe JSON import pipeline.
+- Discogs CSV has no MusicBrainz IDs or covers; run metadata enrichment afterwards.
+
+## Verification checklist
+
+```bash
+bun run check
+```
+
+Then manually verify the touched flow. For destructive testing, use temporary records and delete them, or copy the DB:
+
+```bash
+cp prisma/dev.db /tmp/sleeve-test.db
+DATABASE_URL="file:/tmp/sleeve-test.db" PORT=3002 NODE_ENV=production bun server/index.ts
+```
+
+Never leave test records in the real DB.
+
+## Troubleshooting
+
+| Symptom | Cause / fix |
+| --- | --- |
+| `EADDRINUSE` on 3001 | Another dev/prod server is running. Stop it or use another `PORT`. |
+| New route/model missing | Dev API not restarted after schema/code change. |
+| Prisma model undefined | Run `bun run db:push`/`db:generate`, restart dev. |
+| Metadata not updating | Check MBID; use Refresh/Search match. |
+| Cover fallback shown | CAA 404 for that edition; use Search match. |
+| Search slow | MB rate limit/cooldown; results are cached. |
+| PWA not registering | Production build only; service worker needs HTTPS or localhost. |
+| Old UI after deploy | Service worker/browser cache; hard reload/clear site data. |
+| Prices reject comma | Fixed: price inputs are text and `parsePriceInput` accepts comma/dot. If it regresses, check that inputs remain `type="text"`. |
+| Import skipped everything | Duplicates by MBID or manual title/artist/format. |

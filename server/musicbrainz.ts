@@ -210,9 +210,7 @@ async function cacheGet<T>(key: string): Promise<T | undefined> {
     const row = await prisma.metadataCache.findUnique({ where: { key } });
     if (!row) return undefined;
     if (row.expiresAt.getTime() <= Date.now()) {
-      await prisma.metadataCache
-        .delete({ where: { key } })
-        .catch(() => undefined);
+      await prisma.metadataCache.delete({ where: { key } }).catch(() => undefined);
       return undefined;
     }
     return JSON.parse(row.payload) as T;
@@ -307,10 +305,7 @@ async function withCache<T>(
     try {
       const value = await loader(controller.signal);
       const empty = Array.isArray(value) && value.length === 0;
-      const ttl =
-        tier === 'search' && empty
-          ? CACHE_TTL_MS.negative
-          : CACHE_TTL_MS[tier];
+      const ttl = tier === 'search' && empty ? CACHE_TTL_MS.negative : CACHE_TTL_MS[tier];
       await cacheSet(key, value, ttl);
       return value;
     } finally {
@@ -356,9 +351,7 @@ async function mbFetch<T>(path: string, signal?: AbortSignal): Promise<T> {
 
     if (Date.now() < cooldownUntil) {
       const seconds = Math.ceil((cooldownUntil - Date.now()) / 1000);
-      throw new Error(
-        `MusicBrainz is cooling down. Try again in ${seconds}s.`,
-      );
+      throw new Error(`MusicBrainz is cooling down. Try again in ${seconds}s.`);
     }
 
     for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -406,7 +399,10 @@ async function mbFetch<T>(path: string, signal?: AbortSignal): Promise<T> {
 
 function joinCredit(credit?: Credit[]): string {
   if (!credit?.length) return '';
-  return credit.map((item) => `${item.name}${item.joinphrase ?? ''}`).join('').trim();
+  return credit
+    .map((item) => `${item.name}${item.joinphrase ?? ''}`)
+    .join('')
+    .trim();
 }
 
 export function coverUrl(mbid: string, size: 250 | 500 = 500): string {
@@ -425,9 +421,7 @@ export function normalizeFormat(raw?: string): string {
 const FORMAT_ORDER = ['CD', 'Vinyl', 'Cassette', 'Digital', 'Other'];
 
 export function sortFormats(formats: string[]): string[] {
-  return formats.sort(
-    (a, b) => FORMAT_ORDER.indexOf(a) - FORMAT_ORDER.indexOf(b),
-  );
+  return formats.sort((a, b) => FORMAT_ORDER.indexOf(a) - FORMAT_ORDER.indexOf(b));
 }
 
 function mapSearchRelease(release: MbSearchRelease): SearchResult {
@@ -519,9 +513,33 @@ function mapRelease(release: MbRelease): ReleaseDetail {
 }
 
 const EU_COUNTRIES = new Set([
-  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
-  'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
-  'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+  'AT',
+  'BE',
+  'BG',
+  'HR',
+  'CY',
+  'CZ',
+  'DK',
+  'EE',
+  'FI',
+  'FR',
+  'DE',
+  'GR',
+  'HU',
+  'IE',
+  'IT',
+  'LV',
+  'LT',
+  'LU',
+  'MT',
+  'NL',
+  'PL',
+  'PT',
+  'RO',
+  'SK',
+  'SI',
+  'ES',
+  'SE',
 ]);
 
 function countryBoost(country: string | null): number {
@@ -548,8 +566,8 @@ export async function searchReleases(
         .filter((release) => release.format !== 'Digital')
         .sort(
           (a, b) =>
-            b.score + countryBoost(b.country) -
-              (a.score + countryBoost(a.country)) || b.score - a.score,
+            b.score + countryBoost(b.country) - (a.score + countryBoost(a.country)) ||
+            b.score - a.score,
         )
         .slice(0, limit);
     },
@@ -663,37 +681,38 @@ export async function getArtist(
         ),
       ]);
 
-  const base = mapArtistSearch(artistData);
-  const genreMap = new Map<string, string>();
-  const addGenre = (name: string) => {
-    const clean = titleizeGenre(name);
-    if (clean && !genreMap.has(clean.toLowerCase())) {
-      genreMap.set(clean.toLowerCase(), clean);
-    }
-  };
-  for (const genre of artistData.genres ?? []) addGenre(genre.name);
-  if (genreMap.size === 0) {
-    [...(artistData.tags ?? [])]
-      .sort((a, b) => (b.count ?? 0) - (a.count ?? 0))
-      .slice(0, 6)
-      .forEach((tag) => addGenre(tag.name));
-  }
+      const base = mapArtistSearch(artistData);
+      const genreMap = new Map<string, string>();
+      const addGenre = (name: string) => {
+        const clean = titleizeGenre(name);
+        if (clean && !genreMap.has(clean.toLowerCase())) {
+          genreMap.set(clean.toLowerCase(), clean);
+        }
+      };
+      for (const genre of artistData.genres ?? []) addGenre(genre.name);
+      if (genreMap.size === 0) {
+        [...(artistData.tags ?? [])]
+          .sort((a, b) => (b.count ?? 0) - (a.count ?? 0))
+          .slice(0, 6)
+          .forEach((tag) => {
+            addGenre(tag.name);
+          });
+      }
 
-  const links: ArtistLink[] = [];
-  const seenTypes = new Set<string>();
-  for (const relation of artistData.relations ?? []) {
-    const type = relation.type?.toLowerCase();
-    const url = relation.url?.resource;
-    if (!type || !url || !ARTIST_LINK_TYPES.includes(type) || seenTypes.has(type)) {
-      continue;
-    }
-    seenTypes.add(type);
-    links.push({ type, url });
-  }
-  links.sort(
-    (a, b) =>
-      ARTIST_LINK_TYPES.indexOf(a.type) - ARTIST_LINK_TYPES.indexOf(b.type),
-  );
+      const links: ArtistLink[] = [];
+      const seenTypes = new Set<string>();
+      for (const relation of artistData.relations ?? []) {
+        const type = relation.type?.toLowerCase();
+        const url = relation.url?.resource;
+        if (!type || !url || !ARTIST_LINK_TYPES.includes(type) || seenTypes.has(type)) {
+          continue;
+        }
+        seenTypes.add(type);
+        links.push({ type, url });
+      }
+      links.sort(
+        (a, b) => ARTIST_LINK_TYPES.indexOf(a.type) - ARTIST_LINK_TYPES.indexOf(b.type),
+      );
 
       const releaseGroups = (groupData['release-groups'] ?? [])
         .map((group) => mapArtistReleaseGroup(group, artistData.name))
@@ -708,14 +727,12 @@ export async function getArtist(
         genres: [...genreMap.values()].sort((a, b) => a.localeCompare(b)),
         links: links.slice(0, 8),
         releaseGroups,
-        releaseGroupTotal:
-          groupData['release-group-count'] ?? releaseGroups.length,
+        releaseGroupTotal: groupData['release-group-count'] ?? releaseGroups.length,
       } satisfies ArtistDetail;
     },
     signal,
   );
 }
-
 
 export async function searchReleaseGroupsByTag(
   tag: string,
@@ -742,7 +759,6 @@ export async function searchReleaseGroupsByTag(
   );
 }
 
-
 export async function refreshRelease(
   mbid: string,
   signal?: AbortSignal,
@@ -755,7 +771,6 @@ export async function refreshRelease(
   await cacheSet(`mb:release:${mbid}`, detail, CACHE_TTL_MS.detail);
   return detail;
 }
-
 
 export async function getArtistReleaseGroups(
   mbid: string,

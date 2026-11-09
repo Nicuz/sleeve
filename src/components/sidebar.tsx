@@ -13,8 +13,7 @@ import { Logo } from './logo';
 
 export function Sidebar() {
   const { pathname } = useLocation();
-  const libraryActive =
-    pathname === '/' || pathname.startsWith('/releases/');
+  const libraryActive = pathname === '/' || pathname.startsWith('/releases/');
   const discoverActive = pathname.startsWith('/discover');
   const wishlistActive = pathname.startsWith('/wishlist');
   const insightsActive = pathname.startsWith('/stats');
@@ -62,10 +61,7 @@ export function Sidebar() {
               : 'text-muted hover:bg-white/[0.04] hover:text-cream',
           )}
         >
-          <Compass
-            size={18}
-            className={discoverActive ? 'text-accent' : 'text-muted'}
-          />
+          <Compass size={18} className={discoverActive ? 'text-accent' : 'text-muted'} />
           Discover
         </Link>
         <Link
@@ -77,10 +73,7 @@ export function Sidebar() {
               : 'text-muted hover:bg-white/[0.04] hover:text-cream',
           )}
         >
-          <Heart
-            size={18}
-            className={wishlistActive ? 'text-accent' : 'text-muted'}
-          />
+          <Heart size={18} className={wishlistActive ? 'text-accent' : 'text-muted'} />
           Wishlist
         </Link>
         <Link

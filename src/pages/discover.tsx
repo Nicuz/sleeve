@@ -52,9 +52,7 @@ function DiscoverCard({
             {group.artist}
           </Link>
         ) : (
-          <span className="min-w-0 truncate text-xs text-muted">
-            {group.artist}
-          </span>
+          <span className="min-w-0 truncate text-xs text-muted">{group.artist}</span>
         )}
         {group.year && (
           <span className="shrink-0 text-[10px] text-muted/60">{group.year}</span>
@@ -115,9 +113,7 @@ export function DiscoverPage() {
     return (
       <div className="panel mt-8 flex flex-col items-center px-6 py-16 text-center">
         <Compass size={28} className="text-coral" />
-        <p className="mt-3 text-sm font-medium text-cream">
-          Could not load discovery
-        </p>
+        <p className="mt-3 text-sm font-medium text-cream">Could not load discovery</p>
         <p className="mt-1 text-xs text-muted">
           {error instanceof Error ? error.message : 'Try again in a moment.'}
         </p>
@@ -144,8 +140,8 @@ export function DiscoverPage() {
             A wider groove.
           </h1>
           <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted">
-            New artists and albums from the genres you collect — filtered to
-            leave out the artists already on your shelves.
+            New artists and albums from the genres you collect — filtered to leave out the
+            artists already on your shelves.
           </p>
         </div>
         <button
@@ -189,8 +185,8 @@ export function DiscoverPage() {
             No fresh suggestions right now
           </p>
           <p className="mt-1 max-w-sm text-xs text-muted">
-            MusicBrainz did not return new artists for your top genres. Refresh
-            in a little while.
+            MusicBrainz did not return new artists for your top genres. Refresh in a
+            little while.
           </p>
           <button
             type="button"

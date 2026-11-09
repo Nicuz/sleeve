@@ -66,10 +66,7 @@ export function ReleaseCard({
           className="h-full w-full transition duration-500 group-hover:scale-[1.05]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
-        <FormatBadge
-          format={release.format}
-          className="absolute top-2 left-2"
-        />
+        <FormatBadge format={release.format} className="absolute top-2 left-2" />
         <span className="absolute right-2.5 bottom-2.5 grid h-9 w-9 translate-y-2 place-items-center rounded-full bg-accent text-ink-950 opacity-0 shadow-lg shadow-black/40 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           <Disc3 size={17} />
         </span>

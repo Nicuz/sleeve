@@ -119,11 +119,7 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
     } else if (missing === 'metadata') {
       where.AND = [
         {
-          OR: [
-            { musicbrainzId: null },
-            { coverUrl: null },
-            { trackCount: null },
-          ],
+          OR: [{ musicbrainzId: null }, { coverUrl: null }, { trackCount: null }],
         },
       ];
     }
@@ -284,11 +280,7 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
           where: { id: params.id },
           include: {
             tracks: {
-              orderBy: [
-                { disc: 'asc' },
-                { number: 'asc' },
-                { position: 'asc' },
-              ],
+              orderBy: [{ disc: 'asc' }, { number: 'asc' }, { position: 'asc' }],
             },
           },
         });
@@ -372,10 +364,7 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
     }
 
     try {
-      const detail = await refreshRelease(
-        existing.musicbrainzId,
-        request.signal,
-      );
+      const detail = await refreshRelease(existing.musicbrainzId, request.signal);
       const release = await applyReleaseDetail(params.id, detail);
       return { release };
     } catch (error) {

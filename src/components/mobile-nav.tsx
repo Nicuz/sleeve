@@ -12,8 +12,7 @@ import { useApp } from './app-context';
 export function MobileNav() {
   const { openAdd } = useApp();
   const { pathname } = useLocation();
-  const libraryActive =
-    pathname === '/' || pathname.startsWith('/releases/');
+  const libraryActive = pathname === '/' || pathname.startsWith('/releases/');
   const discoverActive = pathname.startsWith('/discover');
   const wishlistActive = pathname.startsWith('/wishlist');
   const insightsActive = pathname.startsWith('/stats');
@@ -28,17 +27,11 @@ export function MobileNav() {
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-ink-950/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
       <div className="grid grid-cols-5 items-center px-2 py-1">
         <Link to="/" className={itemClass(libraryActive)}>
-          <LibraryBig
-            size={19}
-            className={libraryActive ? 'text-accent' : undefined}
-          />
+          <LibraryBig size={19} className={libraryActive ? 'text-accent' : undefined} />
           Library
         </Link>
         <Link to="/discover" className={itemClass(discoverActive)}>
-          <Compass
-            size={19}
-            className={discoverActive ? 'text-accent' : undefined}
-          />
+          <Compass size={19} className={discoverActive ? 'text-accent' : undefined} />
           Discover
         </Link>
         <div className="flex justify-center">
@@ -52,10 +45,7 @@ export function MobileNav() {
           </button>
         </div>
         <Link to="/wishlist" className={itemClass(wishlistActive)}>
-          <Heart
-            size={19}
-            className={wishlistActive ? 'text-accent' : undefined}
-          />
+          <Heart size={19} className={wishlistActive ? 'text-accent' : undefined} />
           Wishlist
         </Link>
         <Link to="/stats" className={itemClass(insightsActive)}>

@@ -135,9 +135,7 @@ function normalizeHeader(value: string) {
     .replace(/[^a-z0-9]+/g, '');
 }
 
-export function autoMapDiscogsColumns(
-  headers: string[],
-): DiscogsMapping {
+export function autoMapDiscogsColumns(headers: string[]): DiscogsMapping {
   const byNormalized = new Map(
     headers.map((header) => [normalizeHeader(header), header]),
   );
@@ -154,7 +152,7 @@ export function autoMapDiscogsColumns(
   return mapping;
 }
 
-function valueOf(
+function readMappedValue(
   row: Record<string, string>,
   mapping: DiscogsMapping,
   key: DiscogsFieldKey,
@@ -206,16 +204,14 @@ function parseReleaseDate(raw: string): string | null {
 
 function parseRating(raw: string): number | null {
   const rating = Number.parseInt(raw, 10);
-  return Number.isFinite(rating) && rating >= 1 && rating <= 5
-    ? rating
-    : null;
+  return Number.isFinite(rating) && rating >= 1 && rating <= 5 ? rating : null;
 }
 
 function normalizeDate(raw: string): string | null {
   if (!raw) return null;
   const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (iso) return iso[0];
-  const dmy = raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
+  const dmy = raw.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})/);
   if (dmy) {
     const [, day, month, year] = dmy;
     return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
@@ -232,21 +228,19 @@ export function transformDiscogsRows(
   let skipped = 0;
 
   for (const row of rows) {
-    const title = valueOf(row, mapping, 'title');
-    const artist = valueOf(row, mapping, 'artist');
+    const title = readMappedValue(row, mapping, 'title');
+    const artist = readMappedValue(row, mapping, 'artist');
     if (!title || !artist) {
       skipped += 1;
       continue;
     }
 
-    const released = valueOf(row, mapping, 'released');
-    const rawFormat = valueOf(row, mapping, 'format');
-    const rawPrice = valueOf(row, mapping, 'purchasePrice');
+    const released = readMappedValue(row, mapping, 'released');
+    const rawFormat = readMappedValue(row, mapping, 'format');
+    const rawPrice = readMappedValue(row, mapping, 'purchasePrice');
     const price = parsePriceInput(rawPrice);
-    const rawCurrency = valueOf(row, mapping, 'purchaseCurrency');
-    const currency = rawCurrency
-      ? rawCurrency.toUpperCase()
-      : defaultCurrency;
+    const rawCurrency = readMappedValue(row, mapping, 'purchaseCurrency');
+    const currency = rawCurrency ? rawCurrency.toUpperCase() : defaultCurrency;
 
     releases.push({
       title,
@@ -255,15 +249,15 @@ export function transformDiscogsRows(
       releaseDate: parseReleaseDate(released),
       format: inferFormat(rawFormat),
       formatDetail: nullable(rawFormat),
-      label: nullable(valueOf(row, mapping, 'label')),
-      catalogNumber: nullable(valueOf(row, mapping, 'catalogNumber')),
-      barcode: nullable(valueOf(row, mapping, 'barcode')),
-      country: nullable(valueOf(row, mapping, 'country')),
-      condition: normalizeCondition(valueOf(row, mapping, 'condition')),
-      notes: nullable(valueOf(row, mapping, 'notes')),
-      rating: parseRating(valueOf(row, mapping, 'rating')),
-      purchaseDate: normalizeDate(valueOf(row, mapping, 'purchaseDate')),
-      purchaseLocation: nullable(valueOf(row, mapping, 'purchaseLocation')),
+      label: nullable(readMappedValue(row, mapping, 'label')),
+      catalogNumber: nullable(readMappedValue(row, mapping, 'catalogNumber')),
+      barcode: nullable(readMappedValue(row, mapping, 'barcode')),
+      country: nullable(readMappedValue(row, mapping, 'country')),
+      condition: normalizeCondition(readMappedValue(row, mapping, 'condition')),
+      notes: nullable(readMappedValue(row, mapping, 'notes')),
+      rating: parseRating(readMappedValue(row, mapping, 'rating')),
+      purchaseDate: normalizeDate(readMappedValue(row, mapping, 'purchaseDate')),
+      purchaseLocation: nullable(readMappedValue(row, mapping, 'purchaseLocation')),
       purchasePrice: price,
       purchaseCurrency: price === null ? null : currency,
       trackCount: 0,

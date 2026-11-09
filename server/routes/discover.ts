@@ -1,9 +1,6 @@
 import { Elysia } from 'elysia';
 import { prisma } from '../db';
-import {
-  searchReleaseGroupsByTag,
-  type DiscoverReleaseGroup,
-} from '../musicbrainz';
+import { searchReleaseGroupsByTag, type DiscoverReleaseGroup } from '../musicbrainz';
 
 const VARIOUS_ARTISTS_ID = '89ad4ac3-39f7-470e-963a-56509c546377';
 

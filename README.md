@@ -32,7 +32,7 @@ A private, single-user CD and vinyl library with a warm, Spotify-inspired interf
 ```bash
 bun install
 cp .env.example .env   # if missing
-bun run db:push
+bun run db:deploy
 bun run seed           # optional demo library
 bun run dev
 ```
@@ -44,8 +44,9 @@ bun run dev
 Production:
 
 ```bash
+bun run db:deploy
 bun run build
-bun run start          # http://localhost:3001
+bun run start
 ```
 
 PWA/service worker is registered only in production builds.
@@ -67,10 +68,14 @@ Set a real contact in `MUSICBRAINZ_USER_AGENT` before heavy use. The MusicBrainz
 | Command | Purpose |
 | --- | --- |
 | `bun run dev` | API + Vite dev server |
-| `bun run check` | TypeScript check + production build |
+| `bun run check` | TypeScript + Biome + production build |
+| `bun run lint` | Biome lint/format check |
+| `bun run format` | Apply Biome formatting |
 | `bun run build` | Build `dist/` |
 | `bun run start` | Production Bun server |
-| `bun run db:push` | Apply Prisma schema to SQLite |
+| `bun run db:migrate` | Create/apply migrations in development |
+| `bun run db:deploy` | Apply migrations in production |
+| `bun run db:push` | Legacy: push schema without migration history |
 | `bun run db:generate` | Regenerate Prisma client |
 | `bun run db:studio` | Open Prisma Studio |
 | `bun run seed` | Add missing demo records |

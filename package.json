@@ -8,13 +8,17 @@
     "dev:api": "bun --watch server/index.ts",
     "dev:web": "vite",
     "build": "vite build",
-    "check": "bun run typecheck && bun run build",
+    "check": "bun run typecheck && bun run lint && bun run build",
     "start": "NODE_ENV=production bun server/index.ts",
     "typecheck": "tsc --noEmit",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
-    "seed": "bun prisma/seed.ts"
+    "seed": "bun prisma/seed.ts",
+    "lint": "biome check src server prisma/seed.ts vite.config.ts",
+    "format": "biome check --write src server prisma/seed.ts vite.config.ts",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
@@ -30,6 +34,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.6.6",
     "@tailwindcss/vite": "^4.3.5",
     "@types/bun": "^1.4.4",
     "@types/papaparse": "^5.5.2",

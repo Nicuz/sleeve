@@ -157,10 +157,7 @@ export function ArtistPage() {
 
   const allGroups = useMemo(() => {
     const map = new Map<string, ArtistReleaseGroup>();
-    for (const group of [
-      ...(artist?.releaseGroups ?? []),
-      ...extraGroups,
-    ]) {
+    for (const group of [...(artist?.releaseGroups ?? []), ...extraGroups]) {
       map.set(group.id, group);
     }
     return [...map.values()].sort(
@@ -242,11 +239,7 @@ export function ArtistPage() {
     if (!artist || loadingMore) return;
     setLoadingMore(true);
     try {
-      const page = await api.getArtistReleaseGroups(
-        artist.id,
-        allGroups.length,
-        100,
-      );
+      const page = await api.getArtistReleaseGroups(artist.id, allGroups.length, 100);
       setExtraGroups((current) => {
         const map = new Map(current.map((group) => [group.id, group]));
         for (const group of page.groups) map.set(group.id, group);
@@ -272,9 +265,7 @@ export function ArtistPage() {
           <ArrowLeft size={14} />
           Back to library
         </Link>
-        <p className="text-[10px] tracking-[0.18em] text-muted/40 uppercase">
-          Artist
-        </p>
+        <p className="text-[10px] tracking-[0.18em] text-muted/40 uppercase">Artist</p>
       </div>
 
       <section className="panel relative mt-4 overflow-hidden">
@@ -319,11 +310,7 @@ export function ArtistPage() {
             )}
 
             <div className="mt-6 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={addByArtist}
-                className="btn btn-primary"
-              >
+              <button type="button" onClick={addByArtist} className="btn btn-primary">
                 <Plus size={15} />
                 Add a release
               </button>
@@ -416,11 +403,7 @@ export function ArtistPage() {
         ) : (
           <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {filteredGroups.map((group) => (
-              <ReleaseGroupCard
-                key={group.id}
-                group={group}
-                onAdd={addReleaseGroup}
-              />
+              <ReleaseGroupCard key={group.id} group={group} onAdd={addReleaseGroup} />
             ))}
           </div>
         )}

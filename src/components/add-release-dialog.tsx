@@ -103,8 +103,6 @@ const emptyDraft: Draft = {
   purchaseCurrency: 'EUR',
 };
 
-
-
 function Stars({
   value,
   onChange,
@@ -231,20 +229,14 @@ export function AddReleaseDialog() {
   const explicitArtistSearch = useQuery({
     queryKey: ['mb-artist-search', query.trim()],
     queryFn: ({ signal }) => api.searchArtists(query.trim(), 6, signal),
-    enabled:
-      addOpen &&
-      artistSearchRequested &&
-      !isPreset &&
-      !isBarcode &&
-      canSearch,
+    enabled: addOpen && artistSearchRequested && !isPreset && !isBarcode && canSearch,
     retry: false,
     staleTime: 10 * 60_000,
   });
 
   const detailQuery = useQuery({
     queryKey: ['mb-release', selectedId],
-    queryFn: ({ signal }) =>
-      api.getMusicbrainzRelease(selectedId as string, signal),
+    queryFn: ({ signal }) => api.getMusicbrainzRelease(selectedId as string, signal),
     enabled: addOpen && Boolean(selectedId),
     retry: false,
     staleTime: 30 * 60_000,
@@ -307,9 +299,7 @@ export function AddReleaseDialog() {
       purchaseDate: draft.purchaseDate || null,
       purchaseLocation: draft.purchaseLocation.trim() || null,
       purchasePrice: parsePriceInput(draft.purchasePrice),
-      purchaseCurrency: draft.purchasePrice
-        ? draft.purchaseCurrency
-        : null,
+      purchaseCurrency: draft.purchasePrice ? draft.purchaseCurrency : null,
       genres: splitList(draft.genres),
       trackCount: detail.trackCount,
       tracks: detail.tracks.map((track) => ({
@@ -342,9 +332,7 @@ export function AddReleaseDialog() {
       purchaseDate: manual.purchaseDate || null,
       purchaseLocation: manual.purchaseLocation.trim() || null,
       purchasePrice: parsePriceInput(manual.purchasePrice),
-      purchaseCurrency: manual.purchasePrice
-        ? manual.purchaseCurrency
-        : null,
+      purchaseCurrency: manual.purchasePrice ? manual.purchaseCurrency : null,
       trackCount: 0,
     });
   }
@@ -363,11 +351,7 @@ export function AddReleaseDialog() {
   for (const result of results) {
     if (!result.artistId) continue;
     const nameText = result.artist.toLowerCase();
-    if (
-      queryText &&
-      !queryText.includes(nameText) &&
-      !nameText.includes(queryText)
-    ) {
+    if (queryText && !queryText.includes(nameText) && !nameText.includes(queryText)) {
       continue;
     }
     const existing = derivedMap.get(result.artistId);
@@ -380,14 +364,9 @@ export function AddReleaseDialog() {
       });
   }
   const derivedArtists = [...derivedMap.values()]
-    .sort(
-      (a, b) =>
-        (b.count ?? 0) - (a.count ?? 0) || a.name.localeCompare(b.name),
-    )
+    .sort((a, b) => (b.count ?? 0) - (a.count ?? 0) || a.name.localeCompare(b.name))
     .slice(0, 4);
-  const explicitArtists: ArtistSuggestion[] = (
-    explicitArtistSearch.data?.results ?? []
-  )
+  const explicitArtists: ArtistSuggestion[] = (explicitArtistSearch.data?.results ?? [])
     .filter((artist) => artist.score >= 80)
     .slice(0, 4);
   const artists = artistSearchRequested ? explicitArtists : derivedArtists;
@@ -430,9 +409,7 @@ export function AddReleaseDialog() {
             onClick={() => setTab('search')}
             className={cn(
               'rounded-full px-3.5 py-1.5 text-xs font-semibold transition',
-              tab === 'search'
-                ? 'bg-white/10 text-cream'
-                : 'text-muted hover:text-cream',
+              tab === 'search' ? 'bg-white/10 text-cream' : 'text-muted hover:text-cream',
             )}
           >
             MusicBrainz search
@@ -442,9 +419,7 @@ export function AddReleaseDialog() {
             onClick={() => setTab('manual')}
             className={cn(
               'rounded-full px-3.5 py-1.5 text-xs font-semibold transition',
-              tab === 'manual'
-                ? 'bg-white/10 text-cream'
-                : 'text-muted hover:text-cream',
+              tab === 'manual' ? 'bg-white/10 text-cream' : 'text-muted hover:text-cream',
             )}
           >
             Manual entry
@@ -493,13 +468,10 @@ export function AddReleaseDialog() {
                           setArtistSearchRequested(true);
                         }
                       }}
-                      disabled={
-                        artistSearchRequested && explicitArtistSearch.isFetching
-                      }
+                      disabled={artistSearchRequested && explicitArtistSearch.isFetching}
                       className="inline-flex items-center gap-1 font-medium text-accent/80 transition hover:text-accent disabled:opacity-60"
                     >
-                      {artistSearchRequested &&
-                      explicitArtistSearch.isFetching ? (
+                      {artistSearchRequested && explicitArtistSearch.isFetching ? (
                         <Loader2 size={11} className="animate-spin" />
                       ) : (
                         <UserRound size={11} />
@@ -566,10 +538,7 @@ export function AddReleaseDialog() {
                           <span className="shrink-0 text-[9px] text-muted/50">
                             Discography
                           </span>
-                          <ChevronRight
-                            size={14}
-                            className="shrink-0 text-muted/40"
-                          />
+                          <ChevronRight size={14} className="shrink-0 text-muted/40" />
                         </button>
                       ))}
                     </div>
@@ -609,9 +578,7 @@ export function AddReleaseDialog() {
                   </div>
                 ) : searchQuery.isError ? (
                   <div className="px-5 py-12 text-center">
-                    <p className="text-sm font-medium text-cream">
-                      Search failed
-                    </p>
+                    <p className="text-sm font-medium text-cream">Search failed</p>
                     <p className="mt-1 text-xs text-muted">
                       {searchQuery.error instanceof Error
                         ? searchQuery.error.message
@@ -627,9 +594,7 @@ export function AddReleaseDialog() {
                   </div>
                 ) : results.length === 0 ? (
                   <div className="px-5 py-12 text-center">
-                    <p className="text-sm font-medium text-cream">
-                      No releases found
-                    </p>
+                    <p className="text-sm font-medium text-cream">No releases found</p>
                     <p className="mt-1 text-xs text-muted">
                       Try a shorter search, or add this release manually.
                     </p>
@@ -645,9 +610,7 @@ export function AddReleaseDialog() {
                   <div className="space-y-0.5">
                     {results.map((result) => {
                       const active = selectedId === result.musicbrainzId;
-                      const ownedReleaseId = ownedMap.get(
-                        result.musicbrainzId,
-                      );
+                      const ownedReleaseId = ownedMap.get(result.musicbrainzId);
                       const loading =
                         active && detailQuery.isFetching && !detailQuery.data;
                       return (
@@ -705,10 +668,7 @@ export function AddReleaseDialog() {
                               In library
                             </span>
                           ) : (
-                            <ChevronRight
-                              size={15}
-                              className="shrink-0 text-muted/40"
-                            />
+                            <ChevronRight size={15} className="shrink-0 text-muted/40" />
                           )}
                         </button>
                       );
@@ -747,8 +707,8 @@ export function AddReleaseDialog() {
                     Pick an edition to preview
                   </p>
                   <p className="mt-1 max-w-xs text-xs leading-relaxed text-muted">
-                    You will be able to set the format, condition, rating and
-                    notes before saving.
+                    You will be able to set the format, condition, rating and notes before
+                    saving.
                   </p>
                 </div>
               ) : detailQuery.isLoading || !detail ? (
@@ -793,8 +753,8 @@ export function AddReleaseDialog() {
             <div className="mx-auto max-w-2xl">
               <div className="mb-5 flex items-start gap-2 rounded-xl border border-white/[0.07] bg-white/[0.02] px-3.5 py-3 text-[11px] leading-relaxed text-muted">
                 <Info size={14} className="mt-0.5 shrink-0 text-accent/70" />
-                Manual entries are great for private pressings and oddities. You
-                can always add cover art later.
+                Manual entries are great for private pressings and oddities. You can
+                always add cover art later.
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -955,9 +915,7 @@ export function AddReleaseDialog() {
                   <span className="field-label">Your rating</span>
                   <Stars
                     value={manual.rating}
-                    onChange={(rating) =>
-                      setManual({ ...manual, rating })
-                    }
+                    onChange={(rating) => setManual({ ...manual, rating })}
                   />
                 </div>
                 <label className="sm:col-span-2">
@@ -974,11 +932,7 @@ export function AddReleaseDialog() {
               </div>
 
               <div className="mt-6 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={closeAdd}
-                  className="btn btn-ghost"
-                >
+                <button type="button" onClick={closeAdd} className="btn btn-ghost">
                   Cancel
                 </button>
                 <button
@@ -1068,9 +1022,7 @@ function ReleaseEditor({
           <span className="field-label">Format</span>
           <select
             value={draft.format}
-            onChange={(event) =>
-              setDraft({ ...draft, format: event.target.value })
-            }
+            onChange={(event) => setDraft({ ...draft, format: event.target.value })}
             className="input"
           >
             {FORMAT_OPTIONS.map((format) => (
@@ -1082,9 +1034,7 @@ function ReleaseEditor({
           <span className="field-label">Condition</span>
           <select
             value={draft.condition}
-            onChange={(event) =>
-              setDraft({ ...draft, condition: event.target.value })
-            }
+            onChange={(event) => setDraft({ ...draft, condition: event.target.value })}
             className="input"
           >
             {CONDITIONS.map((condition) => (
@@ -1096,9 +1046,7 @@ function ReleaseEditor({
           <span className="field-label">Genres (comma separated)</span>
           <input
             value={draft.genres}
-            onChange={(event) =>
-              setDraft({ ...draft, genres: event.target.value })
-            }
+            onChange={(event) => setDraft({ ...draft, genres: event.target.value })}
             className="input"
             placeholder="Jazz, Modal"
           />
@@ -1114,9 +1062,7 @@ function ReleaseEditor({
           <span className="field-label">Notes</span>
           <textarea
             value={draft.notes}
-            onChange={(event) =>
-              setDraft({ ...draft, notes: event.target.value })
-            }
+            onChange={(event) => setDraft({ ...draft, notes: event.target.value })}
             className="input min-h-20 resize-y"
             placeholder="Pressing details, where you found it, memories…"
           />
@@ -1132,9 +1078,7 @@ function ReleaseEditor({
             type="date"
             value={draft.purchaseDate}
             max={todayInputValue()}
-            onChange={(event) =>
-              setDraft({ ...draft, purchaseDate: event.target.value })
-            }
+            onChange={(event) => setDraft({ ...draft, purchaseDate: event.target.value })}
             className="input"
           />
         </label>
@@ -1182,10 +1126,7 @@ function ReleaseEditor({
         <details className="group mt-5 rounded-xl border border-white/[0.07] bg-white/[0.02]">
           <summary className="flex cursor-pointer list-none items-center justify-between px-3.5 py-2.5 text-xs font-medium text-muted transition hover:text-cream">
             <span>Tracklist · {detail.tracks.length} tracks</span>
-            <ChevronRight
-              size={14}
-              className="transition group-open:rotate-90"
-            />
+            <ChevronRight size={14} className="transition group-open:rotate-90" />
           </summary>
           <div className="max-h-52 overflow-y-auto border-t border-white/[0.06] px-3.5 py-2">
             {detail.tracks.map((track) => (
@@ -1218,11 +1159,7 @@ function ReleaseEditor({
           disabled={saving}
           className="btn btn-primary"
         >
-          {saving ? (
-            <Loader2 size={15} className="animate-spin" />
-          ) : (
-            <Check size={15} />
-          )}
+          {saving ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
           Add to collection
         </button>
       </div>

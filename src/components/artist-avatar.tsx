@@ -1,12 +1,6 @@
 import { cn, hueFromString } from '@/lib/utils';
 
-export function ArtistAvatar({
-  name,
-  className,
-}: {
-  name: string;
-  className?: string;
-}) {
+export function ArtistAvatar({ name, className }: { name: string; className?: string }) {
   const hue = hueFromString(name);
   const initials = name
     .split(/\s+/)

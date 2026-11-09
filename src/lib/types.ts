@@ -129,7 +129,6 @@ export type ArtistDetail = Omit<ArtistSearchResult, 'score'> & {
   releaseGroupTotal: number;
 };
 
-
 export type EnrichResult = {
   status: 'matched' | 'unmatched' | 'duplicate';
   release?: Release;

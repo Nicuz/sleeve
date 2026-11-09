@@ -93,8 +93,7 @@ function loadSettings(): Settings {
       parsed.accent && parsed.accent in ACCENTS
         ? (parsed.accent as AccentKey)
         : DEFAULT_SETTINGS.accent;
-    const theme: ThemeKey =
-      parsed.theme === 'light' ? 'light' : DEFAULT_SETTINGS.theme;
+    const theme: ThemeKey = parsed.theme === 'light' ? 'light' : DEFAULT_SETTINGS.theme;
     const defaultFormat =
       parsed.defaultFormat && FORMAT_OPTIONS.includes(parsed.defaultFormat)
         ? parsed.defaultFormat
@@ -167,16 +166,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const value = useMemo<SettingsContextValue>(
     () => ({
       settings,
-      updateSettings: (patch) =>
-        setSettings((current) => ({ ...current, ...patch })),
+      updateSettings: (patch) => setSettings((current) => ({ ...current, ...patch })),
       resetSettings: () => setSettings(DEFAULT_SETTINGS),
     }),
     [settings],
   );
 
-  return (
-    <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>
-  );
+  return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }
 
 export function useSettings() {

@@ -1,13 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  AlertTriangle,
-  CheckCircle2,
-  CloudDownload,
-  Loader2,
-  X,
-} from 'lucide-react';
-import { api, ApiError } from '@/lib/api';
+import { AlertTriangle, CheckCircle2, CloudDownload, Loader2, X } from 'lucide-react';
+import { api } from '@/lib/api';
 import { pluralize } from '@/lib/utils';
 import { useToast } from './toast';
 
@@ -50,10 +44,7 @@ export function MetadataEnrichDialog({
   });
 
   const items = (data?.releases ?? []).filter(
-    (release) =>
-      !release.musicbrainzId ||
-      !release.coverUrl ||
-      !release.trackCount,
+    (release) => !release.musicbrainzId || !release.coverUrl || !release.trackCount,
   );
 
   useEffect(() => {
@@ -174,8 +165,7 @@ export function MetadataEnrichDialog({
                 Metadata looks complete
               </p>
               <p className="mt-1 max-w-xs text-xs text-muted">
-                Every release already has a MusicBrainz ID, cover art and a
-                tracklist.
+                Every release already has a MusicBrainz ID, cover art and a tracklist.
               </p>
             </div>
           ) : done ? (
@@ -184,42 +174,32 @@ export function MetadataEnrichDialog({
                 <span className="grid h-12 w-12 place-items-center rounded-full bg-accent/10 text-accent">
                   <CheckCircle2 size={22} />
                 </span>
-                <p className="mt-4 text-sm font-medium text-cream">
-                  Download complete
-                </p>
+                <p className="mt-4 text-sm font-medium text-cream">Download complete</p>
                 <p className="mt-1 text-xs text-muted">
                   {pluralize(counts.matched, 'release')} matched.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
                 <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
-                  <p className="font-display text-lg text-cream">
-                    {counts.matched}
-                  </p>
+                  <p className="font-display text-lg text-cream">{counts.matched}</p>
                   <p className="text-[9px] tracking-[0.12em] text-muted/60 uppercase">
                     Matched
                   </p>
                 </div>
                 <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
-                  <p className="font-display text-lg text-cream">
-                    {counts.unmatched}
-                  </p>
+                  <p className="font-display text-lg text-cream">{counts.unmatched}</p>
                   <p className="text-[9px] tracking-[0.12em] text-muted/60 uppercase">
                     No match
                   </p>
                 </div>
                 <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
-                  <p className="font-display text-lg text-cream">
-                    {counts.duplicate}
-                  </p>
+                  <p className="font-display text-lg text-cream">{counts.duplicate}</p>
                   <p className="text-[9px] tracking-[0.12em] text-muted/60 uppercase">
                     Duplicate
                   </p>
                 </div>
                 <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
-                  <p className="font-display text-lg text-cream">
-                    {counts.failed}
-                  </p>
+                  <p className="font-display text-lg text-cream">{counts.failed}</p>
                   <p className="text-[9px] tracking-[0.12em] text-muted/60 uppercase">
                     Failed
                   </p>
@@ -230,18 +210,15 @@ export function MetadataEnrichDialog({
             <>
               <div className="rounded-xl border border-accent/20 bg-accent/[0.05] p-4">
                 <div className="flex items-start gap-3">
-                  <CloudDownload
-                    size={18}
-                    className="mt-0.5 shrink-0 text-accent"
-                  />
+                  <CloudDownload size={18} className="mt-0.5 shrink-0 text-accent" />
                   <div>
                     <p className="text-sm font-medium text-cream">
                       {pluralize(total, 'record')} missing metadata
                     </p>
                     <p className="mt-1 text-[11px] leading-relaxed text-muted">
-                      Sleeve searches MusicBrainz by barcode, title and artist.
-                      Confident matches get cover art, tracklist and IDs. Notes,
-                      ratings, condition and purchase data are preserved.
+                      Sleeve searches MusicBrainz by barcode, title and artist. Confident
+                      matches get cover art, tracklist and IDs. Notes, ratings, condition
+                      and purchase data are preserved.
                     </p>
                   </div>
                 </div>
@@ -272,8 +249,8 @@ export function MetadataEnrichDialog({
 
               <div className="mt-4 flex items-start gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 text-[10px] text-muted">
                 <AlertTriangle size={13} className="mt-0.5 shrink-0 text-accent/70" />
-                Matches with low confidence are skipped. You can still fetch a
-                single release manually from its page.
+                Matches with low confidence are skipped. You can still fetch a single
+                release manually from its page.
               </div>
             </>
           )}

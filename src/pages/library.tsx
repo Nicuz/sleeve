@@ -85,9 +85,7 @@ export function LibraryPage() {
   const sort = params.get('sort') ?? settings.defaultSort;
   const viewParam = params.get('view');
   const view =
-    viewParam === 'list' || viewParam === 'grid'
-      ? viewParam
-      : settings.defaultView;
+    viewParam === 'list' || viewParam === 'grid' ? viewParam : settings.defaultView;
 
   const filters = { q, format, genre, decade, missing, sort };
   const releasesQuery = useQuery({
@@ -240,54 +238,50 @@ export function LibraryPage() {
           />
           <Select
             label="Filter by genre"
-              value={genre}
-              onChange={(value) => setParam('genre', value)}
-              options={[
-                { value: 'All', label: 'All genres' },
-                ...(metaQuery.data?.genres ?? []).map((item) => ({
-                  value: item,
-                  label: item,
-                })),
-              ]}
-            />
-            <Select
-              label="Filter by decade"
-              value={decade}
-              onChange={(value) => setParam('decade', value)}
-              options={[
-                { value: 'All', label: 'All decades' },
-                ...(metaQuery.data?.decades ?? []).map((item) => ({
-                  value: String(item),
-                  label: `${item}s`,
-                })),
-              ]}
-            />
-            <Select
-              label="Review missing info"
-              value={missing}
-              onChange={(value) => setParam('missing', value)}
-              options={[
-                { value: 'All', label: 'Nothing missing' },
-                { value: 'genre', label: 'Missing genre' },
-                { value: 'purchase', label: 'Missing price or date' },
-                { value: 'metadata', label: 'Missing metadata' },
-              ]}
-            />
-            <Select
-              label="Sort releases"
-              value={sort}
-              onChange={(value) =>
-                setParam('sort', value, settings.defaultSort)
-              }
-              options={SORT_OPTIONS}
-            />
+            value={genre}
+            onChange={(value) => setParam('genre', value)}
+            options={[
+              { value: 'All', label: 'All genres' },
+              ...(metaQuery.data?.genres ?? []).map((item) => ({
+                value: item,
+                label: item,
+              })),
+            ]}
+          />
+          <Select
+            label="Filter by decade"
+            value={decade}
+            onChange={(value) => setParam('decade', value)}
+            options={[
+              { value: 'All', label: 'All decades' },
+              ...(metaQuery.data?.decades ?? []).map((item) => ({
+                value: String(item),
+                label: `${item}s`,
+              })),
+            ]}
+          />
+          <Select
+            label="Review missing info"
+            value={missing}
+            onChange={(value) => setParam('missing', value)}
+            options={[
+              { value: 'All', label: 'Nothing missing' },
+              { value: 'genre', label: 'Missing genre' },
+              { value: 'purchase', label: 'Missing price or date' },
+              { value: 'metadata', label: 'Missing metadata' },
+            ]}
+          />
+          <Select
+            label="Sort releases"
+            value={sort}
+            onChange={(value) => setParam('sort', value, settings.defaultSort)}
+            options={SORT_OPTIONS}
+          />
 
           <div className="ml-auto flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
             <button
               type="button"
-              onClick={() =>
-                setParam('view', 'grid', settings.defaultView)
-              }
+              onClick={() => setParam('view', 'grid', settings.defaultView)}
               className={cn(
                 'grid h-7 w-7 place-items-center rounded-full transition',
                 view === 'grid'
@@ -300,9 +294,7 @@ export function LibraryPage() {
             </button>
             <button
               type="button"
-              onClick={() =>
-                setParam('view', 'list', settings.defaultView)
-              }
+              onClick={() => setParam('view', 'list', settings.defaultView)}
               className={cn(
                 'grid h-7 w-7 place-items-center rounded-full transition',
                 view === 'list'
@@ -380,21 +372,13 @@ export function LibraryPage() {
           ) : view === 'list' ? (
             <div className="panel divide-y divide-white/[0.04] p-1.5">
               {releases.map((release) => (
-                <ReleaseRow
-                  key={release.id}
-                  release={release}
-                  onOpen={openRelease}
-                />
+                <ReleaseRow key={release.id} release={release} onOpen={openRelease} />
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
               {releases.map((release) => (
-                <ReleaseCard
-                  key={release.id}
-                  release={release}
-                  onOpen={openRelease}
-                />
+                <ReleaseCard key={release.id} release={release} onOpen={openRelease} />
               ))}
             </div>
           )}
@@ -427,10 +411,7 @@ export function LibraryPage() {
         </section>
       )}
 
-      <MetadataEnrichDialog
-        open={enrichOpen}
-        onClose={() => setEnrichOpen(false)}
-      />
+      <MetadataEnrichDialog open={enrichOpen} onClose={() => setEnrichOpen(false)} />
     </div>
   );
 }

@@ -162,9 +162,7 @@ export function ReleasePage() {
     },
     onError: (error) => {
       toast(
-        error instanceof ApiError
-          ? error.message
-          : 'Could not fetch metadata',
+        error instanceof ApiError ? error.message : 'Could not fetch metadata',
         'error',
       );
     },
@@ -182,9 +180,7 @@ export function ReleasePage() {
     },
     onError: (error) => {
       toast(
-        error instanceof ApiError
-          ? error.message
-          : 'Could not refresh metadata',
+        error instanceof ApiError ? error.message : 'Could not refresh metadata',
         'error',
       );
     },
@@ -247,14 +243,9 @@ export function ReleasePage() {
 
   const genres = parseGenres(release.genres);
   const tracks = release.tracks ?? [];
-  const totalDuration = tracks.reduce(
-    (sum, track) => sum + (track.duration ?? 0),
-    0,
-  );
+  const totalDuration = tracks.reduce((sum, track) => sum + (track.duration ?? 0), 0);
   const hasPurchase = Boolean(
-    release.purchaseDate ||
-      release.purchaseLocation ||
-      release.purchasePrice !== null,
+    release.purchaseDate || release.purchaseLocation || release.purchasePrice !== null,
   );
 
   function startEdit() {
@@ -267,8 +258,7 @@ export function ReleasePage() {
       rating: release.rating,
       purchaseDate: release.purchaseDate ?? '',
       purchaseLocation: release.purchaseLocation ?? '',
-      purchasePrice:
-        release.purchasePrice !== null ? String(release.purchasePrice) : '',
+      purchasePrice: release.purchasePrice !== null ? String(release.purchasePrice) : '',
       purchaseCurrency: release.purchaseCurrency ?? 'EUR',
     });
     setEditing(true);
@@ -300,9 +290,7 @@ export function ReleasePage() {
           <ArrowLeft size={14} />
           Back to library
         </Link>
-        <p className="text-[10px] tracking-[0.18em] text-muted/40 uppercase">
-          Release
-        </p>
+        <p className="text-[10px] tracking-[0.18em] text-muted/40 uppercase">Release</p>
       </div>
 
       <section className="panel relative mt-4 overflow-hidden">
@@ -381,9 +369,7 @@ export function ReleasePage() {
                 <span className="chip cursor-default">{release.condition}</span>
               )}
               {release.trackCount ? (
-                <span className="chip cursor-default">
-                  {release.trackCount} tracks
-                </span>
+                <span className="chip cursor-default">{release.trackCount} tracks</span>
               ) : null}
               {totalDuration > 0 && (
                 <span className="chip cursor-default">
@@ -412,11 +398,7 @@ export function ReleasePage() {
             )}
 
             <div className="mt-6 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={startEdit}
-                className="btn btn-primary"
-              >
+              <button type="button" onClick={startEdit} className="btn btn-primary">
                 <Pencil size={15} />
                 Edit details
               </button>
@@ -501,9 +483,7 @@ export function ReleasePage() {
               disabled={deleteRelease.isPending}
               className="btn btn-danger py-2 text-xs"
             >
-              {deleteRelease.isPending && (
-                <Loader2 size={12} className="animate-spin" />
-              )}
+              {deleteRelease.isPending && <Loader2 size={12} className="animate-spin" />}
               Yes, remove
             </button>
             <button
@@ -537,9 +517,7 @@ export function ReleasePage() {
               <span className="field-label">Format</span>
               <select
                 value={draft.format}
-                onChange={(event) =>
-                  setDraft({ ...draft, format: event.target.value })
-                }
+                onChange={(event) => setDraft({ ...draft, format: event.target.value })}
                 className="input"
               >
                 {FORMAT_OPTIONS.map((format) => (
@@ -565,9 +543,7 @@ export function ReleasePage() {
               <span className="field-label">Genres (comma separated)</span>
               <input
                 value={draft.genres}
-                onChange={(event) =>
-                  setDraft({ ...draft, genres: event.target.value })
-                }
+                onChange={(event) => setDraft({ ...draft, genres: event.target.value })}
                 className="input"
               />
             </label>
@@ -604,9 +580,7 @@ export function ReleasePage() {
               <span className="field-label">Notes</span>
               <textarea
                 value={draft.notes}
-                onChange={(event) =>
-                  setDraft({ ...draft, notes: event.target.value })
-                }
+                onChange={(event) => setDraft({ ...draft, notes: event.target.value })}
                 className="input min-h-20 resize-y"
                 placeholder="Pressing details, where you found it, memories…"
               />
@@ -681,9 +655,7 @@ export function ReleasePage() {
               disabled={updateRelease.isPending}
               className="btn btn-primary py-2"
             >
-              {updateRelease.isPending && (
-                <Loader2 size={14} className="animate-spin" />
-              )}
+              {updateRelease.isPending && <Loader2 size={14} className="animate-spin" />}
               Save changes
             </button>
           </div>
@@ -693,14 +665,10 @@ export function ReleasePage() {
       <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
         <section className="panel overflow-hidden">
           <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
-            <h2 className="font-display text-base font-semibold text-cream">
-              Tracklist
-            </h2>
+            <h2 className="font-display text-base font-semibold text-cream">Tracklist</h2>
             <p className="text-[10px] text-muted/60">
               {tracks.length} tracks
-              {totalDuration > 0
-                ? ` · ${formatTotalDuration(totalDuration)}`
-                : ''}
+              {totalDuration > 0 ? ` · ${formatTotalDuration(totalDuration)}` : ''}
             </p>
           </div>
 
@@ -726,9 +694,7 @@ export function ReleasePage() {
                         {track.number ?? index + 1}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm text-cream/90">
-                          {track.title}
-                        </p>
+                        <p className="truncate text-sm text-cream/90">{track.title}</p>
                         {track.artist && track.artist !== release.artist && (
                           <p className="truncate text-[11px] text-muted/60">
                             {track.artist}
@@ -753,10 +719,7 @@ export function ReleasePage() {
             </h2>
             <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-4">
               <MetaRow label="Label" value={release.label ?? '—'} />
-              <MetaRow
-                label="Catalog no."
-                value={release.catalogNumber ?? '—'}
-              />
+              <MetaRow label="Catalog no." value={release.catalogNumber ?? '—'} />
               <MetaRow
                 label="Released"
                 value={release.releaseDate ?? String(release.year ?? '—')}
@@ -764,15 +727,11 @@ export function ReleasePage() {
               <MetaRow label="Country" value={release.country ?? '—'} />
               <MetaRow label="Barcode" value={release.barcode ?? '—'} />
               <MetaRow label="Added" value={formatDate(release.createdAt)} />
-              {release.formatDetail &&
-                release.formatDetail !== release.format && (
-                  <div className="col-span-2">
-                    <MetaRow
-                      label="Edition format"
-                      value={release.formatDetail}
-                    />
-                  </div>
-                )}
+              {release.formatDetail && release.formatDetail !== release.format && (
+                <div className="col-span-2">
+                  <MetaRow label="Edition format" value={release.formatDetail} />
+                </div>
+              )}
               <div className="col-span-2">
                 <MetaRow
                   label="Source"
@@ -798,37 +757,25 @@ export function ReleasePage() {
             </div>
             {hasPurchase ? (
               <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-4">
-                <MetaRow
-                  label="Bought on"
-                  value={formatDate(release.purchaseDate)}
-                />
+                <MetaRow label="Bought on" value={formatDate(release.purchaseDate)} />
                 <MetaRow
                   label="Price"
-                  value={formatPrice(
-                    release.purchasePrice,
-                    release.purchaseCurrency,
-                  )}
+                  value={formatPrice(release.purchasePrice, release.purchaseCurrency)}
                 />
                 <div className="col-span-2">
-                  <MetaRow
-                    label="Location"
-                    value={release.purchaseLocation ?? '—'}
-                  />
+                  <MetaRow label="Location" value={release.purchaseLocation ?? '—'} />
                 </div>
               </dl>
             ) : (
               <p className="mt-3 text-xs leading-relaxed text-muted">
-                No purchase details yet. Add the date, shop and price from Edit
-                details.
+                No purchase details yet. Add the date, shop and price from Edit details.
               </p>
             )}
           </section>
 
           {release.notes && (
             <section className="panel p-5">
-              <h2 className="font-display text-base font-semibold text-cream">
-                Notes
-              </h2>
+              <h2 className="font-display text-base font-semibold text-cream">Notes</h2>
               <p className="mt-3 text-sm leading-relaxed whitespace-pre-line text-cream/70">
                 {release.notes}
               </p>

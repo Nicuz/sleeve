@@ -19,10 +19,7 @@ export const musicbrainzRoutes = new Elysia({ prefix: '/api/musicbrainz' })
       set.status = 400;
       return { message: 'Search query is required' };
     }
-    const limit = Math.min(
-      30,
-      Math.max(1, Number(query.limit ?? 20) || 20),
-    );
+    const limit = Math.min(30, Math.max(1, Number(query.limit ?? 20) || 20));
     try {
       const results = await searchReleases(q, limit, request.signal);
       return { results, count: results.length };

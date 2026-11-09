@@ -190,9 +190,7 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
       .sort((a, b) => b.count - a.count || b.total - a.total);
 
     const requested =
-      typeof query.currency === 'string'
-        ? query.currency.toUpperCase()
-        : '';
+      typeof query.currency === 'string' ? query.currency.toUpperCase() : '';
     const fallbackCurrency = requested || 'EUR';
     const currency =
       requested && currencyMap.has(requested)
@@ -229,9 +227,7 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
       count: number;
     }> = [];
     for (let offset = 11; offset >= 0; offset -= 1) {
-      const date = new Date(
-        Date.UTC(currentYear, new Date().getMonth() - offset, 1),
-      );
+      const date = new Date(Date.UTC(currentYear, new Date().getMonth() - offset, 1));
       const year = date.getUTCFullYear();
       const month = date.getUTCMonth();
       months.push({

@@ -88,10 +88,7 @@ export function parsePriceInput(value: string): number | null {
   return Number.isFinite(price) && price >= 0 ? price : null;
 }
 
-
-export function proxiedCoverUrl(
-  value: string | null | undefined,
-): string | null {
+export function proxiedCoverUrl(value: string | null | undefined): string | null {
   if (!value) return null;
   try {
     const url = new URL(value);
@@ -128,12 +125,4 @@ export const CONDITIONS = [
 
 export const FORMAT_OPTIONS = ['CD', 'Vinyl', 'Cassette', 'Digital', 'Other'];
 
-export const CURRENCIES = [
-  'EUR',
-  'USD',
-  'GBP',
-  'CHF',
-  'JPY',
-  'CAD',
-  'AUD',
-] as const;
+export const CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'JPY', 'CAD', 'AUD'] as const;

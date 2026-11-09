@@ -38,8 +38,7 @@ export function ImportCsvPage() {
   const [result, setResult] = useState<ImportResult | null>(null);
 
   const transformed = useMemo(
-    () =>
-      transformDiscogsRows(rows, mapping, settings.defaultCurrency),
+    () => transformDiscogsRows(rows, mapping, settings.defaultCurrency),
     [rows, mapping, settings.defaultCurrency],
   );
 
@@ -52,8 +51,7 @@ export function ImportCsvPage() {
   );
 
   const importMutation = useMutation({
-    mutationFn: (releases: ReleasePayload[]) =>
-      api.importData({ releases }),
+    mutationFn: (releases: ReleasePayload[]) => api.importData({ releases }),
     onSuccess: (data) => {
       setResult(data);
       queryClient.invalidateQueries();
@@ -64,9 +62,7 @@ export function ImportCsvPage() {
     },
     onError: (error) => {
       toast(
-        error instanceof ApiError
-          ? error.message
-          : 'Could not import the CSV',
+        error instanceof ApiError ? error.message : 'Could not import the CSV',
         'error',
       );
     },
@@ -101,9 +97,7 @@ export function ImportCsvPage() {
       setRows(parsed.data);
       setMapping(autoMapDiscogsColumns(fields));
     } catch (error) {
-      setParseError(
-        error instanceof Error ? error.message : 'Could not read the CSV.',
-      );
+      setParseError(error instanceof Error ? error.message : 'Could not read the CSV.');
       setFileName(null);
       setHeaders([]);
       setRows([]);
@@ -152,8 +146,8 @@ export function ImportCsvPage() {
           Bring your shelf over.
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
-          Choose a Discogs collection CSV, check the detected columns and map
-          them to Sleeve. You can review the first rows before importing.
+          Choose a Discogs collection CSV, check the detected columns and map them to
+          Sleeve. You can review the first rows before importing.
         </p>
       </header>
 
@@ -190,8 +184,8 @@ export function ImportCsvPage() {
               Choose a Discogs CSV
             </h2>
             <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">
-              In Discogs open Collection → Export, download the CSV, then drop
-              it here. Columns are detected automatically.
+              In Discogs open Collection → Export, download the CSV, then drop it here.
+              Columns are detected automatically.
             </p>
             <button
               type="button"
@@ -244,12 +238,9 @@ export function ImportCsvPage() {
                 <FileSpreadsheet size={18} />
               </span>
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-cream">
-                  {fileName}
-                </p>
+                <p className="truncate text-sm font-medium text-cream">{fileName}</p>
                 <p className="mt-0.5 text-[11px] text-muted">
-                  {pluralize(rows.length, 'row')} ·{' '}
-                  {pluralize(headers.length, 'column')}
+                  {pluralize(rows.length, 'row')} · {pluralize(headers.length, 'column')}
                 </p>
               </div>
             </div>
@@ -286,8 +277,8 @@ export function ImportCsvPage() {
                     Map columns
                   </h2>
                   <p className="mt-0.5 text-xs text-muted">
-                    Detected {pluralize(headers.length, 'column')}. Adjust the
-                    automatic mapping if needed.
+                    Detected {pluralize(headers.length, 'column')}. Adjust the automatic
+                    mapping if needed.
                   </p>
                 </div>
                 <span className="chip cursor-default">
@@ -304,9 +295,7 @@ export function ImportCsvPage() {
                     <span className="flex items-center justify-between gap-2">
                       <span className="text-[11px] font-semibold text-cream">
                         {field.label}
-                        {field.required && (
-                          <span className="ml-1 text-coral">*</span>
-                        )}
+                        {field.required && <span className="ml-1 text-coral">*</span>}
                       </span>
                       {mapping[field.key] && (
                         <span className="h-1.5 w-1.5 rounded-full bg-accent" />
@@ -317,9 +306,7 @@ export function ImportCsvPage() {
                     </span>
                     <select
                       value={mapping[field.key] ?? ''}
-                      onChange={(event) =>
-                        setMappedColumn(field.key, event.target.value)
-                      }
+                      onChange={(event) => setMappedColumn(field.key, event.target.value)}
                       className="input mt-2 py-2 text-[11px]"
                       aria-label={`Map ${field.label}`}
                     >
@@ -425,8 +412,8 @@ export function ImportCsvPage() {
                 {transformed.skipped > 0 && (
                   <p className="flex items-center gap-2 border-t border-white/[0.05] bg-coral/[0.03] px-4 py-2.5 text-[10px] text-coral/80">
                     <AlertTriangle size={11} />
-                    {pluralize(transformed.skipped, 'row')} skipped: missing
-                    title or artist.
+                    {pluralize(transformed.skipped, 'row')} skipped: missing title or
+                    artist.
                   </p>
                 )}
               </section>
@@ -436,20 +423,15 @@ export function ImportCsvPage() {
                   <div>
                     <p className="text-sm font-medium text-cream">
                       {pluralize(transformed.releases.length, 'release')} ready
-                      {transformed.skipped > 0
-                        ? ` · ${transformed.skipped} skipped`
-                        : ''}
+                      {transformed.skipped > 0 ? ` · ${transformed.skipped} skipped` : ''}
                     </p>
                     <p className="mt-0.5 text-[11px] text-muted">
-                      Duplicates already in the library are skipped
-                      automatically.
+                      Duplicates already in the library are skipped automatically.
                     </p>
                   </div>
                   <button
                     type="button"
-                    onClick={() =>
-                      importMutation.mutate(transformed.releases)
-                    }
+                    onClick={() => importMutation.mutate(transformed.releases)}
                     disabled={!ready || importMutation.isPending}
                     className="btn btn-primary shrink-0"
                   >

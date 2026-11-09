@@ -41,9 +41,7 @@ function escapeCsv(value: unknown): string {
   return text;
 }
 
-function toCsv(
-  releases: Awaited<ReturnType<typeof loadReleases>>,
-): string {
+function toCsv(releases: Awaited<ReturnType<typeof loadReleases>>): string {
   const lines = [CSV_HEADERS.join(',')];
   for (const release of releases) {
     const base = [
@@ -72,21 +70,12 @@ function toCsv(
       release.createdAt.toISOString(),
     ];
     if (release.tracks.length === 0) {
-      lines.push(
-        [...base, '', '', '', '', ''].map(escapeCsv).join(','),
-      );
+      lines.push([...base, '', '', '', '', ''].map(escapeCsv).join(','));
       continue;
     }
     for (const track of release.tracks) {
       lines.push(
-        [
-          ...base,
-          track.disc,
-          track.number,
-          track.title,
-          track.duration,
-          track.artist,
-        ]
+        [...base, track.disc, track.number, track.title, track.duration, track.artist]
           .map(escapeCsv)
           .join(','),
       );
@@ -124,10 +113,7 @@ export const exportRoutes = new Elysia().get('/api/export', async ({ query, set 
     return toCsv(releases);
   }
 
-  const [releases, wishlist] = await Promise.all([
-    loadReleases(),
-    loadWishlist(),
-  ]);
+  const [releases, wishlist] = await Promise.all([loadReleases(), loadWishlist()]);
   set.headers['content-type'] = 'application/json; charset=utf-8';
   set.headers['content-disposition'] =
     `attachment; filename="sleeve-library-${stamp}.json"`;

@@ -28,15 +28,9 @@ export function EmptyState({
         </span>
       </div>
       <h3 className="font-display text-xl font-semibold text-cream">{title}</h3>
-      <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">
-        {description}
-      </p>
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">{description}</p>
       {actionLabel && onAction && (
-        <button
-          type="button"
-          onClick={() => onAction()}
-          className="btn btn-primary mt-6"
-        >
+        <button type="button" onClick={() => onAction()} className="btn btn-primary mt-6">
           <Plus size={16} />
           {actionLabel}
         </button>

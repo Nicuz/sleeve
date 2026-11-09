@@ -1,10 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ChartNoAxesColumnIncreasing,
   Compass,
@@ -105,11 +100,7 @@ export function Header() {
             <Menu size={18} />
           </button>
 
-          <Link
-            to="/"
-            className="shrink-0 lg:hidden"
-            aria-label="Sleeve home"
-          >
+          <Link to="/" className="shrink-0 lg:hidden" aria-label="Sleeve home">
             <Logo compact />
           </Link>
 
@@ -190,10 +181,7 @@ export function Header() {
                         : 'text-muted hover:bg-white/[0.04] hover:text-cream',
                     )}
                   >
-                    <Icon
-                      size={18}
-                      className={active ? 'text-accent' : 'text-muted'}
-                    />
+                    <Icon size={18} className={active ? 'text-accent' : 'text-muted'} />
                     {label}
                   </Link>
                 );

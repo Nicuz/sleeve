@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Loader2,
-  Plus,
-  Search,
-  X,
-} from 'lucide-react';
+import { Loader2, Plus, Search, X } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import { useSettings } from '@/lib/settings';
 import type { SearchResult } from '@/lib/types';
@@ -132,12 +127,7 @@ export function WishlistAddDialog({
               Search MusicBrainz. Set the target price afterwards.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="icon-btn"
-            aria-label="Close"
-          >
+          <button type="button" onClick={onClose} className="icon-btn" aria-label="Close">
             <X size={16} />
           </button>
         </div>
@@ -169,8 +159,8 @@ export function WishlistAddDialog({
                 Find something to hunt
               </p>
               <p className="mt-1 max-w-[260px] text-xs leading-relaxed text-muted">
-                Search an album, artist or barcode. Add it now, set the target
-                price later.
+                Search an album, artist or barcode. Add it now, set the target price
+                later.
               </p>
             </div>
           ) : searchQuery.isLoading ? (
@@ -203,9 +193,7 @@ export function WishlistAddDialog({
             </div>
           ) : results.length === 0 ? (
             <div className="px-5 py-12 text-center">
-              <p className="text-sm font-medium text-cream">
-                No releases found
-              </p>
+              <p className="text-sm font-medium text-cream">No releases found</p>
               <p className="mt-1 text-xs text-muted">
                 Try a shorter search or a different edition.
               </p>
@@ -218,7 +206,8 @@ export function WishlistAddDialog({
                   existingIds.has(result.musicbrainzId) ||
                   addedIds.has(result.musicbrainzId);
                 const pending =
-                  addItem.isPending && addItem.variables?.musicbrainzId === result.musicbrainzId;
+                  addItem.isPending &&
+                  addItem.variables?.musicbrainzId === result.musicbrainzId;
                 return (
                   <div
                     key={result.musicbrainzId}
@@ -234,9 +223,7 @@ export function WishlistAddDialog({
                       <p className="truncate text-xs font-semibold text-cream">
                         {result.title}
                       </p>
-                      <p className="truncate text-[11px] text-muted">
-                        {result.artist}
-                      </p>
+                      <p className="truncate text-[11px] text-muted">{result.artist}</p>
                       <p className="mt-0.5 truncate text-[10px] text-muted/60">
                         {[
                           result.year ?? undefined,

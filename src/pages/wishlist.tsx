@@ -1,14 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import {
-  ChevronDown,
-  ChevronRight,
-  Grid2x2,
-  Heart,
-  List,
-  Plus,
-} from 'lucide-react';
+import { ChevronDown, ChevronRight, Grid2x2, Heart, List, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 import type { WishlistItem } from '@/lib/types';
 import { useSettings } from '@/lib/settings';
@@ -151,9 +144,7 @@ export function WishlistPage() {
   const [sort, setSort] = useState<'recent' | 'artist' | 'price'>('recent');
   const viewParam = params.get('view');
   const view =
-    viewParam === 'list' || viewParam === 'grid'
-      ? viewParam
-      : settings.defaultView;
+    viewParam === 'list' || viewParam === 'grid' ? viewParam : settings.defaultView;
 
   function setView(next: 'grid' | 'list') {
     const query = new URLSearchParams(params);
@@ -173,10 +164,7 @@ export function WishlistPage() {
   for (const item of items) {
     if (item.targetPrice === null) continue;
     const currency = item.targetCurrency ?? 'EUR';
-    targetTotals.set(
-      currency,
-      (targetTotals.get(currency) ?? 0) + item.targetPrice,
-    );
+    targetTotals.set(currency, (targetTotals.get(currency) ?? 0) + item.targetPrice);
   }
   const targetEntries = [...targetTotals.entries()];
   const targetValue =
@@ -187,23 +175,18 @@ export function WishlistPage() {
         : null;
   const sortedItems = [...items].sort((a, b) => {
     if (sort === 'artist') {
-      return (
-        a.artist.localeCompare(b.artist) || a.title.localeCompare(b.title)
-      );
+      return a.artist.localeCompare(b.artist) || a.title.localeCompare(b.title);
     }
     if (sort === 'price') {
       return (
         (a.targetPrice ?? Number.POSITIVE_INFINITY) -
-          (b.targetPrice ?? Number.POSITIVE_INFINITY) ||
-        a.title.localeCompare(b.title)
+          (b.targetPrice ?? Number.POSITIVE_INFINITY) || a.title.localeCompare(b.title)
       );
     }
     return b.createdAt.localeCompare(a.createdAt);
   });
   const existingIds = new Set(
-    items
-      .map((item) => item.musicbrainzId)
-      .filter((id): id is string => Boolean(id)),
+    items.map((item) => item.musicbrainzId).filter((id): id is string => Boolean(id)),
   );
 
   return (
@@ -218,8 +201,8 @@ export function WishlistPage() {
             Records to hunt down.
           </h1>
           <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted">
-            Keep the pressings you want in sight, set target prices and decide
-            what deserves the next trip to the shop.
+            Keep the pressings you want in sight, set target prices and decide what
+            deserves the next trip to the shop.
           </p>
         </div>
         <button
@@ -277,9 +260,7 @@ export function WishlistPage() {
                   <select
                     value={sort}
                     onChange={(event) =>
-                      setSort(
-                        event.target.value as 'recent' | 'artist' | 'price',
-                      )
+                      setSort(event.target.value as 'recent' | 'artist' | 'price')
                     }
                     className="select w-40 pr-8 text-xs"
                     aria-label="Sort wishlist"
@@ -331,21 +312,13 @@ export function WishlistPage() {
           {view === 'list' ? (
             <div className="panel mt-4 divide-y divide-white/[0.04] p-1.5">
               {sortedItems.map((item) => (
-                <WishlistRow
-                  key={item.id}
-                  item={item}
-                  onEdit={setEditing}
-                />
+                <WishlistRow key={item.id} item={item} onEdit={setEditing} />
               ))}
             </div>
           ) : (
             <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {sortedItems.map((item) => (
-                <WishlistCard
-                  key={item.id}
-                  item={item}
-                  onEdit={setEditing}
-                />
+                <WishlistCard key={item.id} item={item} onEdit={setEditing} />
               ))}
             </div>
           )}

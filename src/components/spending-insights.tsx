@@ -134,8 +134,8 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
           No spending data yet
         </h2>
         <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">
-          Add a price and purchase date from any release’s Edit details. Then
-          this page will show where your money goes.
+          Add a price and purchase date from any release’s Edit details. Then this page
+          will show where your money goes.
         </p>
         <Link to="/" className="btn btn-secondary mt-6">
           Open library
@@ -145,14 +145,8 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
   }
 
   const maxMonth = Math.max(1, ...data.monthly.map((month) => month.amount));
-  const monthlyTotal = data.monthly.reduce(
-    (sum, month) => sum + month.amount,
-    0,
-  );
-  const totalFormat = data.byFormat.reduce(
-    (sum, format) => sum + format.amount,
-    0,
-  );
+  const monthlyTotal = data.monthly.reduce((sum, month) => sum + month.amount, 0);
+  const totalFormat = data.byFormat.reduce((sum, format) => sum + format.amount, 0);
   const maxShop = Math.max(1, ...data.topShops.map((shop) => shop.amount));
 
   let cursor = 0;
@@ -169,9 +163,7 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs text-muted">
           {pluralize(data.releasesWithPrice, 'priced record')}
-          {data.firstPurchaseYear
-            ? ` · collecting since ${data.firstPurchaseYear}`
-            : ''}
+          {data.firstPurchaseYear ? ` · collecting since ${data.firstPurchaseYear}` : ''}
         </p>
         {data.currencies.length > 1 ? (
           <div className="relative">
@@ -247,10 +239,7 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
               <p className="mt-0.5 truncate text-xs text-cream/80 transition group-hover:text-cream">
                 {data.mostExpensive.title} ·{' '}
                 <span className="text-accent">
-                  {formatPrice(
-                    data.mostExpensive.price,
-                    data.mostExpensive.currency,
-                  )}
+                  {formatPrice(data.mostExpensive.price, data.mostExpensive.currency)}
                 </span>
               </p>
             </Link>
@@ -260,9 +249,7 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
         {monthlyTotal === 0 ? (
           <div className="mt-8 flex flex-col items-center rounded-xl border border-dashed border-white/10 px-4 py-10 text-center">
             <CalendarDays size={20} className="text-muted/50" />
-            <p className="mt-2 text-xs text-muted">
-              No purchases in the last 12 months.
-            </p>
+            <p className="mt-2 text-xs text-muted">No purchases in the last 12 months.</p>
           </div>
         ) : (
           <div className="mt-6 flex h-44 items-stretch gap-1.5 sm:gap-2">
@@ -282,9 +269,7 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
                   title={`${month.label}: ${formatPrice(month.amount, activeCurrency)} · ${pluralize(month.count, 'record')}`}
                 >
                   <span className="text-[9px] tabular-nums whitespace-nowrap text-muted/70 opacity-0 transition group-hover:opacity-100 group-focus:opacity-100">
-                    {month.amount > 0
-                      ? formatPrice(month.amount, activeCurrency)
-                      : ''}
+                    {month.amount > 0 ? formatPrice(month.amount, activeCurrency) : ''}
                   </span>
                   <div className="flex w-full flex-1 items-end">
                     <div
@@ -341,25 +326,18 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
             </div>
             <div className="min-w-0 flex-1 space-y-2">
               {data.byFormat.map((format) => (
-                <div
-                  key={format.format}
-                  className="flex items-center gap-2 text-[11px]"
-                >
+                <div key={format.format} className="flex items-center gap-2 text-[11px]">
                   <span
                     className="h-1.5 w-1.5 shrink-0 rounded-full"
                     style={{
-                      background:
-                        FORMAT_COLORS[format.format] ?? FORMAT_COLORS.Other,
+                      background: FORMAT_COLORS[format.format] ?? FORMAT_COLORS.Other,
                     }}
                   />
                   <span className="min-w-0 flex-1 truncate text-cream/80">
                     {format.format}
                   </span>
                   <span className="shrink-0 tabular-nums text-muted">
-                    {totalFormat
-                      ? Math.round((format.amount / totalFormat) * 100)
-                      : 0}
-                    %
+                    {totalFormat ? Math.round((format.amount / totalFormat) * 100) : 0}%
                   </span>
                   <span className="w-16 shrink-0 text-right tabular-nums text-cream/70">
                     {formatPrice(format.amount, activeCurrency)}
@@ -390,10 +368,7 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
           ) : (
             <ol className="mt-4 space-y-1">
               {data.topShops.map((shop, index) => (
-                <li
-                  key={shop.location}
-                  className="relative overflow-hidden rounded-lg"
-                >
+                <li key={shop.location} className="relative overflow-hidden rounded-lg">
                   <div
                     className="absolute inset-y-0 left-0 bg-accent/[0.06]"
                     style={{ width: `${(shop.amount / maxShop) * 100}%` }}
@@ -423,8 +398,8 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
         <div className="mt-3 flex flex-col gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="flex items-center gap-2 text-[11px] text-muted">
             <Info size={13} className="shrink-0 text-accent/70" />
-            {pluralize(data.missingPurchaseInfo, 'record')} missing a price or
-            purchase date.
+            {pluralize(data.missingPurchaseInfo, 'record')} missing a price or purchase
+            date.
           </p>
           <Link
             to="/"

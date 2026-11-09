@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  CheckCircle2,
-  Info,
-  Loader2,
-  Search,
-  X,
-} from 'lucide-react';
+import { CheckCircle2, Info, Loader2, Search, X } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import { cn, pluralize } from '@/lib/utils';
 import { CoverArt } from './cover-art';
@@ -67,13 +61,10 @@ export function MetadataMatchDialog({
   });
 
   const results = searchQuery.data?.results ?? [];
-  const selected = results.find(
-    (result) => result.musicbrainzId === selectedId,
-  );
+  const selected = results.find((result) => result.musicbrainzId === selectedId);
 
   const applyMatch = useMutation({
-    mutationFn: () =>
-      api.applyReleaseMatch(releaseId, selectedId as string),
+    mutationFn: () => api.applyReleaseMatch(releaseId, selectedId as string),
     onSuccess: (result) => {
       if (result.status === 'matched' && result.release) {
         queryClient.setQueryData(['release', releaseId], {
@@ -95,9 +86,7 @@ export function MetadataMatchDialog({
     },
     onError: (error) => {
       toast(
-        error instanceof ApiError
-          ? error.message
-          : 'Could not apply metadata',
+        error instanceof ApiError ? error.message : 'Could not apply metadata',
         'error',
       );
     },
@@ -199,9 +188,7 @@ export function MetadataMatchDialog({
             </div>
           ) : results.length === 0 ? (
             <div className="px-5 py-12 text-center">
-              <p className="text-sm font-medium text-cream">
-                No releases found
-              </p>
+              <p className="text-sm font-medium text-cream">No releases found</p>
               <p className="mt-1 text-xs text-muted">
                 Try a shorter search, a barcode or a different edition.
               </p>
@@ -232,9 +219,7 @@ export function MetadataMatchDialog({
                       <p className="truncate text-xs font-semibold text-cream">
                         {result.title}
                       </p>
-                      <p className="truncate text-[11px] text-muted">
-                        {result.artist}
-                      </p>
+                      <p className="truncate text-[11px] text-muted">{result.artist}</p>
                       <p className="mt-0.5 truncate text-[10px] text-muted/60">
                         {[
                           result.year ?? undefined,
@@ -273,8 +258,7 @@ export function MetadataMatchDialog({
             <p className="truncate text-xs text-muted">
               {selected ? (
                 <>
-                  <span className="text-cream">{selected.title}</span> ·{' '}
-                  {selected.artist}
+                  <span className="text-cream">{selected.title}</span> · {selected.artist}
                 </>
               ) : (
                 'Select an edition to apply.'
@@ -299,9 +283,7 @@ export function MetadataMatchDialog({
               disabled={!selectedId || applyMatch.isPending}
               className="btn btn-primary py-2"
             >
-              {applyMatch.isPending && (
-                <Loader2 size={14} className="animate-spin" />
-              )}
+              {applyMatch.isPending && <Loader2 size={14} className="animate-spin" />}
               Apply metadata
             </button>
           </div>

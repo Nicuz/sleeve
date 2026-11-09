@@ -23,9 +23,7 @@ export function WishlistEditDialog({
 
   useEffect(() => {
     if (!item) return;
-    setTargetPrice(
-      item.targetPrice !== null ? String(item.targetPrice) : '',
-    );
+    setTargetPrice(item.targetPrice !== null ? String(item.targetPrice) : '');
     setTargetCurrency(item.targetCurrency ?? 'EUR');
     setNotes(item.notes ?? '');
     setConfirmDelete(false);
@@ -62,9 +60,7 @@ export function WishlistEditDialog({
     },
     onError: (error) => {
       toast(
-        error instanceof ApiError
-          ? error.message
-          : 'Could not update wishlist item',
+        error instanceof ApiError ? error.message : 'Could not update wishlist item',
         'error',
       );
     },
@@ -82,9 +78,7 @@ export function WishlistEditDialog({
     },
     onError: (error) => {
       toast(
-        error instanceof ApiError
-          ? error.message
-          : 'Could not remove wishlist item',
+        error instanceof ApiError ? error.message : 'Could not remove wishlist item',
         'error',
       );
     },
@@ -147,16 +141,9 @@ export function WishlistEditDialog({
             <h2 className="font-display text-lg font-semibold text-cream">
               Wishlist details
             </h2>
-            <p className="mt-0.5 text-xs text-muted">
-              Target price and private notes.
-            </p>
+            <p className="mt-0.5 text-xs text-muted">Target price and private notes.</p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="icon-btn"
-            aria-label="Close"
-          >
+          <button type="button" onClick={onClose} className="icon-btn" aria-label="Close">
             <X size={16} />
           </button>
         </div>
@@ -173,9 +160,7 @@ export function WishlistEditDialog({
               <p className="truncate font-display text-base font-semibold text-cream">
                 {item.title}
               </p>
-              <p className="mt-0.5 truncate text-xs text-muted">
-                {item.artist}
-              </p>
+              <p className="mt-0.5 truncate text-xs text-muted">{item.artist}</p>
               <p className="mt-1.5 text-[10px] text-muted/60">
                 {[item.year ?? undefined, item.format, item.label ?? undefined]
                   .filter(Boolean)
@@ -244,9 +229,7 @@ export function WishlistEditDialog({
                   disabled={deleteItem.isPending}
                   className="btn btn-danger py-1.5 text-xs"
                 >
-                  {deleteItem.isPending && (
-                    <Loader2 size={12} className="animate-spin" />
-                  )}
+                  {deleteItem.isPending && <Loader2 size={12} className="animate-spin" />}
                   Yes, remove
                 </button>
                 <button
@@ -281,9 +264,7 @@ export function WishlistEditDialog({
               disabled={addToLibrary.isPending || updateItem.isPending}
               className="btn btn-secondary py-2"
             >
-              {addToLibrary.isPending && (
-                <Loader2 size={14} className="animate-spin" />
-              )}
+              {addToLibrary.isPending && <Loader2 size={14} className="animate-spin" />}
               Add to library
             </button>
             <button
@@ -292,9 +273,7 @@ export function WishlistEditDialog({
               disabled={updateItem.isPending || addToLibrary.isPending}
               className="btn btn-primary py-2"
             >
-              {updateItem.isPending && (
-                <Loader2 size={14} className="animate-spin" />
-              )}
+              {updateItem.isPending && <Loader2 size={14} className="animate-spin" />}
               Save changes
             </button>
           </div>

@@ -40,10 +40,7 @@ type MatchableRelease = {
   musicbrainzId: string | null;
 };
 
-function scoreCandidate(
-  release: MatchableRelease,
-  candidate: SearchResult,
-): number {
+function scoreCandidate(release: MatchableRelease, candidate: SearchResult): number {
   const title = similarity(normalize(candidate.title), normalize(release.title));
   const artist = similarity(normalize(candidate.artist), normalize(release.artist));
   if (title < 0.7 || artist < 0.7) return 0;
@@ -70,10 +67,7 @@ function scoreCandidate(
   return title * 50 + artist * 35 + format + year + barcode + catalog + relevance;
 }
 
-export async function applyReleaseDetail(
-  releaseId: string,
-  detail: ReleaseDetail,
-) {
+export async function applyReleaseDetail(releaseId: string, detail: ReleaseDetail) {
   return prisma.$transaction(async (tx) => {
     await tx.track.deleteMany({ where: { releaseId } });
     return tx.release.update({
@@ -115,10 +109,7 @@ export async function applyReleaseDetail(
   });
 }
 
-export async function enrichReleaseById(
-  releaseId: string,
-  signal?: AbortSignal,
-) {
+export async function enrichReleaseById(releaseId: string, signal?: AbortSignal) {
   const release = await prisma.release.findUnique({
     where: { id: releaseId },
   });
@@ -204,7 +195,6 @@ export async function enrichReleaseById(
     },
   };
 }
-
 
 export async function applyReleaseMatch(
   releaseId: string,

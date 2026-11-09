@@ -178,14 +178,12 @@ export function WishlistEditDialog({
             <label>
               <span className="field-label">Target price</span>
               <input
-                type="number"
-                min="0"
-                step="0.01"
+                type="text"
                 inputMode="decimal"
                 value={targetPrice}
                 onChange={(event) => setTargetPrice(event.target.value)}
                 className="input"
-                placeholder="Optional"
+                placeholder="15,00 (optional)"
               />
             </label>
             <label>

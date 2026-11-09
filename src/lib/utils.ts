@@ -68,8 +68,23 @@ export function todayInputValue(): string {
 }
 
 export function parsePriceInput(value: string): number | null {
-  if (!value.trim()) return null;
-  const price = Number.parseFloat(value);
+  const raw = value.trim();
+  if (!raw) return null;
+  const cleaned = raw.replace(/[^\d.,-]/g, '');
+  if (!cleaned) return null;
+
+  const lastComma = cleaned.lastIndexOf(',');
+  const lastDot = cleaned.lastIndexOf('.');
+  const separator = Math.max(lastComma, lastDot);
+
+  let normalized = cleaned;
+  if (separator !== -1) {
+    const integer = cleaned.slice(0, separator).replace(/[.,]/g, '');
+    const fraction = cleaned.slice(separator + 1).replace(/[.,]/g, '');
+    normalized = fraction ? `${integer}.${fraction}` : integer;
+  }
+
+  const price = Number.parseFloat(normalized);
   return Number.isFinite(price) && price >= 0 ? price : null;
 }
 

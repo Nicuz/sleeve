@@ -575,16 +575,14 @@ export function ReleasePage() {
             <label>
               <span className="field-label">Price</span>
               <input
-                type="number"
-                min="0"
-                step="0.01"
+                type="text"
                 inputMode="decimal"
                 value={draft.purchasePrice}
                 onChange={(event) =>
                   setDraft({ ...draft, purchasePrice: event.target.value })
                 }
                 className="input"
-                placeholder="24.99"
+                placeholder="24,99"
               />
             </label>
             <label>

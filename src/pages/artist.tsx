@@ -136,10 +136,10 @@ export function ArtistPage() {
 
   const artistQuery = useQuery({
     queryKey: ['artist', mbid],
-    queryFn: () => api.getArtist(mbid as string),
+    queryFn: ({ signal }) => api.getArtist(mbid as string, signal),
     enabled: Boolean(mbid),
     retry: false,
-    staleTime: 10 * 60_000,
+    staleTime: 30 * 60_000,
   });
 
   const artist = artistQuery.data?.artist;

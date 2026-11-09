@@ -116,6 +116,22 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
     const releases = await prisma.release.findMany({ where, orderBy });
     return { releases, count: releases.length };
   })
+  .get('/owned', async ({ query }) => {
+    const ids =
+      typeof query.ids === 'string'
+        ? query.ids
+            .split(',')
+            .map((id) => id.trim())
+            .filter(Boolean)
+            .slice(0, 100)
+        : [];
+    if (ids.length === 0) return { releases: [] };
+    const releases = await prisma.release.findMany({
+      where: { musicbrainzId: { in: ids } },
+      select: { id: true, musicbrainzId: true },
+    });
+    return { releases };
+  })
   .get('/:id', async ({ params, set }) => {
     const release = await prisma.release.findUnique({
       where: { id: params.id },

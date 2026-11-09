@@ -11,6 +11,7 @@ import {
   Loader2,
   Plus,
   Search,
+  UserRound,
   X,
 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
@@ -33,6 +34,18 @@ import { useToast } from './toast';
 import { FormatBadge } from './release-card';
 
 type Tab = 'search' | 'manual';
+
+type ArtistSuggestion = {
+  id: string;
+  name: string;
+  disambiguation?: string | null;
+  type?: string | null;
+  country?: string | null;
+  area?: string | null;
+  beginYear?: number | null;
+  endYear?: number | null;
+  count?: number;
+};
 
 type Draft = {
   format: string;
@@ -144,6 +157,7 @@ export function AddReleaseDialog() {
   const [query, setQuery] = useState('');
   const [mbQuery, setMbQuery] = useState('');
   const [debounced, setDebounced] = useState('');
+  const [artistSearchRequested, setArtistSearchRequested] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [manual, setManual] = useState<ManualDraft>(emptyManual);
@@ -154,6 +168,7 @@ export function AddReleaseDialog() {
     setQuery(addPreset?.display ?? '');
     setMbQuery(addPreset?.query ?? '');
     setDebounced(addPreset?.query ?? '');
+    setArtistSearchRequested(false);
     setSelectedId(null);
     setDraft({
       ...emptyDraft,
@@ -170,7 +185,7 @@ export function AddReleaseDialog() {
   }, [addOpen]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setDebounced(mbQuery.trim()), 400);
+    const timer = window.setTimeout(() => setDebounced(mbQuery.trim()), 650);
     return () => window.clearTimeout(timer);
   }, [mbQuery]);
 
@@ -190,37 +205,49 @@ export function AddReleaseDialog() {
 
   const isBarcode = /^\d{8,14}$/.test(debounced);
   const isPreset = mbQuery !== query;
-  const artistTerm = isPreset ? '' : query.trim();
+  const canSearch = query.trim().length >= 3;
 
   const searchQuery = useQuery({
     queryKey: ['mb-search', debounced, isBarcode],
-    queryFn: () =>
+    queryFn: ({ signal }) =>
       isBarcode
-        ? api.searchBarcode(debounced)
-        : api.searchMusicbrainz(debounced),
-    enabled: addOpen && debounced.length >= 2,
+        ? api.searchBarcode(debounced, signal)
+        : api.searchMusicbrainz(debounced, 20, signal),
+    enabled: addOpen && debounced.length >= 3,
     retry: false,
-    staleTime: 5 * 60_000,
+    staleTime: 10 * 60_000,
   });
 
-  const artistSearchQuery = useQuery({
-    queryKey: ['mb-artist-search', artistTerm],
-    queryFn: () => api.searchArtists(artistTerm, 6),
-    enabled: addOpen && !isPreset && !isBarcode && artistTerm.length >= 2,
-    retry: false,
-    staleTime: 5 * 60_000,
+  const resultIds = (searchQuery.data?.results ?? []).map(
+    (result) => result.musicbrainzId,
+  );
+  const ownedQuery = useQuery({
+    queryKey: ['owned-mbids', resultIds.join(',')],
+    queryFn: () => api.ownedMusicbrainzIds(resultIds),
+    enabled: addOpen && resultIds.length > 0,
+    staleTime: 60_000,
   });
 
-  const artists = (artistSearchQuery.data?.results ?? [])
-    .filter((artist) => artist.score >= 80)
-    .slice(0, 4);
+  const explicitArtistSearch = useQuery({
+    queryKey: ['mb-artist-search', query.trim()],
+    queryFn: ({ signal }) => api.searchArtists(query.trim(), 6, signal),
+    enabled:
+      addOpen &&
+      artistSearchRequested &&
+      !isPreset &&
+      !isBarcode &&
+      canSearch,
+    retry: false,
+    staleTime: 10 * 60_000,
+  });
 
   const detailQuery = useQuery({
     queryKey: ['mb-release', selectedId],
-    queryFn: () => api.getMusicbrainzRelease(selectedId as string),
+    queryFn: ({ signal }) =>
+      api.getMusicbrainzRelease(selectedId as string, signal),
     enabled: addOpen && Boolean(selectedId),
     retry: false,
-    staleTime: 10 * 60_000,
+    staleTime: 30 * 60_000,
   });
 
   const detail = detailQuery.data?.release ?? null;
@@ -325,6 +352,45 @@ export function AddReleaseDialog() {
   if (!addOpen) return null;
 
   const results = searchQuery.data?.results ?? [];
+  const ownedMap = new Map(
+    (ownedQuery.data?.releases ?? []).map((release) => [
+      release.musicbrainzId,
+      release.id,
+    ]),
+  );
+  const queryText = query.trim().toLowerCase();
+  const derivedMap = new Map<string, ArtistSuggestion>();
+  for (const result of results) {
+    if (!result.artistId) continue;
+    const nameText = result.artist.toLowerCase();
+    if (
+      queryText &&
+      !queryText.includes(nameText) &&
+      !nameText.includes(queryText)
+    ) {
+      continue;
+    }
+    const existing = derivedMap.get(result.artistId);
+    if (existing) existing.count = (existing.count ?? 0) + 1;
+    else
+      derivedMap.set(result.artistId, {
+        id: result.artistId,
+        name: result.artist,
+        count: 1,
+      });
+  }
+  const derivedArtists = [...derivedMap.values()]
+    .sort(
+      (a, b) =>
+        (b.count ?? 0) - (a.count ?? 0) || a.name.localeCompare(b.name),
+    )
+    .slice(0, 4);
+  const explicitArtists: ArtistSuggestion[] = (
+    explicitArtistSearch.data?.results ?? []
+  )
+    .filter((artist) => artist.score >= 80)
+    .slice(0, 4);
+  const artists = artistSearchRequested ? explicitArtists : derivedArtists;
 
   return (
     <div
@@ -403,6 +469,7 @@ export function AddReleaseDialog() {
                     autoFocus
                     value={query}
                     onChange={(event) => {
+                      setArtistSearchRequested(false);
                       setQuery(event.target.value);
                       setMbQuery(event.target.value);
                     }}
@@ -411,10 +478,48 @@ export function AddReleaseDialog() {
                     aria-label="Search MusicBrainz"
                   />
                 </div>
-                <p className="mt-2 flex items-center gap-1.5 text-[10px] text-muted/60">
-                  <Barcode size={11} />
-                  Paste a barcode (8–14 digits) to scan-match an edition.
-                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px] text-muted/60">
+                  <span className="flex items-center gap-1.5">
+                    <Barcode size={11} />
+                    Paste a barcode (8–14 digits) to scan-match an edition.
+                  </span>
+                  {canSearch && !isPreset && !isBarcode && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (artistSearchRequested) {
+                          void explicitArtistSearch.refetch();
+                        } else {
+                          setArtistSearchRequested(true);
+                        }
+                      }}
+                      disabled={
+                        artistSearchRequested && explicitArtistSearch.isFetching
+                      }
+                      className="inline-flex items-center gap-1 font-medium text-accent/80 transition hover:text-accent disabled:opacity-60"
+                    >
+                      {artistSearchRequested &&
+                      explicitArtistSearch.isFetching ? (
+                        <Loader2 size={11} className="animate-spin" />
+                      ) : (
+                        <UserRound size={11} />
+                      )}
+                      {artistSearchRequested
+                        ? explicitArtistSearch.isFetching
+                          ? 'Searching artists…'
+                          : 'Search artists again'
+                        : 'Search artists for this name'}
+                    </button>
+                  )}
+                  {artistSearchRequested &&
+                    !explicitArtistSearch.isFetching &&
+                    explicitArtistSearch.isSuccess &&
+                    artists.length === 0 && (
+                      <span className="text-muted/60">
+                        No artists found for “{query.trim()}”.
+                      </span>
+                    )}
+                </div>
               </div>
 
               <div className="min-h-0 flex-1 p-2 md:overflow-y-auto">
@@ -450,6 +555,9 @@ export function AddReleaseDialog() {
                                 artist.beginYear
                                   ? `${artist.beginYear}${artist.endYear ? `–${artist.endYear}` : ''}`
                                   : null,
+                                artist.count
+                                  ? `${artist.count} ${artist.count === 1 ? 'result' : 'results'}`
+                                  : null,
                               ]
                                 .filter(Boolean)
                                 .join(' · ')}
@@ -468,13 +576,13 @@ export function AddReleaseDialog() {
                   </div>
                 )}
 
-                {artists.length > 0 && debounced.length >= 2 && (
+                {artists.length > 0 && debounced.length >= 3 && (
                   <p className="px-2 pt-2 pb-1.5 text-[9px] font-semibold tracking-[0.18em] text-muted/50 uppercase">
                     Releases
                   </p>
                 )}
 
-                {debounced.length < 2 ? (
+                {debounced.length < 3 ? (
                   <div className="flex flex-col items-center px-6 py-14 text-center">
                     <span className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/[0.03] text-muted">
                       <Search size={18} />
@@ -537,13 +645,23 @@ export function AddReleaseDialog() {
                   <div className="space-y-0.5">
                     {results.map((result) => {
                       const active = selectedId === result.musicbrainzId;
+                      const ownedReleaseId = ownedMap.get(
+                        result.musicbrainzId,
+                      );
                       const loading =
                         active && detailQuery.isFetching && !detailQuery.data;
                       return (
                         <button
                           key={result.musicbrainzId}
                           type="button"
-                          onClick={() => setSelectedId(result.musicbrainzId)}
+                          onClick={() => {
+                            if (ownedReleaseId) {
+                              closeAdd();
+                              navigate(`/releases/${ownedReleaseId}`);
+                              return;
+                            }
+                            setSelectedId(result.musicbrainzId);
+                          }}
                           className={cn(
                             'flex w-full items-center gap-3 rounded-xl p-2 text-left transition',
                             active
@@ -582,6 +700,10 @@ export function AddReleaseDialog() {
                               size={15}
                               className="shrink-0 animate-spin text-accent"
                             />
+                          ) : ownedReleaseId ? (
+                            <span className="shrink-0 rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[9px] font-semibold tracking-[0.08em] text-accent uppercase">
+                              In library
+                            </span>
                           ) : (
                             <ChevronRight
                               size={15}

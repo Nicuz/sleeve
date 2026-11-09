@@ -1,10 +1,11 @@
+import { prisma } from './db';
+
 const MB_BASE = 'https://musicbrainz.org/ws/2';
 const CAA_BASE = 'https://coverartarchive.org/release';
 const CAA_RELEASE_GROUP_BASE = 'https://coverartarchive.org/release-group';
 const USER_AGENT =
   process.env.MUSICBRAINZ_USER_AGENT ?? 'Sleeve/0.1 ( https://github.com/local/sleeve )';
 const MIN_INTERVAL_MS = 1200;
-const CACHE_TTL_MS = 5 * 60 * 1000;
 
 type Credit = {
   name: string;
@@ -173,43 +174,193 @@ const ARTIST_LINK_TYPES = [
   'soundcloud',
 ];
 
-const cache = new Map<string, { expires: number; value: unknown }>();
+type CacheTier = 'search' | 'detail';
 
-function cacheGet<T>(key: string): T | undefined {
-  const hit = cache.get(key);
-  if (!hit) return undefined;
-  if (hit.expires < Date.now()) {
-    cache.delete(key);
-    return undefined;
-  }
-  return hit.value as T;
+const CACHE_TTL_MS: Record<CacheTier | 'negative', number> = {
+  search: 30 * 60 * 1000,
+  detail: 7 * 24 * 60 * 60 * 1000,
+  negative: 10 * 60 * 1000,
+};
+
+let lastPruneAt = 0;
+
+async function pruneCache() {
+  if (Date.now() - lastPruneAt < 10 * 60 * 1000) return;
+  lastPruneAt = Date.now();
+  await prisma.metadataCache
+    .deleteMany({ where: { expiresAt: { lt: new Date() } } })
+    .catch(() => undefined);
 }
 
-function cacheSet(key: string, value: unknown) {
-  if (cache.size > 200) cache.clear();
-  cache.set(key, { expires: Date.now() + CACHE_TTL_MS, value });
+async function cacheGet<T>(key: string): Promise<T | undefined> {
+  try {
+    const row = await prisma.metadataCache.findUnique({ where: { key } });
+    if (!row) return undefined;
+    if (row.expiresAt.getTime() <= Date.now()) {
+      await prisma.metadataCache
+        .delete({ where: { key } })
+        .catch(() => undefined);
+      return undefined;
+    }
+    return JSON.parse(row.payload) as T;
+  } catch {
+    return undefined;
+  }
+}
+
+async function cacheSet(key: string, value: unknown, ttlMs: number) {
+  try {
+    const expiresAt = new Date(Date.now() + ttlMs);
+    await prisma.metadataCache.upsert({
+      where: { key },
+      create: { key, payload: JSON.stringify(value), expiresAt },
+      update: { payload: JSON.stringify(value), expiresAt },
+    });
+    void pruneCache();
+  } catch {
+    // A cache failure must never break metadata lookup.
+  }
+}
+
+type Flight<T> = {
+  promise: Promise<T>;
+  controller: AbortController;
+  subscribers: number;
+  settled: boolean;
+};
+
+const inFlight = new Map<string, Flight<unknown>>();
+
+function abortError() {
+  const error = new Error('Request cancelled');
+  error.name = 'AbortError';
+  return error;
+}
+
+function throwIfAborted(signal?: AbortSignal) {
+  if (signal?.aborted) throw abortError();
+}
+
+function abortable<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
+  if (!signal) return promise;
+  if (signal.aborted) return Promise.reject(abortError());
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(abortError());
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener('abort', onAbort);
+        resolve(value);
+      },
+      (error) => {
+        signal.removeEventListener('abort', onAbort);
+        reject(error);
+      },
+    );
+  });
+}
+
+async function withCache<T>(
+  key: string,
+  tier: CacheTier,
+  loader: (signal: AbortSignal) => Promise<T>,
+  signal?: AbortSignal,
+): Promise<T> {
+  const cached = await cacheGet<T>(key);
+  if (cached !== undefined) return cached;
+
+  throwIfAborted(signal);
+
+  const existing = inFlight.get(key) as Flight<T> | undefined;
+  if (existing) {
+    existing.subscribers += 1;
+    try {
+      return await abortable(existing.promise, signal);
+    } finally {
+      existing.subscribers -= 1;
+      if (existing.subscribers <= 0 && !existing.settled) {
+        existing.controller.abort();
+      }
+    }
+  }
+
+  const controller = new AbortController();
+  const flight = {
+    controller,
+    subscribers: 1,
+    settled: false,
+  } as Flight<T>;
+  const promise = (async () => {
+    try {
+      const value = await loader(controller.signal);
+      const empty = Array.isArray(value) && value.length === 0;
+      const ttl =
+        tier === 'search' && empty
+          ? CACHE_TTL_MS.negative
+          : CACHE_TTL_MS[tier];
+      await cacheSet(key, value, ttl);
+      return value;
+    } finally {
+      flight.settled = true;
+      inFlight.delete(key);
+    }
+  })();
+  flight.promise = promise;
+  inFlight.set(key, flight as Flight<unknown>);
+
+  try {
+    return await abortable(promise, signal);
+  } finally {
+    flight.subscribers -= 1;
+    if (flight.subscribers <= 0 && !flight.settled) {
+      controller.abort();
+    }
+  }
 }
 
 let chain: Promise<unknown> = Promise.resolve();
 let lastRequestAt = 0;
+let cooldownUntil = 0;
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function waitWithAbort(ms: number, signal?: AbortSignal): Promise<void> {
+  if (signal?.aborted) return Promise.reject(abortError());
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(abortError());
+    };
+    signal?.addEventListener('abort', onAbort, { once: true });
+  });
 }
 
-async function mbFetch<T>(path: string): Promise<T> {
+async function mbFetch<T>(path: string, signal?: AbortSignal): Promise<T> {
   const run = chain.then(async () => {
+    throwIfAborted(signal);
+
+    if (Date.now() < cooldownUntil) {
+      const seconds = Math.ceil((cooldownUntil - Date.now()) / 1000);
+      throw new Error(
+        `MusicBrainz is cooling down. Try again in ${seconds}s.`,
+      );
+    }
+
     for (let attempt = 0; attempt < 3; attempt += 1) {
       const wait = MIN_INTERVAL_MS - (Date.now() - lastRequestAt);
-      if (wait > 0) await sleep(wait);
+      if (wait > 0) await waitWithAbort(wait, signal);
       lastRequestAt = Date.now();
+      throwIfAborted(signal);
 
+      const timeout = AbortSignal.timeout(15000);
       const response = await fetch(`${MB_BASE}/${path}`, {
         headers: {
           'User-Agent': USER_AGENT,
           Accept: 'application/json',
         },
-        signal: AbortSignal.timeout(15000),
+        signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
       });
 
       if (response.ok) {
@@ -217,8 +368,12 @@ async function mbFetch<T>(path: string): Promise<T> {
       }
 
       if (response.status === 503 && attempt < 2) {
-        await sleep(1800 * (attempt + 1));
+        await waitWithAbort(1800 * (attempt + 1), signal);
         continue;
+      }
+
+      if (response.status === 503) {
+        cooldownUntil = Date.now() + 30_000;
       }
 
       const message =
@@ -228,6 +383,7 @@ async function mbFetch<T>(path: string): Promise<T> {
       throw new Error(message);
     }
 
+    cooldownUntil = Date.now() + 30_000;
     throw new Error('MusicBrainz is rate limiting right now. Try again in a moment.');
   });
 
@@ -351,34 +507,46 @@ function mapRelease(release: MbRelease): ReleaseDetail {
 export async function searchReleases(
   query: string,
   limit = 20,
+  signal?: AbortSignal,
 ): Promise<SearchResult[]> {
-  const key = `search:${query.toLowerCase()}:${limit}`;
-  const cached = cacheGet<SearchResult[]>(key);
-  if (cached) return cached;
-
-  const data = await mbFetch<{ releases?: MbSearchRelease[] }>(
-    `release/?query=${encodeURIComponent(query)}&fmt=json&limit=${limit}`,
+  const key = `mb:release-search:${query.trim().toLowerCase()}:${limit}`;
+  return withCache(
+    key,
+    'search',
+    async (flightSignal) => {
+      const data = await mbFetch<{ releases?: MbSearchRelease[] }>(
+        `release/?query=${encodeURIComponent(query)}&fmt=json&limit=${limit}`,
+        flightSignal,
+      );
+      return (data.releases ?? []).map(mapSearchRelease);
+    },
+    signal,
   );
-  const results = (data.releases ?? []).map(mapSearchRelease);
-  cacheSet(key, results);
-  return results;
 }
 
-export async function searchByBarcode(barcode: string): Promise<SearchResult[]> {
-  return searchReleases(`barcode:${barcode}`, 10);
+export async function searchByBarcode(
+  barcode: string,
+  signal?: AbortSignal,
+): Promise<SearchResult[]> {
+  return searchReleases(`barcode:${barcode}`, 10, signal);
 }
 
-export async function getRelease(mbid: string): Promise<ReleaseDetail> {
-  const key = `release:${mbid}`;
-  const cached = cacheGet<ReleaseDetail>(key);
-  if (cached) return cached;
-
-  const data = await mbFetch<MbRelease>(
-    `release/${encodeURIComponent(mbid)}?inc=recordings+artist-credits+labels+genres+release-groups&fmt=json`,
+export async function getRelease(
+  mbid: string,
+  signal?: AbortSignal,
+): Promise<ReleaseDetail> {
+  return withCache(
+    `mb:release:${mbid}`,
+    'detail',
+    async (flightSignal) => {
+      const data = await mbFetch<MbRelease>(
+        `release/${encodeURIComponent(mbid)}?inc=recordings+artist-credits+labels+genres+release-groups&fmt=json`,
+        flightSignal,
+      );
+      return mapRelease(data);
+    },
+    signal,
   );
-  const detail = mapRelease(data);
-  cacheSet(key, detail);
-  return detail;
 }
 
 function mapArtistSearch(artist: MbArtistSearch): ArtistSearchResult {
@@ -422,35 +590,44 @@ function mapArtistReleaseGroup(
 export async function searchArtists(
   query: string,
   limit = 6,
+  signal?: AbortSignal,
 ): Promise<ArtistSearchResult[]> {
-  const key = `artist-search:${query.toLowerCase()}:${limit}`;
-  const cached = cacheGet<ArtistSearchResult[]>(key);
-  if (cached) return cached;
-
-  const data = await mbFetch<{ artists?: MbArtistSearch[] }>(
-    `artist/?query=${encodeURIComponent(query)}&fmt=json&limit=${limit}`,
+  const key = `mb:artist-search:${query.trim().toLowerCase()}:${limit}`;
+  return withCache(
+    key,
+    'search',
+    async (flightSignal) => {
+      const data = await mbFetch<{ artists?: MbArtistSearch[] }>(
+        `artist/?query=${encodeURIComponent(query)}&fmt=json&limit=${limit}`,
+        flightSignal,
+      );
+      return (data.artists ?? []).map(mapArtistSearch);
+    },
+    signal,
   );
-  const results = (data.artists ?? []).map(mapArtistSearch);
-  cacheSet(key, results);
-  return results;
 }
 
-export async function getArtist(mbid: string): Promise<ArtistDetail> {
-  const key = `artist:${mbid}`;
-  const cached = cacheGet<ArtistDetail>(key);
-  if (cached) return cached;
-
-  const [artistData, groupData] = await Promise.all([
-    mbFetch<MbArtist>(
-      `artist/${encodeURIComponent(mbid)}?inc=genres+tags+url-rels&fmt=json`,
-    ),
-    mbFetch<{
-      'release-groups'?: MbReleaseGroup[];
-      'release-group-count'?: number;
-    }>(
-      `release-group?artist=${encodeURIComponent(mbid)}&inc=artist-credits&fmt=json&limit=100`,
-    ),
-  ]);
+export async function getArtist(
+  mbid: string,
+  signal?: AbortSignal,
+): Promise<ArtistDetail> {
+  return withCache(
+    `mb:artist:${mbid}`,
+    'detail',
+    async (flightSignal) => {
+      const [artistData, groupData] = await Promise.all([
+        mbFetch<MbArtist>(
+          `artist/${encodeURIComponent(mbid)}?inc=genres+tags+url-rels&fmt=json`,
+          flightSignal,
+        ),
+        mbFetch<{
+          'release-groups'?: MbReleaseGroup[];
+          'release-group-count'?: number;
+        }>(
+          `release-group?artist=${encodeURIComponent(mbid)}&inc=artist-credits&fmt=json&limit=100`,
+          flightSignal,
+        ),
+      ]);
 
   const base = mapArtistSearch(artistData);
   const genreMap = new Map<string, string>();
@@ -484,21 +661,23 @@ export async function getArtist(mbid: string): Promise<ArtistDetail> {
       ARTIST_LINK_TYPES.indexOf(a.type) - ARTIST_LINK_TYPES.indexOf(b.type),
   );
 
-  const releaseGroups = (groupData['release-groups'] ?? [])
-    .map((group) => mapArtistReleaseGroup(group, artistData.name))
-    .sort(
-      (a, b) =>
-        (b.firstReleaseDate ?? '').localeCompare(a.firstReleaseDate ?? '') ||
-        a.title.localeCompare(b.title),
-    );
+      const releaseGroups = (groupData['release-groups'] ?? [])
+        .map((group) => mapArtistReleaseGroup(group, artistData.name))
+        .sort(
+          (a, b) =>
+            (b.firstReleaseDate ?? '').localeCompare(a.firstReleaseDate ?? '') ||
+            a.title.localeCompare(b.title),
+        );
 
-  const detail: ArtistDetail = {
-    ...base,
-    genres: [...genreMap.values()].sort((a, b) => a.localeCompare(b)),
-    links: links.slice(0, 8),
-    releaseGroups,
-    releaseGroupTotal: groupData['release-group-count'] ?? releaseGroups.length,
-  };
-  cacheSet(key, detail);
-  return detail;
+      return {
+        ...base,
+        genres: [...genreMap.values()].sort((a, b) => a.localeCompare(b)),
+        links: links.slice(0, 8),
+        releaseGroups,
+        releaseGroupTotal:
+          groupData['release-group-count'] ?? releaseGroups.length,
+      } satisfies ArtistDetail;
+    },
+    signal,
+  );
 }

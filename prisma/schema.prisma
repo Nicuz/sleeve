@@ -9,10 +9,10 @@ datasource db {
 
 model Release {
   id               String   @id @default(cuid())
-  musicbrainzId   String?  @unique
-  title           String
-  artist          String
-  artistId        String?
+  musicbrainzId    String?  @unique
+  title            String
+  artist           String
+  artistId         String?
   year             Int?
   releaseDate      String?
   country          String?
@@ -40,6 +40,16 @@ model Release {
   @@index([format])
   @@index([year])
   @@index([createdAt])
+}
+
+model MetadataCache {
+  key       String   @id
+  payload   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
 }
 
 model Track {

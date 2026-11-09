@@ -63,6 +63,12 @@ export const api = {
     return request<{ release: Release }>(`/api/releases/${id}`);
   },
 
+  ownedMusicbrainzIds(ids: string[]) {
+    return request<{
+      releases: Array<{ id: string; musicbrainzId: string }>;
+    }>(`/api/releases/owned?ids=${encodeURIComponent(ids.join(','))}`);
+  },
+
   createRelease(payload: ReleasePayload) {
     return request<{ release: Release }>('/api/releases', {
       method: 'POST',
@@ -94,33 +100,38 @@ export const api = {
     return `/api/export?format=${format}`;
   },
 
-  searchMusicbrainz(query: string, limit = 20) {
+  searchMusicbrainz(query: string, limit = 20, signal?: AbortSignal) {
     return request<{ results: SearchResult[]; count: number }>(
       `/api/musicbrainz/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+      { signal },
     );
   },
 
-  searchBarcode(code: string) {
+  searchBarcode(code: string, signal?: AbortSignal) {
     return request<{ results: SearchResult[]; count: number }>(
       `/api/musicbrainz/barcode/${encodeURIComponent(code)}`,
+      { signal },
     );
   },
 
-  getMusicbrainzRelease(mbid: string) {
+  getMusicbrainzRelease(mbid: string, signal?: AbortSignal) {
     return request<{ release: MbRelease }>(
       `/api/musicbrainz/releases/${encodeURIComponent(mbid)}`,
+      { signal },
     );
   },
 
-  searchArtists(query: string, limit = 6) {
+  searchArtists(query: string, limit = 6, signal?: AbortSignal) {
     return request<{ results: ArtistSearchResult[]; count: number }>(
       `/api/musicbrainz/artists?q=${encodeURIComponent(query)}&limit=${limit}`,
+      { signal },
     );
   },
 
-  getArtist(mbid: string) {
+  getArtist(mbid: string, signal?: AbortSignal) {
     return request<{ artist: ArtistDetail }>(
       `/api/musicbrainz/artists/${encodeURIComponent(mbid)}`,
+      { signal },
     );
   },
 

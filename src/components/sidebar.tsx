@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   ChartNoAxesColumnIncreasing,
   Disc3,
+  Heart,
   LibraryBig,
   Plus,
   Settings2,
@@ -26,6 +27,7 @@ export function Sidebar() {
   const { pathname } = useLocation();
   const libraryActive =
     pathname === '/' || pathname.startsWith('/releases/');
+  const wishlistActive = pathname.startsWith('/wishlist');
   const insightsActive = pathname.startsWith('/stats');
   const settingsActive = pathname.startsWith('/settings');
   const { data } = useQuery({
@@ -66,6 +68,21 @@ export function Sidebar() {
           <span className="ml-auto text-[11px] tabular-nums text-muted/60">
             {data?.total ?? '—'}
           </span>
+        </Link>
+        <Link
+          to="/wishlist"
+          className={cn(
+            'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition',
+            wishlistActive
+              ? 'bg-white/[0.07] text-cream'
+              : 'text-muted hover:bg-white/[0.04] hover:text-cream',
+          )}
+        >
+          <Heart
+            size={18}
+            className={wishlistActive ? 'text-accent' : 'text-muted'}
+          />
+          Wishlist
         </Link>
         <Link
           to="/stats"

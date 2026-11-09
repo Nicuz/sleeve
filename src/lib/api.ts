@@ -6,6 +6,8 @@ import type {
   Release,
   ReleasePayload,
   SearchResult,
+  WishlistItem,
+  WishlistPayload,
   SpendingStats,
   Stats,
 } from './types';
@@ -57,6 +59,30 @@ export const api = {
     return request<{ releases: Release[]; count: number }>(
       `/api/releases${suffix ? `?${suffix}` : ''}`,
     );
+  },
+
+  listWishlist() {
+    return request<{ items: WishlistItem[]; count: number }>('/api/wishlist');
+  },
+
+  createWishlistItem(payload: WishlistPayload) {
+    return request<{ item: WishlistItem }>('/api/wishlist', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  updateWishlistItem(id: string, payload: Partial<WishlistPayload>) {
+    return request<{ item: WishlistItem }>(`/api/wishlist/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  deleteWishlistItem(id: string) {
+    return request<{ ok: boolean }>(`/api/wishlist/${id}`, {
+      method: 'DELETE',
+    });
   },
 
   getRelease(id: string) {

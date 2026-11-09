@@ -1,5 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ChartNoAxesColumnIncreasing, LibraryBig, Plus } from 'lucide-react';
+import {
+  ChartNoAxesColumnIncreasing,
+  Heart,
+  LibraryBig,
+  Plus,
+  Settings2,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useApp } from './app-context';
 
@@ -8,7 +14,9 @@ export function MobileNav() {
   const { pathname } = useLocation();
   const libraryActive =
     pathname === '/' || pathname.startsWith('/releases/');
+  const wishlistActive = pathname.startsWith('/wishlist');
   const insightsActive = pathname.startsWith('/stats');
+  const settingsActive = pathname.startsWith('/settings');
 
   const itemClass = (active: boolean) =>
     cn(
@@ -18,13 +26,20 @@ export function MobileNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-ink-950/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
-      <div className="grid grid-cols-3 items-center px-4 py-1">
+      <div className="grid grid-cols-5 items-center px-2 py-1">
         <Link to="/" className={itemClass(libraryActive)}>
           <LibraryBig
-            size={20}
+            size={19}
             className={libraryActive ? 'text-accent' : undefined}
           />
           Library
+        </Link>
+        <Link to="/wishlist" className={itemClass(wishlistActive)}>
+          <Heart
+            size={19}
+            className={wishlistActive ? 'text-accent' : undefined}
+          />
+          Wishlist
         </Link>
         <div className="flex justify-center">
           <button
@@ -38,10 +53,17 @@ export function MobileNav() {
         </div>
         <Link to="/stats" className={itemClass(insightsActive)}>
           <ChartNoAxesColumnIncreasing
-            size={20}
+            size={19}
             className={insightsActive ? 'text-accent' : undefined}
           />
           Insights
+        </Link>
+        <Link to="/settings" className={itemClass(settingsActive)}>
+          <Settings2
+            size={19}
+            className={settingsActive ? 'text-accent' : undefined}
+          />
+          Settings
         </Link>
       </div>
     </nav>

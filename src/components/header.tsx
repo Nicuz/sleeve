@@ -1,11 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
-import { Plus, Search, Settings2, X } from 'lucide-react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Plus, Search, X } from 'lucide-react';
 import { useApp } from './app-context';
 import { Logo } from './logo';
 
@@ -91,14 +86,6 @@ export function Header() {
           <Plus size={16} />
           <span className="hidden sm:inline">Add release</span>
         </button>
-
-        <Link
-          to="/settings"
-          className="icon-btn h-10 w-10 lg:hidden"
-          aria-label="Settings"
-        >
-          <Settings2 size={17} />
-        </Link>
       </div>
     </header>
   );

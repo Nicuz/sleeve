@@ -42,6 +42,32 @@ model Release {
   @@index([createdAt])
 }
 
+model WishlistItem {
+  id             String   @id @default(cuid())
+  musicbrainzId  String?  @unique
+  title          String
+  artist         String
+  artistId       String?
+  year           Int?
+  releaseDate    String?
+  country        String?
+  label          String?
+  catalogNumber  String?
+  barcode        String?
+  format         String
+  formatDetail   String?
+  coverUrl       String?
+  notes          String?
+  priority       Int      @default(2)
+  targetPrice    Float?
+  targetCurrency String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([priority])
+  @@index([createdAt])
+}
+
 model MetadataCache {
   key       String   @id
   payload   String

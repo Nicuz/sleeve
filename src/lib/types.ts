@@ -108,6 +108,50 @@ export type ArtistDetail = Omit<ArtistSearchResult, 'score'> & {
   releaseGroupTotal: number;
 };
 
+
+export type WishlistItem = {
+  id: string;
+  musicbrainzId: string | null;
+  title: string;
+  artist: string;
+  artistId: string | null;
+  year: number | null;
+  releaseDate: string | null;
+  country: string | null;
+  label: string | null;
+  catalogNumber: string | null;
+  barcode: string | null;
+  format: string;
+  formatDetail: string | null;
+  coverUrl: string | null;
+  notes: string | null;
+  priority: number;
+  targetPrice: number | null;
+  targetCurrency: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type WishlistPayload = {
+  musicbrainzId?: string | null;
+  title: string;
+  artist: string;
+  artistId?: string | null;
+  year?: number | null;
+  releaseDate?: string | null;
+  country?: string | null;
+  label?: string | null;
+  catalogNumber?: string | null;
+  barcode?: string | null;
+  format: string;
+  formatDetail?: string | null;
+  coverUrl?: string | null;
+  notes?: string | null;
+  priority?: number;
+  targetPrice?: number | null;
+  targetCurrency?: string | null;
+};
+
 export type Stats = {
   total: number;
   totalTracks: number;

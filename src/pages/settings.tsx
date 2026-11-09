@@ -5,6 +5,8 @@ import {
   Grid2x2,
   List,
   Loader2,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import {
@@ -224,6 +226,42 @@ export function SettingsPage() {
           title="Appearance"
         >
           <div>
+            <SettingRow
+              label="Theme"
+              description="Switch between the dark lounge and a light reading view."
+            >
+              <div className="grid w-full grid-cols-2 gap-1 rounded-xl border border-white/10 bg-ink-900/60 p-1 sm:w-48">
+                <button
+                  type="button"
+                  onClick={() => updateSettings({ theme: 'dark' })}
+                  aria-pressed={settings.theme === 'dark'}
+                  className={cn(
+                    'flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition',
+                    settings.theme === 'dark'
+                      ? 'bg-white/10 text-cream'
+                      : 'text-muted hover:text-cream',
+                  )}
+                >
+                  <Moon size={13} />
+                  Dark
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateSettings({ theme: 'light' })}
+                  aria-pressed={settings.theme === 'light'}
+                  className={cn(
+                    'flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition',
+                    settings.theme === 'light'
+                      ? 'bg-white/10 text-cream'
+                      : 'text-muted hover:text-cream',
+                  )}
+                >
+                  <Sun size={13} />
+                  Light
+                </button>
+              </div>
+            </SettingRow>
+
             <div className="flex flex-col gap-3 border-b border-white/[0.04] py-4 first:pt-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-cream">Accent color</p>

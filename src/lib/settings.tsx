@@ -10,14 +10,45 @@ import {
 import { CONDITIONS, CURRENCIES, FORMAT_OPTIONS } from './utils';
 
 export const ACCENTS = {
-  amber: { label: 'Amber', accent: '#f4b860', soft: '#ffd9a0' },
-  coral: { label: 'Coral', accent: '#ef7d5b', soft: '#ffb8a3' },
-  moss: { label: 'Moss', accent: '#b9d97c', soft: '#daf0ac' },
-  sky: { label: 'Sky', accent: '#7fb8f5', soft: '#b9d9fb' },
-  lilac: { label: 'Lilac', accent: '#c6a5ff', soft: '#e2d1ff' },
+  amber: {
+    label: 'Amber',
+    accent: '#f4b860',
+    soft: '#ffd9a0',
+    light: '#a2670f',
+    lightSoft: '#c88a2c',
+  },
+  coral: {
+    label: 'Coral',
+    accent: '#ef7d5b',
+    soft: '#ffb8a3',
+    light: '#b0472b',
+    lightSoft: '#d06a4c',
+  },
+  moss: {
+    label: 'Moss',
+    accent: '#b9d97c',
+    soft: '#daf0ac',
+    light: '#5c761f',
+    lightSoft: '#7f9c3c',
+  },
+  sky: {
+    label: 'Sky',
+    accent: '#7fb8f5',
+    soft: '#b9d9fb',
+    light: '#2e6cae',
+    lightSoft: '#4f8fd0',
+  },
+  lilac: {
+    label: 'Lilac',
+    accent: '#c6a5ff',
+    soft: '#e2d1ff',
+    light: '#7343c4',
+    lightSoft: '#9368d8',
+  },
 } as const;
 
 export type AccentKey = keyof typeof ACCENTS;
+export type ThemeKey = 'dark' | 'light';
 
 export const SORT_OPTIONS = [
   { value: 'recent', label: 'Recently added' },
@@ -31,6 +62,7 @@ export type SortKey = (typeof SORT_OPTIONS)[number]['value'];
 export type ViewKey = 'grid' | 'list';
 
 export type Settings = {
+  theme: ThemeKey;
   accent: AccentKey;
   defaultFormat: string;
   defaultCondition: string;
@@ -40,6 +72,7 @@ export type Settings = {
 };
 
 export const DEFAULT_SETTINGS: Settings = {
+  theme: 'dark',
   accent: 'amber',
   defaultFormat: 'CD',
   defaultCondition: 'Near Mint',
@@ -60,6 +93,8 @@ function loadSettings(): Settings {
       parsed.accent && parsed.accent in ACCENTS
         ? (parsed.accent as AccentKey)
         : DEFAULT_SETTINGS.accent;
+    const theme: ThemeKey =
+      parsed.theme === 'light' ? 'light' : DEFAULT_SETTINGS.theme;
     const defaultFormat =
       parsed.defaultFormat && FORMAT_OPTIONS.includes(parsed.defaultFormat)
         ? parsed.defaultFormat
@@ -83,6 +118,7 @@ function loadSettings(): Settings {
         ? (parsed.defaultSort as SortKey)
         : DEFAULT_SETTINGS.defaultSort;
     return {
+      theme,
       accent,
       defaultFormat,
       defaultCondition,
@@ -109,9 +145,16 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
     const accent = ACCENTS[settings.accent] ?? ACCENTS.amber;
     const root = document.documentElement;
-    root.style.setProperty('--color-accent', accent.accent);
-    root.style.setProperty('--color-accent-soft', accent.soft);
-  }, [settings.accent]);
+    root.dataset.theme = settings.theme;
+    root.style.setProperty(
+      '--color-accent',
+      settings.theme === 'light' ? accent.light : accent.accent,
+    );
+    root.style.setProperty(
+      '--color-accent-soft',
+      settings.theme === 'light' ? accent.lightSoft : accent.soft,
+    );
+  }, [settings.accent, settings.theme]);
 
   useEffect(() => {
     try {

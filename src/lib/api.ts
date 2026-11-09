@@ -80,6 +80,17 @@ export const api = {
     });
   },
 
+  clearLibrary(confirm: string) {
+    return request<{ ok: boolean; deleted: number }>(
+      `/api/releases?confirm=${encodeURIComponent(confirm)}`,
+      { method: 'DELETE' },
+    );
+  },
+
+  exportLibraryUrl(format: 'json' | 'csv') {
+    return `/api/export?format=${format}`;
+  },
+
   searchMusicbrainz(query: string, limit = 20) {
     return request<{ results: SearchResult[]; count: number }>(
       `/api/musicbrainz/search?q=${encodeURIComponent(query)}&limit=${limit}`,

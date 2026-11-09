@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
+import { useSettings } from '@/lib/settings';
 import type { MbRelease, ReleasePayload } from '@/lib/types';
 import {
   cn,
@@ -112,6 +113,7 @@ function Stars({
 
 export function AddReleaseDialog() {
   const { addOpen, closeAdd } = useApp();
+  const { settings } = useSettings();
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -129,8 +131,16 @@ export function AddReleaseDialog() {
     setQuery('');
     setDebounced('');
     setSelectedId(null);
-    setDraft(emptyDraft);
-    setManual(emptyManual);
+    setDraft({
+      ...emptyDraft,
+      format: settings.defaultFormat,
+      condition: settings.defaultCondition,
+    });
+    setManual({
+      ...emptyManual,
+      format: settings.defaultFormat,
+      condition: settings.defaultCondition,
+    });
   }, [addOpen]);
 
   useEffect(() => {
@@ -178,8 +188,8 @@ export function AddReleaseDialog() {
   useEffect(() => {
     if (!detail) return;
     setDraft({
-      format: detail.format,
-      condition: 'Near Mint',
+      format: detail.format || settings.defaultFormat,
+      condition: settings.defaultCondition,
       genres: detail.genres.join(', '),
       notes: '',
       rating: null,

@@ -30,7 +30,11 @@
   body {
     @apply bg-ink-950 font-sans text-cream antialiased;
     background-image:
-      radial-gradient(1000px 640px at 78% -14%, rgba(244, 184, 96, 0.12), transparent 62%),
+      radial-gradient(
+        1000px 640px at 78% -14%,
+        color-mix(in srgb, var(--color-accent) 12%, transparent),
+        transparent 62%
+      ),
       radial-gradient(760px 520px at -8% 16%, rgba(239, 125, 91, 0.07), transparent 60%);
     background-attachment: fixed;
     min-height: 100vh;
@@ -53,7 +57,7 @@
   }
 
   ::selection {
-    background: rgba(244, 184, 96, 0.3);
+    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
     color: #fff9ee;
   }
 
@@ -92,7 +96,19 @@
   }
 
   .btn-primary {
-    @apply bg-accent text-ink-950 shadow-[0_8px_30px_-12px_rgba(244,184,96,0.8)] hover:bg-accent-soft;
+    @apply bg-accent text-ink-950 hover:bg-accent-soft;
+    box-shadow: 0 8px 30px -12px
+      color-mix(in srgb, var(--color-accent) 80%, transparent);
+  }
+
+  .accent-glow {
+    box-shadow: 0 0 24px -6px
+      color-mix(in srgb, var(--color-accent) 55%, transparent);
+  }
+
+  .accent-glow-strong {
+    box-shadow: 0 10px 30px -8px
+      color-mix(in srgb, var(--color-accent) 90%, transparent);
   }
 
   .btn-secondary {

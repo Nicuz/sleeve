@@ -13,6 +13,7 @@ import {
   X,
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { SORT_OPTIONS, useSettings } from '@/lib/settings';
 import { cn, pluralize } from '@/lib/utils';
 import { useApp } from '@/components/app-context';
 import { EmptyState } from '@/components/empty-state';
@@ -26,7 +27,7 @@ function Select({
 }: {
   value: string;
   onChange: (value: string) => void;
-  options: Array<{ value: string; label: string }>;
+  options: ReadonlyArray<{ value: string; label: string }>;
   label: string;
 }) {
   return (
@@ -67,6 +68,7 @@ function LibrarySkeleton() {
 
 export function LibraryPage() {
   const { openAdd } = useApp();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const openRelease = (id: string) => navigate(`/releases/${id}`);
@@ -75,8 +77,12 @@ export function LibraryPage() {
   const format = params.get('format') ?? 'All';
   const genre = params.get('genre') ?? 'All';
   const decade = params.get('decade') ?? 'All';
-  const sort = params.get('sort') ?? 'recent';
-  const view = params.get('view') === 'list' ? 'list' : 'grid';
+  const sort = params.get('sort') ?? settings.defaultSort;
+  const viewParam = params.get('view');
+  const view =
+    viewParam === 'list' || viewParam === 'grid'
+      ? viewParam
+      : settings.defaultView;
 
   const filters = { q, format, genre, decade, sort };
   const releasesQuery = useQuery({
@@ -242,21 +248,19 @@ export function LibraryPage() {
             <Select
               label="Sort releases"
               value={sort}
-              onChange={(value) => setParam('sort', value, 'recent')}
-              options={[
-                { value: 'recent', label: 'Recently added' },
-                { value: 'title', label: 'Title A–Z' },
-                { value: 'artist', label: 'Artist A–Z' },
-                { value: 'year', label: 'Year, newest' },
-                { value: 'rating', label: 'Highest rated' },
-              ]}
+              onChange={(value) =>
+                setParam('sort', value, settings.defaultSort)
+              }
+              options={SORT_OPTIONS}
             />
           </div>
 
           <div className="ml-auto flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
             <button
               type="button"
-              onClick={() => setParam('view', 'grid', 'grid')}
+              onClick={() =>
+                setParam('view', 'grid', settings.defaultView)
+              }
               className={cn(
                 'grid h-7 w-7 place-items-center rounded-full transition',
                 view === 'grid'
@@ -269,7 +273,9 @@ export function LibraryPage() {
             </button>
             <button
               type="button"
-              onClick={() => setParam('view', 'list', 'grid')}
+              onClick={() =>
+                setParam('view', 'list', settings.defaultView)
+              }
               className={cn(
                 'grid h-7 w-7 place-items-center rounded-full transition',
                 view === 'list'

@@ -4,13 +4,15 @@ import { releaseRoutes } from './routes/releases';
 import { musicbrainzRoutes } from './routes/musicbrainz';
 import { statsRoutes } from './routes/stats';
 import { metaRoutes } from './routes/meta';
+import { exportRoutes } from './routes/export';
 
 const app = new Elysia()
   .get('/api/health', () => ({ ok: true, name: 'Sleeve', time: new Date() }))
   .use(releaseRoutes)
   .use(musicbrainzRoutes)
   .use(statsRoutes)
-  .use(metaRoutes);
+  .use(metaRoutes)
+  .use(exportRoutes);
 
 const isProduction = process.env.NODE_ENV === 'production';
 const port = Number(process.env.PORT ?? (isProduction ? 3000 : 3001));

@@ -250,6 +250,15 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
       return { message: errorMessage(error) };
     }
   })
+  .delete('/', async ({ query, set }) => {
+    const confirm = typeof query.confirm === 'string' ? query.confirm : '';
+    if (confirm !== 'DELETE') {
+      set.status = 400;
+      return { message: 'Type DELETE to confirm clearing the library.' };
+    }
+    const result = await prisma.release.deleteMany();
+    return { ok: true, deleted: result.count };
+  })
   .delete('/:id', async ({ params, set }) => {
     try {
       await prisma.release.delete({ where: { id: params.id } });

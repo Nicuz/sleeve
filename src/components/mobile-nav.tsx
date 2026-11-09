@@ -30,7 +30,7 @@ export function MobileNav() {
           <button
             type="button"
             onClick={openAdd}
-            className="-mt-5 grid h-12 w-12 place-items-center rounded-full bg-accent text-ink-950 shadow-[0_10px_30px_-8px_rgba(244,184,96,0.9)] transition active:scale-95"
+            className="accent-glow-strong -mt-5 grid h-12 w-12 place-items-center rounded-full bg-accent text-ink-950 transition active:scale-95"
             aria-label="Add release"
           >
             <Plus size={22} />

@@ -7,6 +7,8 @@ type ReleaseRow = {
   year: number | null;
   genres: string | null;
   trackCount: number | null;
+  musicbrainzId: string | null;
+  coverUrl: string | null;
 };
 
 type SpendRow = {
@@ -47,6 +49,8 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
           year: true,
           genres: true,
           trackCount: true,
+          musicbrainzId: true,
+          coverUrl: true,
         },
       }),
       prisma.release.findMany({
@@ -88,6 +92,9 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
       totalTracks: rows.reduce((sum, row) => sum + (row.trackCount ?? 0), 0),
       totalArtists: artistMap.size,
       totalGenres: genreMap.size,
+      missingMetadata: rows.filter(
+        (row) => !row.musicbrainzId || !row.coverUrl || !row.trackCount,
+      ).length,
       byFormat,
       byDecade,
       topArtists: ranked(artistMap, 6).map((item) => ({

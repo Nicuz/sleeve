@@ -1,15 +1,17 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   ArrowUpRight,
   ChevronDown,
+  CloudDownload,
   Disc3,
   Grid2x2,
   List,
   Plus,
   SearchX,
   Sparkles,
+  Table2,
   X,
 } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -18,6 +20,7 @@ import { cn, pluralize } from '@/lib/utils';
 import { useApp } from '@/components/app-context';
 import { EmptyState } from '@/components/empty-state';
 import { ReleaseCard, ReleaseRow } from '@/components/release-card';
+import { MetadataEnrichDialog } from '@/components/metadata-enrich-dialog';
 
 function Select({
   value,
@@ -71,6 +74,7 @@ export function LibraryPage() {
   const { settings } = useSettings();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
+  const [enrichOpen, setEnrichOpen] = useState(false);
   const openRelease = (id: string) => navigate(`/releases/${id}`);
 
   const q = params.get('q') ?? '';
@@ -189,6 +193,31 @@ export function LibraryPage() {
           </div>
         </div>
       </section>
+
+      {stats && stats.missingMetadata > 0 && (
+        <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-accent/20 bg-accent/[0.05] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent/10 text-accent">
+              <CloudDownload size={16} />
+            </span>
+            <div>
+              <p className="text-xs font-medium text-cream">
+                {pluralize(stats.missingMetadata, 'record')} missing metadata
+              </p>
+              <p className="mt-0.5 text-[10px] text-muted">
+                Download cover art, tracklists and MusicBrainz IDs.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setEnrichOpen(true)}
+            className="btn btn-secondary shrink-0 py-2 text-xs"
+          >
+            Download metadata
+          </button>
+        </div>
+      )}
 
       <section className="mt-8">
         <div className="flex flex-wrap items-center gap-2">
@@ -399,6 +428,11 @@ export function LibraryPage() {
           </Link>
         </section>
       )}
+
+      <MetadataEnrichDialog
+        open={enrichOpen}
+        onClose={() => setEnrichOpen(false)}
+      />
     </div>
   );
 }

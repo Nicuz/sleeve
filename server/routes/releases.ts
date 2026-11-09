@@ -3,6 +3,11 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../db';
 import { refreshRelease } from '../musicbrainz';
+import {
+  applyReleaseDetail,
+  applyReleaseMatch,
+  enrichReleaseById,
+} from '../release-metadata';
 
 const trackSchema = z.object({
   position: z.number().int().nonnegative().optional(),
@@ -41,6 +46,10 @@ const releaseBaseSchema = z.object({
   genres: z.array(z.string()).optional(),
   trackCount: z.number().int().nonnegative().nullable().optional(),
   tracks: z.array(trackSchema).optional(),
+});
+
+const matchSchema = z.object({
+  musicbrainzId: z.string().min(1),
 });
 
 const updateSchema = releaseBaseSchema.partial().extend({
@@ -295,6 +304,41 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
     const result = await prisma.release.deleteMany();
     return { ok: true, deleted: result.count };
   })
+  .post('/:id/apply-match', async ({ params, body, set, request }) => {
+    const parsed = matchSchema.safeParse(body);
+    if (!parsed.success) {
+      set.status = 400;
+      return { message: parsed.error.issues[0]?.message ?? 'Invalid match' };
+    }
+    try {
+      const result = await applyReleaseMatch(
+        params.id,
+        parsed.data.musicbrainzId,
+        request.signal,
+      );
+      if (!result) {
+        set.status = 404;
+        return { message: 'Release not found' };
+      }
+      return result;
+    } catch (error) {
+      set.status = 502;
+      return { message: errorMessage(error) };
+    }
+  })
+  .post('/:id/enrich', async ({ params, set, request }) => {
+    try {
+      const result = await enrichReleaseById(params.id, request.signal);
+      if (!result) {
+        set.status = 404;
+        return { message: 'Release not found' };
+      }
+      return result;
+    } catch (error) {
+      set.status = 502;
+      return { message: errorMessage(error) };
+    }
+  })
   .post('/:id/refresh', async ({ params, set, request }) => {
     const existing = await prisma.release.findUnique({
       where: { id: params.id },
@@ -316,44 +360,7 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
         existing.musicbrainzId,
         request.signal,
       );
-      const release = await prisma.$transaction(async (tx) => {
-        await tx.track.deleteMany({ where: { releaseId: params.id } });
-        return tx.release.update({
-          where: { id: params.id },
-          data: {
-            title: detail.title,
-            artist: detail.artist,
-            artistId: detail.artistId,
-            year: detail.year,
-            releaseDate: detail.releaseDate,
-            country: detail.country,
-            label: detail.label,
-            catalogNumber: detail.catalogNumber,
-            barcode: detail.barcode,
-            formatDetail: detail.formatDetail,
-            coverUrl: detail.coverUrl,
-            genres: detail.genres.length ? detail.genres.join(', ') : null,
-            trackCount: detail.trackCount,
-            tracks: detail.tracks.length
-              ? {
-                  create: detail.tracks.map((track) => ({
-                    position: track.position,
-                    disc: track.disc,
-                    number: track.number,
-                    title: track.title,
-                    duration: track.duration,
-                    artist: track.artist,
-                  })),
-                }
-              : undefined,
-          },
-          include: {
-            tracks: {
-              orderBy: [{ disc: 'asc' }, { number: 'asc' }, { position: 'asc' }],
-            },
-          },
-        });
-      });
+      const release = await applyReleaseDetail(params.id, detail);
       return { release };
     } catch (error) {
       set.status = 502;

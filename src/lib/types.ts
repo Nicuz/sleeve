@@ -130,6 +130,12 @@ export type ArtistDetail = Omit<ArtistSearchResult, 'score'> & {
 };
 
 
+export type EnrichResult = {
+  status: 'matched' | 'unmatched' | 'duplicate';
+  release?: Release;
+  match?: { title: string; artist: string; score: number };
+};
+
 export type MetadataCacheInfo = {
   count: number;
   oldest: string | null;
@@ -190,6 +196,7 @@ export type WishlistPayload = {
 
 export type Stats = {
   total: number;
+  missingMetadata: number;
   totalTracks: number;
   totalArtists: number;
   totalGenres: number;

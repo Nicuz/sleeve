@@ -7,9 +7,16 @@ type CoverArtProps = {
   title: string;
   className?: string;
   iconSize?: number;
+  onError?: () => void;
 };
 
-export function CoverArt({ src, title, className, iconSize = 38 }: CoverArtProps) {
+export function CoverArt({
+  src,
+  title,
+  className,
+  iconSize = 38,
+  onError,
+}: CoverArtProps) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const hue = hueFromString(title);
@@ -56,6 +63,7 @@ export function CoverArt({ src, title, className, iconSize = 38 }: CoverArtProps
           onError={() => {
             setFailed(true);
             setLoaded(false);
+            onError?.();
           }}
         />
       )}

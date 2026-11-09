@@ -66,6 +66,7 @@ export type SearchResult = {
   title: string;
   artist: string;
   artistId: string | null;
+  score: number;
   year: number | null;
   releaseDate: string | null;
   country: string | null;
@@ -79,7 +80,7 @@ export type SearchResult = {
   type: string | null;
 };
 
-export type ReleaseDetail = Omit<SearchResult, 'type'> & {
+export type ReleaseDetail = Omit<SearchResult, 'type' | 'score'> & {
   type: string | null;
   status: string | null;
   packaging: string | null;
@@ -438,6 +439,7 @@ function mapSearchRelease(release: MbSearchRelease): SearchResult {
     title: release.title,
     artist: joinCredit(release['artist-credit']) || 'Unknown artist',
     artistId: release['artist-credit']?.[0]?.artist?.id ?? null,
+    score: release.score ?? 0,
     year: date ? Number(date.slice(0, 4)) || null : null,
     releaseDate: date || null,
     country: release.country ?? null,

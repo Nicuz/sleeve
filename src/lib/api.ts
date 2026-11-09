@@ -3,6 +3,7 @@ import type {
   ArtistReleaseGroupsPage,
   ArtistSearchResult,
   DiscoverResponse,
+  EnrichResult,
   ImportResult,
   MetadataCacheInfo,
   MbRelease,
@@ -97,6 +98,19 @@ export const api = {
   deleteWishlistItem(id: string) {
     return request<{ ok: boolean }>(`/api/wishlist/${id}`, {
       method: 'DELETE',
+    });
+  },
+
+  applyReleaseMatch(id: string, musicbrainzId: string) {
+    return request<EnrichResult>(`/api/releases/${id}/apply-match`, {
+      method: 'POST',
+      body: JSON.stringify({ musicbrainzId }),
+    });
+  },
+
+  enrichRelease(id: string) {
+    return request<EnrichResult>(`/api/releases/${id}/enrich`, {
+      method: 'POST',
     });
   },
 

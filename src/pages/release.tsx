@@ -3,11 +3,13 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
+  CloudDownload,
   Disc3,
   ExternalLink,
   Loader2,
   Pencil,
   RefreshCw,
+  Search,
   Star,
   Trash2,
   X,
@@ -31,6 +33,7 @@ import {
 import { CoverArt } from '@/components/cover-art';
 import { FormatBadge } from '@/components/release-card';
 import { useToast } from '@/components/toast';
+import { MetadataMatchDialog } from '@/components/metadata-match-dialog';
 
 type Draft = {
   format: string;
@@ -94,6 +97,8 @@ export function ReleasePage() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [matchOpen, setMatchOpen] = useState(false);
+  const [coverFailed, setCoverFailed] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
 
   const releaseQuery = useQuery({
@@ -106,6 +111,8 @@ export function ReleasePage() {
   useEffect(() => {
     setEditing(false);
     setConfirmDelete(false);
+    setMatchOpen(false);
+    setCoverFailed(false);
     setDraft(null);
   }, [id]);
 
@@ -132,6 +139,32 @@ export function ReleasePage() {
     onError: (error) => {
       toast(
         error instanceof ApiError ? error.message : 'Could not save changes',
+        'error',
+      );
+    },
+  });
+
+  const enrichMetadata = useMutation({
+    mutationFn: () => api.enrichRelease(id as string),
+    onSuccess: (result) => {
+      if (result.status === 'matched' && result.release) {
+        queryClient.setQueryData(['release', id], { release: result.release });
+        queryClient.invalidateQueries({ queryKey: ['releases'] });
+        queryClient.invalidateQueries({ queryKey: ['stats'] });
+        queryClient.invalidateQueries({ queryKey: ['meta'] });
+        queryClient.invalidateQueries({ queryKey: ['discover'] });
+        toast('Metadata matched from MusicBrainz', 'success');
+      } else if (result.status === 'duplicate') {
+        toast('This release already exists under another entry.', 'info');
+      } else {
+        toast('No confident MusicBrainz match found.', 'info');
+      }
+    },
+    onError: (error) => {
+      toast(
+        error instanceof ApiError
+          ? error.message
+          : 'Could not fetch metadata',
         'error',
       );
     },
@@ -302,12 +335,24 @@ export function ReleasePage() {
         </div>
 
         <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-end md:p-9">
-          <CoverArt
-            src={release.coverUrl}
-            title={release.title}
-            className="h-44 w-44 shrink-0 rounded-2xl border border-white/15 shadow-2xl shadow-black/50 sm:h-56 sm:w-56"
-            iconSize={46}
-          />
+          <div className="shrink-0">
+            <CoverArt
+              src={release.coverUrl}
+              title={release.title}
+              className="h-44 w-44 rounded-2xl border border-white/15 shadow-2xl shadow-black/50 sm:h-56 sm:w-56"
+              iconSize={46}
+              onError={() => setCoverFailed(true)}
+            />
+            {coverFailed && (
+              <button
+                type="button"
+                onClick={() => setMatchOpen(true)}
+                className="mt-2 w-full rounded-full border border-accent/25 bg-accent/10 px-3 py-1.5 text-[9px] font-medium text-accent transition hover:bg-accent/20"
+              >
+                Cover not found · Search match
+              </button>
+            )}
+          </div>
           <div className="min-w-0 flex-1 pb-1">
             <p className="eyebrow flex items-center gap-2">
               <Disc3 size={12} />
@@ -386,7 +431,7 @@ export function ReleasePage() {
                 <Trash2 size={15} />
                 Remove
               </button>
-              {release.musicbrainzId && (
+              {release.musicbrainzId ? (
                 <button
                   type="button"
                   onClick={() => refreshMetadata.mutate()}
@@ -400,7 +445,29 @@ export function ReleasePage() {
                   )}
                   Refresh
                 </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => enrichMetadata.mutate()}
+                  disabled={enrichMetadata.isPending}
+                  className="btn btn-ghost"
+                >
+                  {enrichMetadata.isPending ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <CloudDownload size={14} />
+                  )}
+                  Fetch metadata
+                </button>
               )}
+              <button
+                type="button"
+                onClick={() => setMatchOpen(true)}
+                className="btn btn-ghost"
+              >
+                <Search size={14} />
+                Search match
+              </button>
               {release.musicbrainzId && (
                 <a
                   href={`https://musicbrainz.org/release/${release.musicbrainzId}`}
@@ -769,6 +836,14 @@ export function ReleasePage() {
           )}
         </div>
       </div>
+
+      <MetadataMatchDialog
+        open={matchOpen}
+        onClose={() => setMatchOpen(false)}
+        releaseId={release.id}
+        title={release.title}
+        artist={release.artist}
+      />
     </div>
   );
 }

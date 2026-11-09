@@ -169,6 +169,10 @@ export function LibraryPage() {
               <Plus size={16} />
               Add a release
             </button>
+            <Link to="/import/csv" className="btn btn-secondary">
+              <Table2 size={15} />
+              Import CSV
+            </Link>
             <Link to="/stats" className="btn btn-secondary">
               View insights
               <ArrowUpRight size={15} />

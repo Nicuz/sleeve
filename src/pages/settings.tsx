@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Check,
@@ -19,6 +20,7 @@ import {
   RotateCcw,
   ShieldAlert,
   SlidersHorizontal,
+  Table2,
   Trash2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -397,7 +399,7 @@ export function SettingsPage() {
               description="Your collection lives in a local SQLite database. Export, import or start fresh."
             />
 
-            <div className="mt-5 grid gap-2 sm:grid-cols-3">
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() => downloadExport('json')}
@@ -474,6 +476,23 @@ export function SettingsPage() {
                   if (file) void handleImportFile(file);
                 }}
               />
+
+              <Link
+                to="/import/csv"
+                className="group flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3 text-left transition hover:border-white/20 hover:bg-white/[0.04]"
+              >
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
+                  <Table2 size={17} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs font-medium text-cream">
+                    Import Discogs CSV
+                  </span>
+                  <span className="mt-0.5 block text-[10px] text-muted">
+                    Map columns visually before import
+                  </span>
+                </span>
+              </Link>
             </div>
 
             <div className="mt-3 flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[11px] text-muted">

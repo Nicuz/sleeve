@@ -31,7 +31,8 @@ export function Sidebar() {
   const discoverActive = pathname.startsWith('/discover');
   const wishlistActive = pathname.startsWith('/wishlist');
   const insightsActive = pathname.startsWith('/stats');
-  const settingsActive = pathname.startsWith('/settings');
+  const settingsActive =
+    pathname.startsWith('/settings') || pathname.startsWith('/import/');
   const { data } = useQuery({
     queryKey: ['stats'],
     queryFn: api.stats,

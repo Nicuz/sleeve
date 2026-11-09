@@ -18,7 +18,6 @@ const wishlistSchema = z.object({
   formatDetail: z.string().nullable().optional(),
   coverUrl: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
-  priority: z.number().int().min(1).max(3).default(2),
   targetPrice: z.number().nonnegative().nullable().optional(),
   targetCurrency: z.string().nullable().optional(),
 });
@@ -28,7 +27,6 @@ const updateSchema = z
     title: z.string().min(1),
     artist: z.string().min(1),
     notes: z.string().nullable(),
-    priority: z.number().int().min(1).max(3),
     targetPrice: z.number().nonnegative().nullable(),
     targetCurrency: z.string().nullable(),
   })
@@ -45,7 +43,7 @@ function errorMessage(error: unknown): string {
 export const wishlistRoutes = new Elysia({ prefix: '/api/wishlist' })
   .get('/', async () => {
     const items = await prisma.wishlistItem.findMany({
-      orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
+      orderBy: { createdAt: 'desc' },
     });
     return { items, count: items.length };
   })
@@ -87,7 +85,6 @@ export const wishlistRoutes = new Elysia({ prefix: '/api/wishlist' })
           formatDetail: data.formatDetail ?? null,
           coverUrl: data.coverUrl ?? null,
           notes: data.notes ?? null,
-          priority: data.priority,
           targetPrice: data.targetPrice ?? null,
           targetCurrency: data.targetCurrency ?? null,
         },

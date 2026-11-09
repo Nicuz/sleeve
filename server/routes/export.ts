@@ -108,7 +108,7 @@ function loadReleases() {
 
 function loadWishlist() {
   return prisma.wishlistItem.findMany({
-    orderBy: [{ priority: 'desc' }, { createdAt: 'asc' }],
+    orderBy: { createdAt: 'asc' },
   });
 }
 

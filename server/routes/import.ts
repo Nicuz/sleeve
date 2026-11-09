@@ -58,7 +58,6 @@ const wishlistSchema = z.object({
   formatDetail: z.string().nullable().optional(),
   coverUrl: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
-  priority: z.coerce.number().int().min(1).max(3).default(2),
   targetPrice: z.coerce.number().nonnegative().nullable().optional(),
   targetCurrency: z.string().nullable().optional(),
 });
@@ -245,7 +244,6 @@ export const importRoutes = new Elysia().post(
               formatDetail: data.formatDetail ?? null,
               coverUrl: data.coverUrl ?? null,
               notes: data.notes ?? null,
-              priority: data.priority,
               targetPrice: data.targetPrice ?? null,
               targetCurrency: data.targetCurrency ?? null,
             },

@@ -167,7 +167,6 @@ export type WishlistItem = {
   formatDetail: string | null;
   coverUrl: string | null;
   notes: string | null;
-  priority: number;
   targetPrice: number | null;
   targetCurrency: string | null;
   createdAt: string;
@@ -189,7 +188,6 @@ export type WishlistPayload = {
   formatDetail?: string | null;
   coverUrl?: string | null;
   notes?: string | null;
-  priority?: number;
   targetPrice?: number | null;
   targetCurrency?: string | null;
 };

@@ -91,7 +91,6 @@ export function WishlistAddDialog({
         format: result.format,
         formatDetail: result.formatDetail,
         coverUrl: result.coverUrl,
-        priority: 2,
         targetCurrency: settings.defaultCurrency,
       }),
     onSuccess: ({ item }) => {
@@ -170,8 +169,8 @@ export function WishlistAddDialog({
                 Find something to hunt
               </p>
               <p className="mt-1 max-w-[260px] text-xs leading-relaxed text-muted">
-                Search an album, artist or barcode. Add it now, set priority and
-                target price later.
+                Search an album, artist or barcode. Add it now, set the target
+                price later.
               </p>
             </div>
           ) : searchQuery.isLoading ? (

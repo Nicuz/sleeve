@@ -128,12 +128,6 @@ export const CONDITIONS = [
 
 export const FORMAT_OPTIONS = ['CD', 'Vinyl', 'Cassette', 'Digital', 'Other'];
 
-export const PRIORITIES = [
-  { value: 1, label: 'Low' },
-  { value: 2, label: 'Medium' },
-  { value: 3, label: 'High' },
-] as const;
-
 export const CURRENCIES = [
   'EUR',
   'USD',

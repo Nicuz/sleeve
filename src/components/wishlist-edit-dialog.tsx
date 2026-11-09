@@ -3,20 +3,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ExternalLink, Loader2, Trash2, X } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import type { WishlistItem } from '@/lib/types';
-import {
-  cn,
-  CURRENCIES,
-  parsePriceInput,
-  PRIORITIES,
-} from '@/lib/utils';
+import { CURRENCIES, parsePriceInput } from '@/lib/utils';
 import { CoverArt } from './cover-art';
 import { useToast } from './toast';
-
-const priorityStyles: Record<number, string> = {
-  1: 'border-white/10 bg-white/[0.03] text-muted',
-  2: 'border-accent/30 bg-accent/10 text-accent',
-  3: 'border-coral/30 bg-coral/10 text-coral',
-};
 
 export function WishlistEditDialog({
   item,
@@ -29,7 +18,6 @@ export function WishlistEditDialog({
   const queryClient = useQueryClient();
   const [targetPrice, setTargetPrice] = useState('');
   const [targetCurrency, setTargetCurrency] = useState('EUR');
-  const [priority, setPriority] = useState(2);
   const [notes, setNotes] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -39,7 +27,6 @@ export function WishlistEditDialog({
       item.targetPrice !== null ? String(item.targetPrice) : '',
     );
     setTargetCurrency(item.targetCurrency ?? 'EUR');
-    setPriority(item.priority);
     setNotes(item.notes ?? '');
     setConfirmDelete(false);
   }, [item]);
@@ -65,7 +52,6 @@ export function WishlistEditDialog({
       return api.updateWishlistItem(item.id, {
         targetPrice: price,
         targetCurrency: price === null ? null : targetCurrency,
-        priority,
         notes: notes.trim() || null,
       });
     },
@@ -104,6 +90,43 @@ export function WishlistEditDialog({
     },
   });
 
+  const addToLibrary = useMutation({
+    mutationFn: async () => {
+      if (!item) throw new Error('No wishlist item selected');
+      const created = await api.createRelease({
+        musicbrainzId: item.musicbrainzId,
+        title: item.title,
+        artist: item.artist,
+        artistId: item.artistId,
+        year: item.year,
+        releaseDate: item.releaseDate,
+        country: item.country,
+        label: item.label,
+        catalogNumber: item.catalogNumber,
+        barcode: item.barcode,
+        format: item.format,
+        formatDetail: item.formatDetail,
+        coverUrl: item.coverUrl,
+        notes: item.notes,
+      });
+      await api.deleteWishlistItem(item.id);
+      return created.release;
+    },
+    onSuccess: (release) => {
+      queryClient.invalidateQueries();
+      toast(`“${release.title}” added to your library`, 'success');
+      onClose();
+    },
+    onError: (error) => {
+      toast(
+        error instanceof ApiError
+          ? error.message
+          : 'Could not add this release to your library',
+        'error',
+      );
+    },
+  });
+
   if (!item) return null;
 
   return (
@@ -125,7 +148,7 @@ export function WishlistEditDialog({
               Wishlist details
             </h2>
             <p className="mt-0.5 text-xs text-muted">
-              Target, priority and private notes.
+              Target price and private notes.
             </p>
           </div>
           <button
@@ -199,26 +222,6 @@ export function WishlistEditDialog({
               </select>
             </label>
             <div className="sm:col-span-2">
-              <span className="field-label">Priority</span>
-              <div className="grid grid-cols-3 gap-1.5">
-                {PRIORITIES.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setPriority(option.value)}
-                    className={cn(
-                      'rounded-xl border py-2 text-xs font-medium transition',
-                      priority === option.value
-                        ? priorityStyles[option.value]
-                        : 'border-white/10 bg-white/[0.02] text-muted hover:text-cream',
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <label className="sm:col-span-2">
               <span className="field-label">Notes</span>
               <textarea
                 value={notes}
@@ -226,7 +229,7 @@ export function WishlistEditDialog({
                 className="input min-h-24 resize-y"
                 placeholder="Pressing to look for, shop, condition, max price…"
               />
-            </label>
+            </div>
           </div>
 
           {confirmDelete && (
@@ -268,14 +271,25 @@ export function WishlistEditDialog({
             <Trash2 size={14} />
             Remove
           </button>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap justify-end gap-2">
             <button type="button" onClick={onClose} className="btn btn-ghost py-2">
               Cancel
             </button>
             <button
               type="button"
+              onClick={() => addToLibrary.mutate()}
+              disabled={addToLibrary.isPending || updateItem.isPending}
+              className="btn btn-secondary py-2"
+            >
+              {addToLibrary.isPending && (
+                <Loader2 size={14} className="animate-spin" />
+              )}
+              Add to library
+            </button>
+            <button
+              type="button"
               onClick={() => updateItem.mutate()}
-              disabled={updateItem.isPending}
+              disabled={updateItem.isPending || addToLibrary.isPending}
               className="btn btn-primary py-2"
             >
               {updateItem.isPending && (

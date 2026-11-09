@@ -518,21 +518,40 @@ function mapRelease(release: MbRelease): ReleaseDetail {
   };
 }
 
+const EU_COUNTRIES = new Set([
+  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
+  'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
+  'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+]);
+
+function countryBoost(country: string | null): number {
+  if (!country) return 0;
+  return country === 'XE' || EU_COUNTRIES.has(country) ? 15 : 0;
+}
+
 export async function searchReleases(
   query: string,
   limit = 20,
   signal?: AbortSignal,
 ): Promise<SearchResult[]> {
-  const key = `mb:release-search:${query.trim().toLowerCase()}:${limit}`;
+  const key = `mb:release-search:v2:${query.trim().toLowerCase()}:${limit}`;
   return withCache(
     key,
     'search',
     async (flightSignal) => {
       const data = await mbFetch<{ releases?: MbSearchRelease[] }>(
-        `release/?query=${encodeURIComponent(query)}&fmt=json&limit=${limit}`,
+        `release/?query=${encodeURIComponent(query)}&fmt=json&limit=${Math.min(100, limit * 2)}`,
         flightSignal,
       );
-      return (data.releases ?? []).map(mapSearchRelease);
+      return (data.releases ?? [])
+        .map(mapSearchRelease)
+        .filter((release) => release.format !== 'Digital')
+        .sort(
+          (a, b) =>
+            b.score + countryBoost(b.country) -
+              (a.score + countryBoost(a.country)) || b.score - a.score,
+        )
+        .slice(0, limit);
     },
     signal,
   );

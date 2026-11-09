@@ -11,6 +11,7 @@ import { ArtistPage } from '@/pages/artist';
 import { SettingsPage } from '@/pages/settings';
 import { WishlistPage } from '@/pages/wishlist';
 import { DiscoverPage } from '@/pages/discover';
+import { OfflineBanner } from '@/components/offline-banner';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -43,6 +44,7 @@ export default function App() {
         </main>
       </div>
       <MobileNav />
+      <OfflineBanner />
       <AddReleaseDialog />
     </div>
   );

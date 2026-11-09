@@ -129,6 +129,7 @@ refactor(api): extract release payload validation
 - `AGENTS.md` — instructions for OpenCode sessions
 - `README.md` — setup, features, scripts
 - `docs/ARCHITECTURE.md` — runtime, modules, flows
+- `docs/DESIGN_SYSTEM.md` — colors, typography, components, UI rules
 - `docs/API.md` — endpoints and payloads
 - `docs/DATA_MODEL.md` — Prisma models, invariants, import/export
 - `docs/OPERATIONS.md` — backups, caches, troubleshooting

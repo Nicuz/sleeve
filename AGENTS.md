@@ -117,6 +117,7 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
 
 - `README.md` — setup and overview
 - `docs/ARCHITECTURE.md` — flows and design
+- `docs/DESIGN_SYSTEM.md` — visual language and component patterns
 - `docs/API.md` — endpoints
 - `docs/DATA_MODEL.md` — schema, invariants, import/export
 - `docs/OPERATIONS.md` — dev/prod, backups, troubleshooting

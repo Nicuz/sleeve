@@ -217,6 +217,8 @@ Wishlist is a separate table, not a release status. Items can be added from Musi
 - Wishlist add/edit dialogs and metadata dialogs are local component state.
 - Toasts have a small custom provider.
 
+Visual language and component patterns are documented in [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
+
 ### Filtering and defaults
 
 - Library filters live in URL search params (`q`, `format`, `genre`, `decade`, `sort`, `view`).

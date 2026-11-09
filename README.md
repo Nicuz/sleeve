@@ -112,6 +112,7 @@ Never run `bun run seed -- --reset` on a real library.
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Design system](docs/DESIGN_SYSTEM.md)
 - [API](docs/API.md)
 - [Data model](docs/DATA_MODEL.md)
 - [Operations](docs/OPERATIONS.md)

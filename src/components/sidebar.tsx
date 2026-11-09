@@ -6,14 +6,11 @@ import {
   Disc3,
   Heart,
   LibraryBig,
-  Plus,
   Settings2,
-  Sparkles,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { cn, pluralize } from '@/lib/utils';
 import { Logo } from './logo';
-import { useApp } from './app-context';
 
 const formatDot: Record<string, string> = {
   CD: 'bg-accent',
@@ -24,7 +21,6 @@ const formatDot: Record<string, string> = {
 };
 
 export function Sidebar() {
-  const { openAdd } = useApp();
   const { pathname } = useLocation();
   const libraryActive =
     pathname === '/' || pathname.startsWith('/releases/');
@@ -161,26 +157,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <div className="mt-auto space-y-4">
-        <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/15 via-accent/[0.06] to-transparent p-4">
-          <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-accent/15 text-accent">
-            <Sparkles size={15} />
-          </div>
-          <p className="font-display text-sm font-semibold text-cream">
-            Grow the collection
-          </p>
-          <p className="mt-1 text-xs leading-relaxed text-muted">
-            Search MusicBrainz and pull in cover art, label and tracklist.
-          </p>
-          <button
-            type="button"
-            onClick={() => openAdd()}
-            className="btn btn-primary mt-3 w-full py-2 text-xs"
-          >
-            <Plus size={14} />
-            Add a release
-          </button>
-        </div>
+      <div className="mt-auto">
         <p className="px-1 text-[10px] tracking-[0.16em] text-muted/40 uppercase">
           Sleeve · MVP 0.1
         </p>

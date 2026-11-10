@@ -168,7 +168,7 @@ export function LibraryPage() {
           </h1>
           <p className="mt-3 max-w-md text-sm leading-relaxed text-muted md:text-[15px]">
             {stats?.total
-              ? `${pluralize(stats.total, 'release')} · ${pluralize(stats.totalArtists, 'artist')} · ${pluralize(stats.totalTracks, 'track')} on the shelf.`
+              ? 'Everything you own, kept in one place.'
               : 'Start with a CD or a record. Sleeve pulls in the cover, label and tracklist for you.'}
           </p>
 
@@ -187,10 +187,11 @@ export function LibraryPage() {
             </Link>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-5">
+          <div className="mt-8 flex flex-wrap gap-8 sm:gap-12">
             {[
               { label: 'Releases', value: stats?.total ?? 0 },
               { label: 'Artists', value: stats?.totalArtists ?? 0 },
+              { label: 'Tracks', value: stats?.totalTracks ?? 0 },
               { label: 'Formats', value: stats?.byFormat.length ?? 0 },
             ].map((item) => (
               <div key={item.label}>
@@ -425,11 +426,10 @@ export function LibraryPage() {
             </span>
             <div>
               <p className="text-sm font-medium text-cream">
-                {pluralize(stats.totalTracks, 'track')} across{' '}
-                {pluralize(stats.total, 'release')}
+                Your insights get richer with every record.
               </p>
               <p className="text-xs text-muted">
-                Keep cataloguing — your insights get richer with every record.
+                Formats, eras, artists and the shape of your collection.
               </p>
             </div>
           </div>

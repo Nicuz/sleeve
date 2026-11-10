@@ -51,6 +51,17 @@ bun run start
 
 PWA/service worker is registered only in production builds.
 
+## Sample data
+
+Generate a separate demo database with 60 releases over two years, five formats, genres, ratings, tracks, purchase history and wishlist items:
+
+```bash
+bun run sample
+DATABASE_URL="file:./sample.db" bun run dev
+```
+
+The script creates `prisma/sample.db` (gitignored) and never touches your real database. Sample covers are generated locally as SVG data URLs, so they match each title and work offline.
+
 ## Environment
 
 `.env`:
@@ -80,6 +91,7 @@ Set a real contact in `MUSICBRAINZ_USER_AGENT` before heavy use. The MusicBrainz
 | `bun run db:studio` | Open Prisma Studio |
 | `bun run seed` | Add missing demo records |
 | `bun run seed -- --reset` | **Destructive:** wipe library, then seed |
+| `bun run sample` | Create/refresh a separate 60-release sample database |
 
 ## Project structure
 
@@ -115,6 +127,8 @@ The SQLite database is the source of truth for the owned collection. MusicBrainz
 Never run `bun run seed -- --reset` on a real library.
 
 ## Documentation
+
+- [Self-hosting](docs/SELF_HOSTING.md)
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Design system](docs/DESIGN_SYSTEM.md)

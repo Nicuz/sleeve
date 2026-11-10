@@ -142,6 +142,21 @@ export const api = {
     });
   },
 
+  createBackup() {
+    return request<{ backup: { name: string; bytes: number; createdAt: string } }>(
+      '/api/backups',
+      { method: 'POST' },
+    );
+  },
+
+  backupUrl(name: string) {
+    return `/api/backups/${encodeURIComponent(name)}`;
+  },
+
+  randomRelease() {
+    return request<{ release: Release | null }>('/api/releases/random');
+  },
+
   getRelease(id: string) {
     return request<{ release: Release }>(`/api/releases/${id}`);
   },

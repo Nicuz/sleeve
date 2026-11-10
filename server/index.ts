@@ -1,6 +1,7 @@
 import { Elysia } from 'elysia';
 import { join, normalize, sep } from 'node:path';
-import { prisma } from './db';
+import { timingSafeEqual } from 'node:crypto';
+import { configureDatabase, prisma } from './db';
 import { env } from './config';
 import { releaseRoutes } from './routes/releases';
 import { musicbrainzRoutes } from './routes/musicbrainz';
@@ -11,7 +12,9 @@ import { wishlistRoutes } from './routes/wishlist';
 import { discoverRoutes } from './routes/discover';
 import { importRoutes } from './routes/import';
 import { maintenanceRoutes } from './routes/maintenance';
-import { coverRoutes } from './routes/covers';
+import { coverRoutes, pruneCoverCache } from './routes/covers';
+import { ensureMigrations } from './migrate';
+import { backupRoutes } from './routes/backups';
 
 const SECURITY_HEADERS = {
   'x-content-type-options': 'nosniff',
@@ -60,7 +63,43 @@ const app = new Elysia()
   .use(discoverRoutes)
   .use(importRoutes)
   .use(maintenanceRoutes)
-  .use(coverRoutes);
+  .use(coverRoutes)
+  .use(backupRoutes);
+
+function isAuthorized(request: Request): boolean {
+  if (!env.auth) return true;
+  const header = request.headers.get('authorization') ?? '';
+  if (!header.startsWith('Basic ')) return false;
+  let decoded = '';
+  try {
+    decoded = atob(header.slice(6));
+  } catch {
+    return false;
+  }
+  const separator = decoded.indexOf(':');
+  if (separator === -1) return false;
+  const username = decoded.slice(0, separator);
+  const password = decoded.slice(separator + 1);
+  const expected = `${env.auth.username}:${env.auth.password}`;
+  const actual = `${username}:${password}`;
+  const expectedBuffer = Buffer.from(expected);
+  const actualBuffer = Buffer.from(actual);
+  return (
+    expectedBuffer.length === actualBuffer.length &&
+    timingSafeEqual(expectedBuffer, actualBuffer)
+  );
+}
+
+function unauthorized(): Response {
+  return new Response('Authentication required', {
+    status: 401,
+    headers: {
+      ...SECURITY_HEADERS,
+      'www-authenticate': 'Basic realm="Sleeve", charset="UTF-8"',
+      'cache-control': 'no-store',
+    },
+  });
+}
 
 function withHeaders(response: Response, cacheControl: string): Response {
   const headers = new Headers(response.headers);
@@ -93,12 +132,25 @@ function installShutdown(close: () => void | Promise<void>) {
   process.on('SIGTERM', () => void shutdown('SIGTERM'));
 }
 
+if (env.isProduction && env.autoMigrate) {
+  await ensureMigrations();
+}
+await configureDatabase();
+await pruneCoverCache().catch((error) => {
+  console.warn('[server] cover cache prune failed', error);
+});
+
 if (env.isProduction) {
   const dist = join(process.cwd(), 'dist');
   const server = Bun.serve({
     port: env.port,
     async fetch(request) {
       const url = new URL(request.url);
+      const publicPath = url.pathname === '/api/health' || url.pathname === '/api/ready';
+
+      if (!publicPath && !isAuthorized(request)) {
+        return unauthorized();
+      }
 
       if (url.pathname.startsWith('/api')) {
         return app.handle(request);

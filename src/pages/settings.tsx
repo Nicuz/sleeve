@@ -140,6 +140,26 @@ export function SettingsPage() {
     },
   });
 
+  const createBackup = useMutation({
+    mutationFn: api.createBackup,
+    onSuccess: ({ backup }) => {
+      const anchor = document.createElement('a');
+      anchor.href = api.backupUrl(backup.name);
+      anchor.download = backup.name;
+      anchor.rel = 'noopener';
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      toast('Database backup created and downloaded', 'success');
+    },
+    onError: (error) => {
+      toast(
+        error instanceof ApiError ? error.message : 'Could not create a backup',
+        'error',
+      );
+    },
+  });
+
   const clearLibrary = useMutation({
     mutationFn: () => api.clearLibrary(deleteText),
     onSuccess: ({ deleted }) => {
@@ -480,6 +500,24 @@ export function SettingsPage() {
           <div className="mt-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[11px] text-muted">
             {pluralize(stats?.total ?? 0, 'release')} ·{' '}
             {pluralize(stats?.totalTracks ?? 0, 'track')} stored locally
+          </div>
+
+          <div className="mt-3 flex flex-col gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-medium text-cream">Database backup</p>
+              <p className="mt-0.5 text-[10px] text-muted">
+                Save a SQLite snapshot to the backups folder and download it.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => createBackup.mutate()}
+              disabled={createBackup.isPending}
+              className="btn btn-secondary self-start py-2 text-xs sm:self-auto"
+            >
+              {createBackup.isPending && <Loader2 size={13} className="animate-spin" />}
+              Create backup
+            </button>
           </div>
         </Section>
 

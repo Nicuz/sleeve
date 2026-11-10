@@ -2,12 +2,12 @@ import { Elysia } from 'elysia';
 import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { env } from '../config';
 
-const CACHE_DIR = process.env.COVER_CACHE_DIR ?? join(process.cwd(), 'data', 'covers');
+const CACHE_DIR = env.coverCacheDir;
 const ALLOWED_HOST = 'coverartarchive.org';
 const MAX_BYTES = 5 * 1024 * 1024;
-const USER_AGENT =
-  process.env.MUSICBRAINZ_USER_AGENT ?? 'Sleeve/0.1 ( https://github.com/local/sleeve )';
+const USER_AGENT = env.userAgent;
 
 type CachedCover = {
   data: ArrayBuffer;
@@ -128,6 +128,34 @@ async function clearCache() {
     entries.map((name) => unlink(join(CACHE_DIR, name)).catch(() => undefined)),
   );
   return entries.length;
+}
+
+export async function pruneCoverCache(maxBytes = env.coverCacheMaxBytes) {
+  await ensureDirectory();
+  const entries = await readdir(CACHE_DIR).catch(() => [] as string[]);
+  const images: Array<{ name: string; size: number; mtimeMs: number }> = [];
+  for (const name of entries.filter((entry) => entry.endsWith('.bin'))) {
+    try {
+      const info = await stat(join(CACHE_DIR, name));
+      images.push({ name, size: info.size, mtimeMs: info.mtimeMs });
+    } catch {
+      // Ignore files removed while scanning.
+    }
+  }
+  let total = images.reduce((sum, image) => sum + image.size, 0);
+  if (total <= maxBytes) return 0;
+  images.sort((a, b) => a.mtimeMs - b.mtimeMs);
+  let deleted = 0;
+  for (const image of images) {
+    if (total <= maxBytes) break;
+    await unlink(join(CACHE_DIR, image.name)).catch(() => undefined);
+    await unlink(join(CACHE_DIR, image.name.replace(/\.bin$/, '.json'))).catch(
+      () => undefined,
+    );
+    total -= image.size;
+    deleted += 1;
+  }
+  return deleted;
 }
 
 export const coverRoutes = new Elysia()

@@ -1,0 +1,19 @@
+services:
+  sleeve:
+    build: .
+    image: sleeve:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    environment:
+      PORT: "3001"
+      DATA_DIR: /data
+      DATABASE_URL: file:/data/sleeve.db
+      MUSICBRAINZ_USER_AGENT: ${MUSICBRAINZ_USER_AGENT:-Sleeve/0.1 ( https://github.com/Nicuz/sleeve )}
+      SLEEVE_AUTH_USER: ${SLEEVE_AUTH_USER:-}
+      SLEEVE_AUTH_PASSWORD: ${SLEEVE_AUTH_PASSWORD:-}
+    volumes:
+      - sleeve-data:/data
+
+volumes:
+  sleeve-data:

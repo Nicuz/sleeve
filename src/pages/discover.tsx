@@ -24,13 +24,24 @@ function updatedLabel(iso: string): string {
 }
 
 function nextRefreshLabel(iso?: string): string {
-  if (!iso) return 'refreshes automatically';
+  if (!iso) return 'Automatic';
   const minutes = Math.round((new Date(iso).getTime() - Date.now()) / 60_000);
-  if (!Number.isFinite(minutes) || minutes <= 0) return 'next refresh soon';
-  if (minutes < 60) return `next refresh in ${minutes}m`;
+  if (!Number.isFinite(minutes) || minutes <= 0) return 'Soon';
+  if (minutes < 60) return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `next refresh in ${hours}h`;
-  return `next refresh in ${Math.round(hours / 24)}d`;
+  if (hours < 24) return `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
+  const days = Math.round(hours / 24);
+  return `${days} ${days === 1 ? 'day' : 'days'}`;
+}
+
+function nextRefreshDate(iso?: string): string {
+  if (!iso) return '';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+  }).format(date);
 }
 
 function DiscoverCard({
@@ -424,12 +435,28 @@ export function DiscoverPage() {
           New artists and albums from the genres you collect — filtered to leave out the
           artists already on your shelves.
         </p>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted/60">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 font-medium text-accent/90">
-            <Clock size={11} />
-            {nextRefreshLabel(data.nextRefreshAt)}
-          </span>
-          <span>{updatedLabel(data.generatedAt)}</span>
+        <div className="mt-5 flex flex-col gap-3 rounded-xl border border-accent/20 bg-accent/[0.05] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
+              <Clock size={17} />
+            </span>
+            <div>
+              <p className="text-[10px] font-semibold tracking-[0.16em] text-muted/70 uppercase">
+                Next shelf refresh
+              </p>
+              <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="font-display text-base font-semibold text-cream">
+                  {nextRefreshLabel(data.nextRefreshAt)}
+                </span>
+                <span className="text-[11px] text-muted/60">
+                  {nextRefreshDate(data.nextRefreshAt)}
+                </span>
+              </p>
+            </div>
+          </div>
+          <p className="text-[11px] text-muted/60 sm:text-right">
+            {updatedLabel(data.generatedAt)}
+          </p>
         </div>
         <div className="mt-4 flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
           <button

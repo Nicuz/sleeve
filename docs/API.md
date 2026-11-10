@@ -322,34 +322,51 @@ Moves a saved suggestion into Wishlist as a wanted item and removes the saved ro
 
 ### `GET /api/discover`
 
-Builds a Spotify-like feed from the user’s collection:
+Builds a personalised feed from the user’s collection:
 
-- **Release Radar** — new albums/EPs from the top 15 owned artists, last 30 days.
-- **New this week** — albums/EPs released in the last 7 days across the top 3 genres.
-- **New this month** — albums/EPs released 8–30 days ago.
-- **Crate dig** — all-time older picks, rotated deterministically once per month.
-- **Lead pick** — the first Radar item, else first week/month/crate item.
+- **Release Radar** — new albums/EPs from top owned/wishlist artists, last 30 days plus upcoming.
+- **New this week** — albums/EPs released in the last 7 days from top genres and similar artists.
+- **New this month** — albums/EPs released 8–30 days ago from top genres and similar artists.
+- **Crate dig** — all-time older picks from top genres and similar artists, rotated deterministically once per month.
+- **Lead pick** — first Radar item, else first similar-artist pick, else first available item.
 
-Candidates are ranked with ListenBrainz release-group listen/user counts; if unavailable, MusicBrainz `releaseCount` is used as a fallback proxy. The feed is cached for 12 hours and refreshed automatically. Stale requests return the cached feed immediately while a rebuild runs in the background. `?refresh=1` is an internal/dev override. Library, wishlist and saved-suggestion mutations invalidate the feed. Seen release-group IDs are remembered for 30 days and deprioritised on later builds.
+Candidates are expanded with ListenBrainz similar artists and ranked with library-weighted artist/genre affinity plus ListenBrainz artist and release-group listen/user counts. The feed is cached for 7 days and refreshed automatically. Stale requests return the cached feed immediately while a rebuild runs in the background. `?refresh=1` is an internal/dev override. Saving or wishlisting does not rebuild the current feed; owning a record prunes only the matching item. Seen release-group IDs are remembered for 30 days and deprioritised on later builds. The payload carries a `version`; a version mismatch rebuilds before serving.
 
 ```json
 {
+  "version": 3,
   "basedOn": ["Jazz", "Rock", "Electronic"],
   "featured": { /* release-group item */ },
   "sections": [
     {
       "id": "radar",
       "kind": "radar",
-      "title": "Release Radar",
-      "subtitle": "New albums and EPs from artists you own",
+      "title": "From your artists",
+      "subtitle": "Recent and upcoming albums from artists in your library or wishlist",
       "items": [ /* release-group items */ ]
     }
   ],
-  "generatedAt": "2026-…"
+  "generatedAt": "2026-…",
+  "nextRefreshAt": "2026-…"
 }
 ```
 
 Items include MusicBrainz release-group fields plus `reason` and optional `genre`. If generation fails and no cached feed exists: `502`.
+
+### `POST /api/discover/events`
+
+Records an implicit Discover interaction. Used by the UI when a suggestion is opened; removing a saved suggestion is recorded automatically by the saved delete route. No new user action is required.
+
+```json
+{
+  "releaseGroupId": "uuid",
+  "artistId": "uuid or null",
+  "artist": "Artist name",
+  "action": "open"
+}
+```
+
+`action` is one of `open`, `remove-save`. Response: `{ "ok": true }`.
 
 ## Export / import
 

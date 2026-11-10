@@ -109,6 +109,19 @@ model DiscoverySeen {
   @@index([seenAt])
 }
 
+model DiscoveryEvent {
+  id             String   @id @default(cuid())
+  releaseGroupId String
+  artistId       String?
+  artist         String?
+  action         String
+  createdAt      DateTime @default(now())
+
+  @@index([releaseGroupId])
+  @@index([artistId])
+  @@index([createdAt])
+}
+
 model Track {
   id        String  @id @default(cuid())
   releaseId String

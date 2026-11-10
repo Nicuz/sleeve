@@ -95,9 +95,15 @@ The CSV import page is loaded with `React.lazy` because Papa Parse and mapping U
 
 ## ADR-015 — Composed, cached Discovery feed
 
-**Status:** accepted
+**Status:** superseded by ADR-018
 
 Discover is not one random genre query. `server/discovery.ts` composes album-oriented feeds: Release Radar (last 30 days from owned artists), New this week (last 7 days across top genres), New this month (8–30 days), and Crate dig (all-time older picks rotated monthly). Candidates are ranked with ListenBrainz popularity where available; MusicBrainz `releaseCount` is the fallback proxy. The feed is cached for 12 hours in `DiscoveryFeed` and refreshed automatically; stale requests return the cache immediately while a background rebuild runs. There is no user-facing refresh button. `?refresh=1` remains a dev/internal override. Release, wishlist and saved mutations invalidate the cache. Shown release groups are recorded in `DiscoverySeen` for 30 days and deprioritised, then allowed again so sparse collections still get suggestions. Benefits: streaming-like cadence, stable page reloads, and no repeated manual refresh.
+
+## ADR-018 — Library-first affinity with zero extra interactions
+
+**Status:** accepted
+
+Discover quality is improved without adding prompts: purchases, ratings, wishlist items and saved suggestions form the affinity model, while opening a card or removing a saved suggestion is logged silently in `DiscoveryEvent`. Top owned/wishlist artists seed ListenBrainz similar-artist expansion, which adds candidates outside the owned-artist and top-tag pool. Ranking combines artist/genre affinity with ListenBrainz artist and release-group popularity; `releaseCount` is no longer used because it measures editions, not demand. Genre/era caps and a deterministic exploration weight keep sparse signals from collapsing into a filter bubble. Feed payloads carry a `version` so algorithm changes invalidate immediately. Benefits: better relevance with zero new user actions and no manual refresh.
 
 ## ADR-016 — Saved suggestions are separate from Wishlist
 
@@ -110,3 +116,9 @@ Saved suggestions are a pre-decision queue (“listen and decide later”), not 
 **Status:** accepted
 
 Clicking a Discover card opens a suggestion dialog, not the Add release dialog. The dialog offers **Add to wishlist**, **Save for later** and **I already own it**. “Own it” opens the existing edition picker prefilled with the release group, because a physical release still needs a specific edition, format and condition. Benefits: Discover stays focused on decisions, and collection data is only created through the explicit edition flow.
+
+## ADR-019 — Weekly, stable Discover cadence for a physical collection
+
+**Status:** accepted
+
+The feed TTL is 7 days, not 12 hours. A physical collection rewards slow browsing, and the weekly release cycle is the natural refresh unit; Crate dig still rotates monthly. The current shelf is also treated as stable: wishlist/save changes influence the next weekly rebuild but do not replace what is on screen, and owning a record prunes only the matching item from the cached payload. This avoids reshuffling picks while the user is deciding what to hunt down, while still removing a record immediately after they add it to the library. Benefits: fewer disruptive changes, longer usable shelves, and a cadence that matches listening to records rather than streaming.

@@ -2,7 +2,7 @@ import { Elysia } from 'elysia';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../db';
-import { invalidateDiscoveryFeed } from '../discovery';
+import { removeOwnedReleaseFromDiscoveryFeed } from '../discovery';
 import { refreshRelease } from '../musicbrainz';
 import {
   applyReleaseDetail,
@@ -219,7 +219,7 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
         },
         include: { tracks: true },
       });
-      void invalidateDiscoveryFeed();
+      await removeOwnedReleaseFromDiscoveryFeed(release.title, release.artist);
       set.status = 201;
       return { release };
     } catch (error) {
@@ -302,7 +302,6 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
         set.status = 404;
         return { message: 'Release not found' };
       }
-      void invalidateDiscoveryFeed();
       return { release };
     } catch (error) {
       if (
@@ -323,7 +322,6 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
       return { message: 'Type DELETE to confirm clearing the library.' };
     }
     const result = await prisma.release.deleteMany();
-    void invalidateDiscoveryFeed();
     return { ok: true, deleted: result.count };
   })
   .post('/:id/apply-match', async ({ params, body, set, request }) => {
@@ -342,7 +340,6 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
         set.status = 404;
         return { message: 'Release not found' };
       }
-      void invalidateDiscoveryFeed();
       return result;
     } catch (error) {
       set.status = 502;
@@ -356,7 +353,6 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
         set.status = 404;
         return { message: 'Release not found' };
       }
-      void invalidateDiscoveryFeed();
       return result;
     } catch (error) {
       set.status = 502;
@@ -382,7 +378,6 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
     try {
       const detail = await refreshRelease(existing.musicbrainzId, request.signal);
       const release = await applyReleaseDetail(params.id, detail);
-      void invalidateDiscoveryFeed();
       return { release };
     } catch (error) {
       set.status = 502;
@@ -392,7 +387,6 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
   .delete('/:id', async ({ params, set }) => {
     try {
       await prisma.release.delete({ where: { id: params.id } });
-      void invalidateDiscoveryFeed();
       return { ok: true };
     } catch (error) {
       if (

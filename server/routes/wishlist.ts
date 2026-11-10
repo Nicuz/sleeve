@@ -2,7 +2,6 @@ import { Elysia } from 'elysia';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../db';
-import { invalidateDiscoveryFeed } from '../discovery';
 
 const wishlistSchema = z.object({
   musicbrainzId: z.string().nullable().optional(),
@@ -96,7 +95,6 @@ export const wishlistRoutes = new Elysia({ prefix: '/api/wishlist' })
           targetCurrency: data.targetCurrency ?? null,
         },
       });
-      void invalidateDiscoveryFeed();
       set.status = 201;
       return { item };
     } catch (error) {
@@ -122,7 +120,6 @@ export const wishlistRoutes = new Elysia({ prefix: '/api/wishlist' })
         where: { id: params.id },
         data: parsed.data,
       });
-      void invalidateDiscoveryFeed();
       return { item };
     } catch (error) {
       if (
@@ -139,7 +136,6 @@ export const wishlistRoutes = new Elysia({ prefix: '/api/wishlist' })
   .delete('/:id', async ({ params, set }) => {
     try {
       await prisma.wishlistItem.delete({ where: { id: params.id } });
-      void invalidateDiscoveryFeed();
       return { ok: true };
     } catch (error) {
       if (

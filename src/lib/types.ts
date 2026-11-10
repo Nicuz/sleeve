@@ -122,10 +122,12 @@ export type DiscoverSection = {
 };
 
 export type DiscoverResponse = {
+  version: number;
   basedOn: string[];
   featured: DiscoveryItem | null;
   sections: DiscoverSection[];
   generatedAt: string;
+  nextRefreshAt: string;
 };
 
 export type ArtistReleaseGroupsPage = {

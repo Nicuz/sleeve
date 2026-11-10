@@ -81,6 +81,18 @@ export const api = {
     return request<DiscoverResponse>(`/api/discover${refresh ? '?refresh=1' : ''}`);
   },
 
+  recordDiscoveryEvent(payload: {
+    releaseGroupId: string;
+    artistId?: string | null;
+    artist?: string | null;
+    action: 'open' | 'remove-save';
+  }) {
+    return request<{ ok: boolean }>('/api/discover/events', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
   listWishlist() {
     return request<{ items: WishlistItem[]; count: number }>('/api/wishlist');
   },

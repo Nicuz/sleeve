@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import { Bookmark, Compass, Disc3, Heart, Sparkles, X } from 'lucide-react';
+import { Bookmark, Clock, Compass, Disc3, Heart, Sparkles, X } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import type { DiscoveryItem, SavedSuggestion } from '@/lib/types';
 import { pluralize } from '@/lib/utils';
@@ -21,6 +21,16 @@ function updatedLabel(iso: string): string {
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `Updated ${hours}h ago`;
   return `Updated ${Math.floor(hours / 24)}d ago`;
+}
+
+function nextRefreshLabel(iso?: string): string {
+  if (!iso) return 'refreshes automatically';
+  const minutes = Math.round((new Date(iso).getTime() - Date.now()) / 60_000);
+  if (!Number.isFinite(minutes) || minutes <= 0) return 'next refresh soon';
+  if (minutes < 60) return `next refresh in ${minutes}m`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `next refresh in ${hours}h`;
+  return `next refresh in ${Math.round(hours / 24)}d`;
 }
 
 function DiscoverCard({
@@ -164,6 +174,9 @@ function FeaturedPick({
             {[item.artist, item.year, item.primaryType].filter(Boolean).join(' · ')}
           </p>
           <p className="mt-2 text-xs text-muted/70">{item.reason}</p>
+          <blockquote className="mt-3 border-l-2 border-accent/40 pl-3 text-[11px] leading-relaxed text-muted/60 italic">
+            “A record picked for you from artists you own and artists like them.”
+          </blockquote>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -362,6 +375,18 @@ export function DiscoverPage() {
     });
   }
 
+  function openItem(item: DiscoveryItem) {
+    setSelected(item);
+    void api
+      .recordDiscoveryEvent({
+        releaseGroupId: item.id,
+        artistId: item.artistId,
+        artist: item.artist,
+        action: 'open',
+      })
+      .catch(() => undefined);
+  }
+
   if (isLoading) return <DiscoverSkeleton />;
 
   if (isError || !data) {
@@ -399,9 +424,13 @@ export function DiscoverPage() {
           New artists and albums from the genres you collect — filtered to leave out the
           artists already on your shelves.
         </p>
-        <p className="mt-2 text-[11px] text-muted/60">
-          {updatedLabel(data.generatedAt)} · refreshes automatically
-        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted/60">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 font-medium text-accent/90">
+            <Clock size={11} />
+            {nextRefreshLabel(data.nextRefreshAt)}
+          </span>
+          <span>{updatedLabel(data.generatedAt)}</span>
+        </div>
         <div className="mt-4 flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
           <button
             type="button"
@@ -506,7 +535,7 @@ export function DiscoverPage() {
             </div>
           </section>
         )
-      ) : data.basedOn.length === 0 ? (
+      ) : empty && data.basedOn.length === 0 ? (
         <div className="panel mt-8">
           <EmptyState
             icon={<Sparkles size={20} />}
@@ -534,7 +563,7 @@ export function DiscoverPage() {
               item={data.featured}
               saved={savedGroupIds.has(data.featured.id)}
               wishlisted={wishlistedGroupIds.has(data.featured.id)}
-              onOpen={setSelected}
+              onOpen={openItem}
               onAdd={addGroup}
               onWishlist={wishlistItem}
               onSave={saveItem}
@@ -556,7 +585,7 @@ export function DiscoverPage() {
               </div>
               <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {section.items.map((item) => (
-                  <DiscoverCard key={item.id} item={item} onOpen={setSelected} />
+                  <DiscoverCard key={item.id} item={item} onOpen={openItem} />
                 ))}
               </div>
             </section>

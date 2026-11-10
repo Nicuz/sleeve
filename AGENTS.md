@@ -46,9 +46,9 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
   - `enrichReleaseById` (barcode → artist/title → title fallback, score threshold 75)
   - `applyReleaseMatch` (manual MusicBrainz ID)
 - `server/routes/` — releases, wishlist, discovery, import, export, stats, metadata cache, covers, meta, MusicBrainz proxies.
-- `prisma/schema.prisma` — `Release`, `Track`, `WishlistItem`, `SavedSuggestion`, `MetadataCache`, `DiscoveryFeed`, `DiscoverySeen`.
-- `server/discovery.ts` — builds the cached Discover feed (Release Radar, New this week, New this month, Crate dig), ranks with ListenBrainz popularity and refreshes automatically.
-- `server/listenbrainz.ts` — batched release-group popularity lookup with in-memory 24h cache..
+- `prisma/schema.prisma` — `Release`, `Track`, `WishlistItem`, `SavedSuggestion`, `MetadataCache`, `DiscoveryFeed`, `DiscoverySeen`, `DiscoveryEvent`.
+- `server/discovery.ts` — builds the cached Discover feed (Release Radar, New this week, New this month, Crate dig), expands candidates with similar artists, ranks with library affinity + ListenBrainz popularity and refreshes automatically.
+- `server/listenbrainz.ts` — batched release-group and artist popularity plus similar-artist lookup, with in-memory caches and 1s request spacing.
 - `prisma/seed.ts` — demo data. Destructive only with `--reset`.
 
 ### Frontend
@@ -66,7 +66,7 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
 ## Source-of-truth rules
 
 - Owned releases and tracks live in SQLite. Library/release pages read the DB, not MusicBrainz.
-- `MetadataCache` caches MusicBrainz payloads only. `DiscoveryFeed`/`DiscoverySeen` store discovery snapshots and exposure history. `SavedSuggestion` stores Discover bookmarks only.
+- `MetadataCache` caches MusicBrainz payloads only. `DiscoveryFeed`/`DiscoverySeen`/`DiscoveryEvent` store discovery snapshots, exposure history and implicit interactions. `SavedSuggestion` stores Discover bookmarks only.
 - Cover Art Archive URLs are stored in DB, but rendered through `/api/cover?url=…` (disk cache in `data/covers`).
 - Wishlist is a separate table; it is not a library status. Wishlist means buy intent only. Discover bookmarks live in `SavedSuggestion`, not Wishlist.
 - JSON export includes releases, tracks and wishlist. CSV import is mapped client-side then sent to generic `/api/import`.

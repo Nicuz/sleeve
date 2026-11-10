@@ -114,9 +114,9 @@ Single cached Discover payload.
 | Field | Notes |
 | --- | --- |
 | `id` | Always `current` |
-| `payload` | JSON discovery feed |
+| `payload` | JSON discovery feed, including algorithm `version` |
 | `generatedAt` | Last generation time |
-| `expiresAt` | Feed TTL (6 hours) |
+| `expiresAt` | Feed TTL (7 days) |
 
 `?refresh=1` replaces this row immediately.
 
@@ -131,6 +131,21 @@ Release groups already shown in Discover.
 | `seenAt` | Last time shown |
 
 Rows older than 30 days are pruned. Seen items are deprioritised when building a new feed, not hard-excluded, so sparse collections still get suggestions.
+
+## DiscoveryEvent
+
+Implicit Discover interaction log. No UI prompt creates these rows.
+
+| Field | Notes |
+| --- | --- |
+| `id` | CUID |
+| `releaseGroupId` | Release group shown/opened |
+| `artistId` | Optional artist MBID |
+| `artist` | Artist display name fallback |
+| `action` | `open`, `remove-save` |
+| `createdAt` | Event time |
+
+Indexes: releaseGroupId, artistId, createdAt. Rows older than 180 days are pruned. Opens add a small positive affinity signal; removing a saved suggestion adds a small decaying negative signal. See `docs/DISCOVERY.md`.
 
 ## Cover cache
 
@@ -155,7 +170,7 @@ Settings never leave the browser. Export/import does not include them.
 ## Invariants
 
 - Owned data lives in `Release`/`Track`; remote MusicBrainz payloads only in `MetadataCache`.
-- Discover state lives in `DiscoveryFeed`/`DiscoverySeen`; clearing it must not affect the collection.
+- Discover state lives in `DiscoveryFeed`/`DiscoverySeen`/`DiscoveryEvent`; clearing it must not affect the collection.
 - `format` is always a normalized category. Keep the raw string in `formatDetail`.
 - `genres` is comma-separated; ingestion dedupes case-insensitively.
 - MB IDs are unique, but multiple null values are allowed.

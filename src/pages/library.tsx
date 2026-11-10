@@ -10,6 +10,7 @@ import {
   List,
   Plus,
   SearchX,
+  Shuffle,
   Sparkles,
   Table2,
   X,
@@ -21,6 +22,7 @@ import { useApp } from '@/components/app-context';
 import { EmptyState } from '@/components/empty-state';
 import { ReleaseCard, ReleaseRow } from '@/components/release-card';
 import { MetadataEnrichDialog } from '@/components/metadata-enrich-dialog';
+import { ShuffleDialog } from '@/components/shuffle-dialog';
 
 function Select({
   value,
@@ -71,6 +73,7 @@ function LibrarySkeleton() {
 
 export function LibraryPage() {
   const { openAdd } = useApp();
+  const [shuffleOpen, setShuffleOpen] = useState(false);
   const { settings } = useSettings();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
@@ -200,6 +203,35 @@ export function LibraryPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="relative mt-4 overflow-hidden rounded-2xl border border-accent/20 bg-gradient-to-r from-accent/[0.12] via-ink-900/70 to-ink-900/40 p-5 sm:p-6">
+        <div className="pointer-events-none absolute -top-16 -right-10 h-48 w-48 rounded-full bg-accent/[0.08] blur-2xl" />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <span className="relative grid h-14 w-14 shrink-0 place-items-center rounded-full border border-white/10 bg-ink-950/60 shadow-lg shadow-black/20">
+              <Disc3 size={30} className="animate-spin-slow text-accent/80" />
+            </span>
+            <div>
+              <p className="eyebrow">Shelf shuffle</p>
+              <p className="mt-1 font-display text-lg font-semibold text-cream">
+                Not sure what to play?
+              </p>
+              <p className="mt-0.5 text-xs text-muted">
+                Pull a random album from your shelf.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShuffleOpen(true)}
+            disabled={!stats?.total}
+            className="btn btn-primary self-start sm:self-auto"
+          >
+            <Shuffle size={15} />
+            Pick a shuffle album
+          </button>
         </div>
       </section>
 
@@ -411,6 +443,7 @@ export function LibraryPage() {
         </section>
       )}
 
+      <ShuffleDialog open={shuffleOpen} onClose={() => setShuffleOpen(false)} />
       <MetadataEnrichDialog open={enrichOpen} onClose={() => setEnrichOpen(false)} />
     </div>
   );

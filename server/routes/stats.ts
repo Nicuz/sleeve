@@ -57,11 +57,22 @@ function rangeStart(range: StatsRange): Date | null {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1));
 }
 
+function previousRange(range: StatsRange): { start: Date; end: Date } | null {
+  if (range === 'all') return null;
+  const current = rangeStart(range);
+  if (!current) return null;
+  const start = new Date(current);
+  if (range === 'year') start.setUTCFullYear(start.getUTCFullYear() - 1);
+  else start.setUTCMonth(start.getUTCMonth() - 12);
+  return { start, end: current };
+}
+
 export const statsRoutes = new Elysia({ prefix: '/api/stats' })
   .get('/', async ({ query }) => {
     const range = parseRange(query.range);
     const start = rangeStart(range);
-    const [releases, recent] = await Promise.all([
+    const previous = previousRange(range);
+    const [releases, recent, previousReleases] = await Promise.all([
       prisma.release.findMany({
         where: start ? { createdAt: { gte: start } } : undefined,
         select: {
@@ -81,6 +92,17 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
         orderBy: { createdAt: 'desc' },
         take: 4,
       }),
+      previous
+        ? prisma.release.findMany({
+            where: { createdAt: { gte: previous.start, lt: previous.end } },
+            select: {
+              artist: true,
+              artistId: true,
+              genres: true,
+              trackCount: true,
+            },
+          })
+        : Promise.resolve([]),
     ]);
 
     const rows = releases as ReleaseRow[];
@@ -100,15 +122,50 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
       current.count += 1;
       artistMap.set(key, current);
     }
-    const genreMap = new Map<string, number>();
+    const genreMap = new Map<string, { name: string; count: number }>();
     for (const row of rows) {
+      const seen = new Set<string>();
       for (const genre of (row.genres ?? '')
         .split(',')
         .map((item) => item.trim())
         .filter(Boolean)) {
-        genreMap.set(genre, (genreMap.get(genre) ?? 0) + 1);
+        const key = genre.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const current = genreMap.get(key) ?? { name: genre, count: 0 };
+        current.count += 1;
+        genreMap.set(key, current);
       }
     }
+    const topGenres = [...genreMap.values()].sort(
+      (a, b) => b.count - a.count || a.name.localeCompare(b.name),
+    );
+
+    const previousArtistKeys = new Set(
+      previousReleases.map((row) => row.artistId ?? `name:${row.artist}`),
+    );
+    const previousGenreKeys = new Set<string>();
+    for (const row of previousReleases) {
+      for (const genre of (row.genres ?? '')
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)) {
+        previousGenreKeys.add(genre.toLowerCase());
+      }
+    }
+    const currentTracks = rows.reduce((sum, row) => sum + (row.trackCount ?? 0), 0);
+    const previousTracks = previousReleases.reduce(
+      (sum, row) => sum + (row.trackCount ?? 0),
+      0,
+    );
+    const delta = previous
+      ? {
+          releases: rows.length - previousReleases.length,
+          artists: artistMap.size - previousArtistKeys.size,
+          tracks: currentTracks - previousTracks,
+          genres: genreMap.size - previousGenreKeys.size,
+        }
+      : null;
 
     const decadeMap = new Map<number, number>();
     for (const row of rows) {
@@ -131,9 +188,10 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
 
     return {
       total: rows.length,
-      totalTracks: rows.reduce((sum, row) => sum + (row.trackCount ?? 0), 0),
+      totalTracks: currentTracks,
       totalArtists: artistMap.size,
       totalGenres: genreMap.size,
+      delta,
       missingMetadata: rows.filter(
         (row) => !row.musicbrainzId || !row.coverUrl || !row.trackCount,
       ).length,
@@ -148,7 +206,7 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
         artistId: item.artistId,
         count: item.count,
       })),
-      topGenres: ranked(genreMap, 12).map((item) => ({
+      topGenres: topGenres.map((item) => ({
         genre: item.name,
         count: item.count,
       })),
@@ -159,22 +217,42 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
     const range = parseRange(query.range);
     const start = rangeStart(range);
     const cutoff = start ? start.toISOString().slice(0, 10) : null;
-    const rows = (
-      await prisma.release.findMany({
-        select: {
-          id: true,
-          title: true,
-          artist: true,
-          format: true,
-          purchaseDate: true,
-          purchasePrice: true,
-          purchaseCurrency: true,
-          purchaseLocation: true,
-        },
-      })
-    ).filter(
+    const allRows = (await prisma.release.findMany({
+      select: {
+        id: true,
+        title: true,
+        artist: true,
+        format: true,
+        purchaseDate: true,
+        purchasePrice: true,
+        purchaseCurrency: true,
+        purchaseLocation: true,
+      },
+    })) as SpendRow[];
+    const rows = allRows.filter(
       (row) => !cutoff || (row.purchaseDate && row.purchaseDate >= cutoff),
-    ) as SpendRow[];
+    );
+    const previous = previousRange(range);
+    const previousCutoff = previous ? previous.start.toISOString().slice(0, 10) : null;
+    const previousRows =
+      previous && previousCutoff
+        ? allRows.filter(
+            (row) =>
+              row.purchaseDate &&
+              row.purchaseDate >= previousCutoff &&
+              (!cutoff || row.purchaseDate < cutoff),
+          )
+        : [];
+
+    const purchaseDayMap = new Map<string, number>();
+    for (const row of rows) {
+      if (!row.purchaseDate) continue;
+      const day = row.purchaseDate.slice(0, 10);
+      purchaseDayMap.set(day, (purchaseDayMap.get(day) ?? 0) + 1);
+    }
+    const purchaseDays = [...purchaseDayMap.entries()]
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => a.date.localeCompare(b.date));
 
     const priced = rows.filter((row) => row.purchasePrice !== null);
     const currencyMap = new Map<string, { count: number; total: number }>();
@@ -200,6 +278,14 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
     const selected = priced.filter((row) => currencyOf(row) === currency);
     const prices = selected.map((row) => row.purchasePrice ?? 0);
     const totalSpent = prices.reduce((sum, price) => sum + price, 0);
+    const previousSelected = previousRows.filter(
+      (row) => currencyOf(row) === currency && row.purchasePrice !== null,
+    );
+    const previousTotalSpent = previousSelected.reduce(
+      (sum, row) => sum + (row.purchasePrice ?? 0),
+      0,
+    );
+    const totalSpentDelta = previous ? totalSpent - previousTotalSpent : null;
     const sortedPrices = [...prices].sort((a, b) => a - b);
     const middle = Math.floor(sortedPrices.length / 2);
     const medianPrice = sortedPrices.length
@@ -282,6 +368,7 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
       currency,
       currencies,
       totalSpent,
+      totalSpentDelta,
       releasesWithPrice: selected.length,
       averagePrice: selected.length ? totalSpent / selected.length : null,
       medianPrice,
@@ -304,5 +391,6 @@ export const statsRoutes = new Elysia({ prefix: '/api/stats' })
       missingPurchaseInfo: rows.filter(
         (row) => row.purchasePrice === null || row.purchaseDate === null,
       ).length,
+      purchaseDays,
     };
   });

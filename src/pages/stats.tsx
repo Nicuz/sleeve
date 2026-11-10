@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -39,10 +40,12 @@ function StatCard({
   icon: Icon,
   value,
   hint,
+  delta,
 }: {
   icon: LucideIcon;
   value: number;
   hint: string;
+  delta?: number;
 }) {
   return (
     <div className="panel relative overflow-hidden p-5">
@@ -52,9 +55,24 @@ function StatCard({
         </span>
         <span className="text-sm font-medium text-cream">{hint}</span>
       </div>
-      <p className="mt-4 font-display text-3xl font-semibold tabular-nums text-cream">
-        {value.toLocaleString()}
-      </p>
+      <div className="mt-4 flex items-baseline gap-2">
+        <p className="font-display text-3xl font-semibold tabular-nums text-cream">
+          {value.toLocaleString()}
+        </p>
+        {delta !== undefined && delta !== 0 && (
+          <span
+            title="vs previous period"
+            className={cn(
+              'text-[11px] font-medium tabular-nums',
+              delta > 0 ? 'text-accent' : 'text-coral',
+            )}
+          >
+            {delta > 0 ? '+' : ''}
+            {delta.toLocaleString()}
+            <span className="ml-1 text-[9px] font-normal text-muted/50">vs prev</span>
+          </span>
+        )}
+      </div>
     </div>
   );
 }
@@ -69,6 +87,60 @@ function PanelSkeleton({ className }: { className?: string }) {
   );
 }
 
+type DnaItem = { name: string; count: number };
+
+function withOther(items: DnaItem[], limit = 5): DnaItem[] {
+  const top = items.slice(0, limit);
+  const rest = items.slice(limit).reduce((sum, item) => sum + item.count, 0);
+  return rest > 0 ? [...top, { name: 'Other', count: rest }] : top;
+}
+
+function DnaColumn({
+  title,
+  items,
+  colorFor,
+}: {
+  title: string;
+  items: DnaItem[];
+  colorFor: (name: string, index: number) => string;
+}) {
+  const total = items.reduce((sum, item) => sum + item.count, 0) || 1;
+  return (
+    <div>
+      <p className="text-[10px] font-semibold tracking-[0.14em] text-muted/60 uppercase">
+        {title}
+      </p>
+      <div className="mt-2 flex h-24 w-full flex-col-reverse overflow-hidden rounded-lg border border-white/[0.06]">
+        {items.map((item, index) => (
+          <div
+            key={item.name}
+            className={colorFor(item.name, index)}
+            style={{ height: `${(item.count / total) * 100}%` }}
+            title={`${item.name}: ${item.count}`}
+          />
+        ))}
+      </div>
+      <div className="mt-2 space-y-1">
+        {items.slice(0, 3).map((item, index) => (
+          <div
+            key={item.name}
+            className="flex items-center gap-1.5 text-[10px] text-muted"
+          >
+            <span
+              className={cn(
+                'h-1.5 w-1.5 shrink-0 rounded-full',
+                colorFor(item.name, index),
+              )}
+            />
+            <span className="min-w-0 flex-1 truncate">{item.name}</span>
+            <span className="shrink-0 tabular-nums text-muted/60">{item.count}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const RANGES: Array<{ value: StatsRange; label: string }> = [
   { value: 'all', label: 'All time' },
   { value: 'year', label: 'This year' },
@@ -78,6 +150,7 @@ const RANGES: Array<{ value: StatsRange; label: string }> = [
 export function StatsPage() {
   const { openAdd } = useApp();
   const [params, setParams] = useSearchParams();
+  const [showAllGenres, setShowAllGenres] = useState(false);
   const tab = params.get('tab') === 'spending' ? 'spending' : 'collection';
   const spending = tab === 'spending';
   const rangeParam = params.get('range');
@@ -111,13 +184,26 @@ export function StatsPage() {
     staleTime: 60_000,
   });
 
-  const maxDecade = Math.max(1, ...(stats?.byDecade.map((item) => item.count) ?? [1]));
   const maxArtist = Math.max(1, ...(stats?.topArtists.map((item) => item.count) ?? [1]));
+  const maxDecade = Math.max(1, ...(stats?.byDecade.map((item) => item.count) ?? [1]));
   const topFormat = stats?.byFormat[0];
   const topDecade = stats?.byDecade.length
     ? [...stats.byDecade].sort((a, b) => b.count - a.count)[0]
     : undefined;
   const topGenre = stats?.topGenres[0];
+  const dnaFormats = stats
+    ? withOther(stats.byFormat.map((item) => ({ name: item.format, count: item.count })))
+    : [];
+  const dnaDecades = stats
+    ? withOther(
+        [...stats.byDecade]
+          .sort((a, b) => b.count - a.count)
+          .map((item) => ({ name: item.decade, count: item.count })),
+      )
+    : [];
+  const dnaGenres = stats
+    ? withOther(stats.topGenres.map((item) => ({ name: item.genre, count: item.count })))
+    : [];
   const attention = stats
     ? [
         {
@@ -276,11 +362,37 @@ export function StatsPage() {
           )}
 
           <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <StatCard icon={Disc3} value={stats.total} hint="Releases" />
-            <StatCard icon={Users} value={stats.totalArtists} hint="Artists" />
-            <StatCard icon={ListMusic} value={stats.totalTracks} hint="Tracks" />
-            <StatCard icon={Tags} value={stats.totalGenres} hint="Genres" />
+            <StatCard
+              icon={Disc3}
+              value={stats.total}
+              hint="Releases"
+              delta={stats.delta?.releases}
+            />
+            <StatCard
+              icon={Users}
+              value={stats.totalArtists}
+              hint="Artists"
+              delta={stats.delta?.artists}
+            />
+            <StatCard
+              icon={ListMusic}
+              value={stats.totalTracks}
+              hint="Tracks"
+              delta={stats.delta?.tracks}
+            />
+            <StatCard
+              icon={Tags}
+              value={stats.totalGenres}
+              hint="Genres"
+              delta={stats.delta?.genres}
+            />
           </div>
+
+          <p className="mt-2 text-[10px] leading-relaxed text-muted/60">
+            {stats.delta
+              ? `Compared with the previous ${range === 'year' ? 'year' : '12 months'}.`
+              : 'Choose This year or Last 12 months in Period to compare with the previous period.'}
+          </p>
 
           {attention.length > 0 && (
             <section className="panel mt-3 p-4 sm:p-5">
@@ -308,6 +420,50 @@ export function StatsPage() {
               </ul>
             </section>
           )}
+
+          <section className="panel mt-3 p-5 sm:p-6">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="font-display text-base font-semibold text-cream">
+                Collection DNA
+              </h2>
+              <span className="text-[10px] text-muted/60">top 5 + other</span>
+            </div>
+            <div className="mt-5 grid grid-cols-3 gap-3 sm:gap-6">
+              <DnaColumn
+                title="Formats"
+                items={dnaFormats}
+                colorFor={(name) => formatColor[name] ?? 'bg-white/15'}
+              />
+              <DnaColumn
+                title="Eras"
+                items={dnaDecades}
+                colorFor={(_name, index) =>
+                  [
+                    'bg-accent',
+                    'bg-accent/75',
+                    'bg-accent/50',
+                    'bg-accent/30',
+                    'bg-white/10',
+                    'bg-white/10',
+                  ][index] ?? 'bg-white/10'
+                }
+              />
+              <DnaColumn
+                title="Genres"
+                items={dnaGenres}
+                colorFor={(_name, index) =>
+                  [
+                    'bg-coral',
+                    'bg-coral/75',
+                    'bg-coral/50',
+                    'bg-coral/30',
+                    'bg-white/10',
+                    'bg-white/10',
+                  ][index] ?? 'bg-white/10'
+                }
+              />
+            </div>
+          </section>
 
           <section className="panel mt-3 p-5 sm:p-6">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
@@ -479,30 +635,55 @@ export function StatsPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {stats.topGenres.map((item, index) => (
-                      <Link
-                        key={item.genre}
-                        to={`/?genre=${encodeURIComponent(item.genre)}`}
-                        className={cn(
-                          'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition hover:border-white/20',
-                          index < 3
-                            ? 'border-accent/25 bg-accent/[0.08] text-cream'
-                            : 'border-white/10 bg-white/[0.02] text-muted',
-                        )}
-                      >
-                        {item.genre}
-                        <span
+                  <>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {(showAllGenres
+                        ? stats.topGenres
+                        : stats.topGenres.slice(0, 12)
+                      ).map((item, index) => (
+                        <Link
+                          key={item.genre}
+                          to={`/?genre=${encodeURIComponent(item.genre)}`}
                           className={cn(
-                            'text-[10px] tabular-nums',
-                            index < 3 ? 'text-accent/80' : 'text-muted/60',
+                            'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition hover:border-white/20',
+                            index < 3
+                              ? 'border-accent/25 bg-accent/[0.08] text-cream'
+                              : 'border-white/10 bg-white/[0.02] text-muted',
                           )}
                         >
-                          {item.count}
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
+                          {item.genre}
+                          <span
+                            className={cn(
+                              'text-[10px] tabular-nums',
+                              index < 3 ? 'text-accent/80' : 'text-muted/60',
+                            )}
+                          >
+                            {item.count}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                    {stats.topGenres.length > 12 && (
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => setShowAllGenres((value) => !value)}
+                          className="inline-flex items-center gap-1 text-[11px] font-medium text-accent transition hover:text-accent-soft"
+                        >
+                          {showAllGenres
+                            ? 'Show fewer'
+                            : `Show all ${stats.topGenres.length} genres`}
+                          <ChevronDown
+                            size={12}
+                            className={cn(
+                              'transition-transform',
+                              showAllGenres && 'rotate-180',
+                            )}
+                          />
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

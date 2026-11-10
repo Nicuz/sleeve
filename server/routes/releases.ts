@@ -154,6 +154,16 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
     });
     return { releases };
   })
+  .get('/random', async () => {
+    const count = await prisma.release.count();
+    if (count === 0) return { release: null };
+    const skip = Math.floor(Math.random() * count);
+    const release = await prisma.release.findFirst({
+      skip,
+      orderBy: { id: 'asc' },
+    });
+    return { release };
+  })
   .get('/:id', async ({ params, set }) => {
     const release = await prisma.release.findUnique({
       where: { id: params.id },

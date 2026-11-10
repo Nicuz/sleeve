@@ -201,6 +201,12 @@ export type Stats = {
   totalTracks: number;
   totalArtists: number;
   totalGenres: number;
+  delta: {
+    releases: number;
+    artists: number;
+    tracks: number;
+    genres: number;
+  } | null;
   byFormat: Array<{ format: string; count: number }>;
   byDecade: Array<{ decade: string; value: number; count: number }>;
   topArtists: Array<{ artist: string; artistId?: string | null; count: number }>;
@@ -218,6 +224,7 @@ export type SpendingStats = {
   currency: string;
   currencies: Array<{ currency: string; count: number; total: number }>;
   totalSpent: number;
+  totalSpentDelta: number | null;
   releasesWithPrice: number;
   averagePrice: number | null;
   medianPrice: number | null;
@@ -241,6 +248,7 @@ export type SpendingStats = {
     purchaseDate: string | null;
   } | null;
   missingPurchaseInfo: number;
+  purchaseDays: Array<{ date: string; count: number }>;
 };
 
 export type ReleasePayload = {

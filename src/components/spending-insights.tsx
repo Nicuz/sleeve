@@ -11,6 +11,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { AcquisitionHeatmap } from '@/components/acquisition-heatmap';
 import { api } from '@/lib/api';
 import { useSettings } from '@/lib/settings';
 import type { StatsRange } from '@/lib/types';
@@ -29,11 +30,13 @@ function MoneyCard({
   title,
   value,
   detail,
+  delta,
 }: {
   icon: LucideIcon;
   title: string;
   value: string;
   detail?: string;
+  delta?: { label: string; positive: boolean };
 }) {
   return (
     <div className="panel p-5">
@@ -48,9 +51,21 @@ function MoneyCard({
           </span>
         )}
       </div>
-      <p className="mt-4 truncate font-display text-2xl font-semibold tabular-nums text-cream">
-        {value}
-      </p>
+      <div className="mt-4 flex flex-wrap items-baseline gap-2">
+        <p className="truncate font-display text-2xl font-semibold tabular-nums text-cream">
+          {value}
+        </p>
+        {delta && (
+          <span
+            className={cn(
+              'text-[10px] font-medium tabular-nums',
+              delta.positive ? 'text-accent' : 'text-coral',
+            )}
+          >
+            {delta.label}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
@@ -201,6 +216,17 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
                 ? 'This year'
                 : 'Last 12 months'
           }
+          delta={
+            data.totalSpentDelta !== null && data.totalSpentDelta !== 0
+              ? {
+                  label: `${data.totalSpentDelta > 0 ? '+' : '-'}${formatPrice(
+                    Math.abs(data.totalSpentDelta),
+                    activeCurrency,
+                  )} vs prev`,
+                  positive: data.totalSpentDelta > 0,
+                }
+              : undefined
+          }
         />
         <MoneyCard
           icon={Receipt}
@@ -219,6 +245,12 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
           detail="This year"
         />
       </div>
+
+      <p className="mt-2 text-[10px] leading-relaxed text-muted/60">
+        {range === 'all'
+          ? 'Choose This year or Last 12 months in Period to compare with the previous period.'
+          : `Compared with the previous ${range === 'year' ? 'year' : '12 months'}.`}
+      </p>
 
       <section className="panel mt-3 p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -297,6 +329,14 @@ export function SpendingInsights({ range }: { range: StatsRange }) {
           </div>
         )}
       </section>
+
+      <div className="mt-3">
+        <AcquisitionHeatmap
+          days={data.purchaseDays}
+          title="Purchases over time"
+          subtitle="Last 12 months"
+        />
+      </div>
 
       <div className="mt-3 grid gap-3 lg:grid-cols-2">
         <section className="panel p-5 sm:p-6">

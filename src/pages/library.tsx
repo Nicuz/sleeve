@@ -140,72 +140,53 @@ export function LibraryPage() {
 
   return (
     <div className="pb-24">
-      <section className="relative mt-6 overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-accent/[0.13] via-ink-800/80 to-ink-900 px-6 py-8   md:px-10 md:py-11">
-        <div className="pointer-events-none absolute -top-28 -right-20 hidden h-[360px] w-[360px] opacity-70 md:block">
-          <div
-            className="animate-spin-slow relative h-full w-full rounded-full border border-white/10 "
-            style={{
-              backgroundImage:
-                'repeating-radial-gradient(circle at 50% 50%, #1c212b 0px, #1c212b 2px, #0a0c10 3px, #0a0c10 8px)',
-            }}
-          >
-            <div className="absolute inset-0 m-auto grid h-28 w-28 place-items-center rounded-full bg-accent text-ink-950 ">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-ink-950/15">
-                <span className="h-2 w-2 rounded-full bg-ink-950/70" />
-              </div>
+      <header className="mt-8">
+        <p className="eyebrow flex items-center gap-2">
+          <Sparkles size={12} />
+          The listening room
+        </p>
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-cream md:text-5xl">
+          Your collection.
+        </h1>
+        <p className="mt-3 max-w-md text-sm leading-relaxed text-muted md:text-[15px]">
+          {stats?.total
+            ? 'Everything you own, kept in one place.'
+            : 'Start with a CD or a record. Sleeve pulls in the cover, label and tracklist for you.'}
+        </p>
+
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => openAdd()} className="btn btn-primary">
+            <Plus size={16} />
+            Add a release
+          </button>
+          <Link to="/import/csv" className="btn btn-secondary">
+            <Table2 size={15} />
+            Import CSV
+          </Link>
+          <Link to="/stats" className="btn btn-secondary">
+            View insights
+            <ArrowUpRight size={15} />
+          </Link>
+        </div>
+
+        <div className="mt-8 flex flex-wrap gap-8 sm:gap-12">
+          {[
+            { label: 'Releases', value: stats?.total ?? 0 },
+            { label: 'Artists', value: stats?.totalArtists ?? 0 },
+            { label: 'Tracks', value: stats?.totalTracks ?? 0 },
+            { label: 'Formats', value: stats?.byFormat.length ?? 0 },
+          ].map((item) => (
+            <div key={item.label}>
+              <p className="font-display text-2xl font-semibold text-cream/90 tabular-nums">
+                {statsQuery.isLoading ? '—' : item.value}
+              </p>
+              <p className="mt-0.5 text-[10px] tracking-[0.18em] text-muted/60 uppercase">
+                {item.label}
+              </p>
             </div>
-            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/[0.06] to-transparent" />
-          </div>
+          ))}
         </div>
-
-        <div className="relative max-w-xl">
-          <p className="eyebrow flex items-center gap-2">
-            <Sparkles size={12} />
-            The listening room
-          </p>
-          <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-cream md:text-5xl">
-            Your collection.
-          </h1>
-          <p className="mt-3 max-w-md text-sm leading-relaxed text-muted md:text-[15px]">
-            {stats?.total
-              ? 'Everything you own, kept in one place.'
-              : 'Start with a CD or a record. Sleeve pulls in the cover, label and tracklist for you.'}
-          </p>
-
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <button type="button" onClick={() => openAdd()} className="btn btn-primary">
-              <Plus size={16} />
-              Add a release
-            </button>
-            <Link to="/import/csv" className="btn btn-secondary">
-              <Table2 size={15} />
-              Import CSV
-            </Link>
-            <Link to="/stats" className="btn btn-secondary">
-              View insights
-              <ArrowUpRight size={15} />
-            </Link>
-          </div>
-
-          <div className="mt-8 flex flex-wrap gap-8 sm:gap-12">
-            {[
-              { label: 'Releases', value: stats?.total ?? 0 },
-              { label: 'Artists', value: stats?.totalArtists ?? 0 },
-              { label: 'Tracks', value: stats?.totalTracks ?? 0 },
-              { label: 'Formats', value: stats?.byFormat.length ?? 0 },
-            ].map((item) => (
-              <div key={item.label}>
-                <p className="font-display text-2xl font-semibold text-cream/90 tabular-nums">
-                  {statsQuery.isLoading ? '—' : item.value}
-                </p>
-                <p className="mt-0.5 text-[10px] tracking-[0.18em] text-muted/60 uppercase">
-                  {item.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      </header>
 
       <section className="relative mt-4 overflow-hidden rounded-2xl border border-accent/20 bg-gradient-to-r from-accent/[0.12] via-ink-900/70 to-ink-900/40 p-5 sm:p-6">
         <div className="pointer-events-none absolute -top-16 -right-10 h-48 w-48 rounded-full bg-accent/[0.08] blur-2xl" />

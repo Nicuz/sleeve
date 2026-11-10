@@ -5,7 +5,7 @@ import { ChevronDown, ChevronRight, Grid2x2, Heart, List, Plus } from 'lucide-re
 import { api } from '@/lib/api';
 import type { WishlistItem } from '@/lib/types';
 import { useSettings } from '@/lib/settings';
-import { cn, formatPrice, pluralize } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import { CoverArt } from '@/components/cover-art';
 import { FormatBadge } from '@/components/release-card';
 import { EmptyState } from '@/components/empty-state';
@@ -191,28 +191,45 @@ export function WishlistPage() {
 
   return (
     <div className="pb-24">
-      <header className="mt-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="eyebrow flex items-center gap-2">
-            <Heart size={12} />
-            Wishlist
-          </p>
-          <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-cream md:text-5xl">
-            Records to hunt down.
-          </h1>
-          <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted">
-            Keep the pressings you want in sight, set target prices and decide what
-            deserves the next trip to the shop.
-          </p>
-        </div>
+      <header className="mt-8">
+        <p className="eyebrow flex items-center gap-2">
+          <Heart size={12} />
+          Wishlist
+        </p>
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-cream md:text-5xl">
+          Records to hunt down.
+        </h1>
+        <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted">
+          Keep the pressings you want in sight, set target prices and decide what deserves
+          the next trip to the shop.
+        </p>
         <button
           type="button"
           onClick={() => setAddOpen(true)}
-          className="btn btn-primary self-start sm:self-auto"
+          className="btn btn-primary mt-5"
         >
           <Plus size={16} />
           Add to wishlist
         </button>
+
+        <div className="mt-8 flex flex-wrap gap-8 sm:gap-12">
+          <div>
+            <p className="font-display text-2xl font-semibold text-cream/90 tabular-nums">
+              {items.length}
+            </p>
+            <p className="mt-0.5 text-[10px] tracking-[0.18em] text-muted/60 uppercase">
+              Wants
+            </p>
+          </div>
+          <div>
+            <p className="font-display text-2xl font-semibold text-cream/90 tabular-nums">
+              {targetValue ?? '—'}
+            </p>
+            <p className="mt-0.5 text-[10px] tracking-[0.18em] text-muted/60 uppercase">
+              Target
+            </p>
+          </div>
+        </div>
       </header>
 
       {isLoading ? (
@@ -246,66 +263,55 @@ export function WishlistPage() {
         </div>
       ) : (
         <>
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] pb-3">
-            <p className="text-xs text-muted">
-              {pluralize(items.length, 'want')}
-              {targetValue ? ` · Target ${targetValue}` : ''}
-            </p>
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 text-xs text-muted">
-                <span className="text-[10px] font-semibold tracking-[0.14em] text-muted/60 uppercase">
-                  Sort
-                </span>
-                <span className="relative">
-                  <select
-                    value={sort}
-                    onChange={(event) =>
-                      setSort(event.target.value as 'recent' | 'artist' | 'price')
-                    }
-                    className="select w-40 pr-8 text-xs"
-                    aria-label="Sort wishlist"
-                  >
-                    <option value="recent">Recently added</option>
-                    <option value="artist">Artist A–Z</option>
-                    <option value="price">Target price</option>
-                  </select>
-                  <ChevronDown
-                    size={13}
-                    className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted"
-                  />
-                </span>
-              </label>
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+            <div className="relative">
+              <select
+                value={sort}
+                onChange={(event) =>
+                  setSort(event.target.value as 'recent' | 'artist' | 'price')
+                }
+                className="select w-40 pr-8 text-xs"
+                aria-label="Sort wishlist"
+              >
+                <option value="recent">Recently added</option>
+                <option value="artist">Artist A–Z</option>
+                <option value="price">Target price</option>
+              </select>
+              <ChevronDown
+                size={13}
+                className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted"
+              />
+            </div>
 
-              <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
-                <button
-                  type="button"
-                  onClick={() => setView('grid')}
-                  className={cn(
-                    'grid h-7 w-7 place-items-center rounded-full transition',
-                    view === 'grid'
-                      ? 'bg-white/10 text-cream'
-                      : 'text-muted hover:text-cream',
-                  )}
-                  aria-label="Grid view"
-                  aria-pressed={view === 'grid'}
-                >
-                  <Grid2x2 size={14} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setView('list')}
-                  className={cn(
-                    'grid h-7 w-7 place-items-center rounded-full transition',
-                    view === 'list'
-                      ? 'bg-white/10 text-cream'
-                      : 'text-muted hover:text-cream',
-                  )}
-                  aria-label="List view"
-                  aria-pressed={view === 'list'}
-                >
-                  <List size={14} />
-                </button>
-              </div>
+            <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
+              <button
+                type="button"
+                onClick={() => setView('grid')}
+                className={cn(
+                  'grid h-7 w-7 place-items-center rounded-full transition',
+                  view === 'grid'
+                    ? 'bg-white/10 text-cream'
+                    : 'text-muted hover:text-cream',
+                )}
+                aria-label="Grid view"
+                aria-pressed={view === 'grid'}
+              >
+                <Grid2x2 size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('list')}
+                className={cn(
+                  'grid h-7 w-7 place-items-center rounded-full transition',
+                  view === 'list'
+                    ? 'bg-white/10 text-cream'
+                    : 'text-muted hover:text-cream',
+                )}
+                aria-label="List view"
+                aria-pressed={view === 'list'}
+              >
+                <List size={14} />
+              </button>
             </div>
           </div>
 

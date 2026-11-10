@@ -101,6 +101,12 @@ function loadWishlist() {
   });
 }
 
+function loadSaved() {
+  return prisma.savedSuggestion.findMany({
+    orderBy: { createdAt: 'asc' },
+  });
+}
+
 export const exportRoutes = new Elysia().get('/api/export', async ({ query, set }) => {
   const format = query.format === 'csv' ? 'csv' : 'json';
   const stamp = new Date().toISOString().slice(0, 10);
@@ -113,7 +119,11 @@ export const exportRoutes = new Elysia().get('/api/export', async ({ query, set 
     return toCsv(releases);
   }
 
-  const [releases, wishlist] = await Promise.all([loadReleases(), loadWishlist()]);
+  const [releases, wishlist, saved] = await Promise.all([
+    loadReleases(),
+    loadWishlist(),
+    loadSaved(),
+  ]);
   set.headers['content-type'] = 'application/json; charset=utf-8';
   set.headers['content-disposition'] =
     `attachment; filename="sleeve-library-${stamp}.json"`;
@@ -124,6 +134,7 @@ export const exportRoutes = new Elysia().get('/api/export', async ({ query, set 
       exportedAt: new Date().toISOString(),
       releases,
       wishlist,
+      saved,
     },
     null,
     2,

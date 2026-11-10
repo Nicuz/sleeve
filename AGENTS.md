@@ -46,7 +46,8 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
   - `enrichReleaseById` (barcode → artist/title → title fallback, score threshold 75)
   - `applyReleaseMatch` (manual MusicBrainz ID)
 - `server/routes/` — releases, wishlist, discovery, import, export, stats, metadata cache, covers, meta, MusicBrainz proxies.
-- `prisma/schema.prisma` — `Release`, `Track`, `WishlistItem`, `MetadataCache`.
+- `prisma/schema.prisma` — `Release`, `Track`, `WishlistItem`, `SavedSuggestion`, `MetadataCache`, `DiscoveryFeed`, `DiscoverySeen`.
+- `server/discovery.ts` — builds the cached Discover feed (Release Radar, New this week, Crate dig).
 - `prisma/seed.ts` — demo data. Destructive only with `--reset`.
 
 ### Frontend
@@ -64,9 +65,9 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
 ## Source-of-truth rules
 
 - Owned releases and tracks live in SQLite. Library/release pages read the DB, not MusicBrainz.
-- `MetadataCache` caches MusicBrainz payloads only.
+- `MetadataCache` caches MusicBrainz payloads only. `DiscoveryFeed`/`DiscoverySeen` store discovery snapshots and exposure history. `SavedSuggestion` stores Discover bookmarks only.
 - Cover Art Archive URLs are stored in DB, but rendered through `/api/cover?url=…` (disk cache in `data/covers`).
-- Wishlist is a separate table; it is not a library status.
+- Wishlist is a separate table; it is not a library status. Wishlist means buy intent only. Discover bookmarks live in `SavedSuggestion`, not Wishlist.
 - JSON export includes releases, tracks and wishlist. CSV import is mapped client-side then sent to generic `/api/import`.
 - PWA works only in a production build; no service worker is registered in dev.
 
@@ -77,6 +78,7 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
 - Use `CoverArt` for every cover; it proxies CAA and handles fallbacks.
 - Every icon-only button needs `aria-label`.
 - Check desktop and mobile. Mobile nav has 5 destinations.
+- Discover cards open a suggestion dialog; creating a release goes through the edition picker.
 - Avoid comments in code unless intent is non-obvious.
 
 ## Data invariants
@@ -86,7 +88,7 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
 - Tracks are ordered by `disc`, `number`, then `position`. Cascade delete from release.
 - Purchase date and `releaseDate` are date-only strings (`YYYY-MM-DD`) where possible.
 - Prices are numbers; UI inputs are text and `parsePriceInput` accepts `3,50` and `3.50`.
-- MusicBrainz IDs are unique (`musicbrainzId`), but null is allowed.
+- MusicBrainz IDs are unique (`musicbrainzId`), but null is allowed. `releaseGroupId` is also unique when present and is used by Discover saves.
 
 ## Enrichment behavior
 

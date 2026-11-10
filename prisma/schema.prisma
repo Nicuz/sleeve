@@ -45,6 +45,7 @@ model Release {
 model WishlistItem {
   id             String   @id @default(cuid())
   musicbrainzId  String?  @unique
+  releaseGroupId String?  @unique
   title          String
   artist         String
   artistId       String?
@@ -66,6 +67,21 @@ model WishlistItem {
   @@index([createdAt])
 }
 
+model SavedSuggestion {
+  id             String   @id @default(cuid())
+  releaseGroupId String   @unique
+  title          String
+  artist         String
+  artistId       String?
+  year           Int?
+  releaseDate    String?
+  coverUrl       String?
+  type           String
+  createdAt      DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model MetadataCache {
   key       String   @id
   payload   String
@@ -74,6 +90,23 @@ model MetadataCache {
   updatedAt DateTime @updatedAt
 
   @@index([expiresAt])
+}
+
+model DiscoveryFeed {
+  id          String   @id @default("current")
+  payload     String
+  generatedAt DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+}
+
+model DiscoverySeen {
+  releaseGroupId String   @id
+  artistId       String?
+  seenAt         DateTime @default(now())
+
+  @@index([seenAt])
 }
 
 model Track {

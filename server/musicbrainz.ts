@@ -734,20 +734,19 @@ export async function getArtist(
   );
 }
 
-export async function searchReleaseGroupsByTag(
-  tag: string,
-  limit = 12,
+async function searchReleaseGroups(
+  query: string,
+  cacheKey: string,
+  limit: number,
   signal?: AbortSignal,
 ): Promise<DiscoverReleaseGroup[]> {
-  const cleanTag = tag.replace(/"/g, '').trim();
-  if (!cleanTag) return [];
-  const query = `tag:"${cleanTag}" AND primarytype:album`;
+  const safeLimit = Math.min(100, Math.max(1, Math.floor(limit)));
   return withCache(
-    `mb:genre-albums:${cleanTag.toLowerCase()}:${limit}`,
+    cacheKey,
     'search',
     async (flightSignal) => {
       const data = await mbFetch<{ 'release-groups'?: MbReleaseGroup[] }>(
-        `release-group/?query=${encodeURIComponent(query)}&fmt=json&limit=${limit}`,
+        `release-group/?query=${encodeURIComponent(query)}&fmt=json&limit=${safeLimit}`,
         flightSignal,
       );
       return (data['release-groups'] ?? []).map((group) => ({
@@ -755,6 +754,61 @@ export async function searchReleaseGroupsByTag(
         score: group.score ?? 0,
       }));
     },
+    signal,
+  );
+}
+
+export async function searchReleaseGroupsByTag(
+  tag: string,
+  limit = 12,
+  signal?: AbortSignal,
+): Promise<DiscoverReleaseGroup[]> {
+  const cleanTag = tag.replace(/"/g, '').trim();
+  if (!cleanTag) return [];
+  const safeLimit = Math.min(100, Math.max(1, Math.floor(limit)));
+  const query = `tag:"${cleanTag}" AND primarytype:album`;
+  return searchReleaseGroups(
+    query,
+    `mb:genre-albums:${cleanTag.toLowerCase()}:${safeLimit}`,
+    safeLimit,
+    signal,
+  );
+}
+
+export async function searchNewReleaseGroupsByTag(
+  tag: string,
+  since: string,
+  until: string,
+  limit = 40,
+  signal?: AbortSignal,
+): Promise<DiscoverReleaseGroup[]> {
+  const cleanTag = tag.replace(/"/g, '').trim();
+  if (!cleanTag) return [];
+  const safeLimit = Math.min(100, Math.max(1, Math.floor(limit)));
+  const query = `tag:"${cleanTag}" AND firstreleasedate:[${since} TO ${until}]`;
+  return searchReleaseGroups(
+    query,
+    `mb:genre-new:${cleanTag.toLowerCase()}:${since}:${until}:${safeLimit}`,
+    safeLimit,
+    signal,
+  );
+}
+
+export async function searchReleaseGroupsByArtistIds(
+  artistIds: string[],
+  since: string,
+  until: string,
+  limit = 100,
+  signal?: AbortSignal,
+): Promise<DiscoverReleaseGroup[]> {
+  const ids = [...new Set(artistIds.filter((id) => /^[0-9a-f-]{36}$/i.test(id)))].sort();
+  if (ids.length === 0) return [];
+  const safeLimit = Math.min(100, Math.max(1, Math.floor(limit)));
+  const query = `arid:(${ids.join(' OR ')}) AND firstreleasedate:[${since} TO ${until}]`;
+  return searchReleaseGroups(
+    query,
+    `mb:artist-new:${ids.join(',')}:${since}:${until}:${safeLimit}`,
+    safeLimit,
     signal,
   );
 }

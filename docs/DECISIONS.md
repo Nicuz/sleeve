@@ -92,3 +92,21 @@ A small hand-written service worker caches shell/assets/API/covers and provides 
 **Status:** accepted
 
 The CSV import page is loaded with `React.lazy` because Papa Parse and mapping UI are only needed there. Other routes remain in the main bundle for now. Expand route splitting if startup size becomes a concern.
+
+## ADR-015 — Composed, cached Discovery feed
+
+**Status:** accepted
+
+Discover is not one random genre query. `server/discovery.ts` composes three feeds: Release Radar (new releases from owned artists), New this week (recent releases across top genres) and Crate dig (older shuffled picks). The generated feed is cached for 6 hours in `DiscoveryFeed`; `?refresh=1` replaces it. Shown release groups are recorded in `DiscoverySeen` for 30 days and deprioritised, then allowed again so sparse collections still get suggestions. Benefits: clearer intent, stable page reloads, and a refresh action that visibly changes content without hammering MusicBrainz.
+
+## ADR-016 — Saved suggestions are separate from Wishlist
+
+**Status:** accepted
+
+Saved suggestions are a pre-decision queue (“listen and decide later”), not buying intent, so they live in `SavedSuggestion` instead of `WishlistItem`. Discover offers **Add to wishlist** and **Save** as separate actions. The Saved tab in Discover can promote an item into Wishlist, which creates a `WishlistItem` and removes the saved row. Benefits: Wishlist counts, target totals, exports and semantics stay pure. `WishlistItem.releaseGroupId` still supports adding a Discover release group directly to Wishlist without choosing a specific edition; the edit dialog routes those items to **Choose edition**.
+
+## ADR-017 — Discover is a decision surface, not data entry
+
+**Status:** accepted
+
+Clicking a Discover card opens a suggestion dialog, not the Add release dialog. The dialog offers **Add to wishlist**, **Save for later** and **I already own it**. “Own it” opens the existing edition picker prefilled with the release group, because a physical release still needs a specific edition, format and condition. Benefits: Discover stays focused on decisions, and collection data is only created through the explicit edition flow.

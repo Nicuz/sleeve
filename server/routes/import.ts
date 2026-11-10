@@ -45,6 +45,7 @@ const releaseSchema = z.object({
 
 const wishlistSchema = z.object({
   musicbrainzId: z.string().nullable().optional(),
+  releaseGroupId: z.string().nullable().optional(),
   title: z.string().min(1),
   artist: z.string().min(1),
   artistId: z.string().nullable().optional(),
@@ -62,6 +63,17 @@ const wishlistSchema = z.object({
   targetCurrency: z.string().nullable().optional(),
 });
 
+const savedSchema = z.object({
+  releaseGroupId: z.string().min(1),
+  title: z.string().min(1),
+  artist: z.string().min(1),
+  artistId: z.string().nullable().optional(),
+  year: z.coerce.number().int().min(1800).max(2200).nullable().optional(),
+  releaseDate: z.string().nullable().optional(),
+  coverUrl: z.string().nullable().optional(),
+  type: z.string().min(1).default('Other'),
+});
+
 function manualKey(title: string, artist: string, format: string) {
   return `${title.trim().toLowerCase()}|${artist.trim().toLowerCase()}|${format.trim().toLowerCase()}`;
 }
@@ -76,24 +88,33 @@ function genresToString(genres: string | string[] | null | undefined): string | 
 }
 
 export const importRoutes = new Elysia().post('/api/import', async ({ body, set }) => {
-  const payload = body as { releases?: unknown; wishlist?: unknown } | unknown[] | null;
+  const payload = body as
+    | { releases?: unknown; wishlist?: unknown; saved?: unknown }
+    | unknown[]
+    | null;
   const releasesInput = Array.isArray(payload) ? payload : payload?.releases;
   const wishlistInput = Array.isArray(payload) ? [] : payload?.wishlist;
+  const savedInput = Array.isArray(payload) ? [] : payload?.saved;
 
-  if (!Array.isArray(releasesInput) && !Array.isArray(wishlistInput)) {
+  if (
+    !Array.isArray(releasesInput) &&
+    !Array.isArray(wishlistInput) &&
+    !Array.isArray(savedInput)
+  ) {
     set.status = 400;
-    return { message: 'No releases or wishlist items found in the backup.' };
+    return { message: 'No releases, wishlist or saved suggestions found in the backup.' };
   }
   if (
     (Array.isArray(releasesInput) && releasesInput.length > 10_000) ||
-    (Array.isArray(wishlistInput) && wishlistInput.length > 10_000)
+    (Array.isArray(wishlistInput) && wishlistInput.length > 10_000) ||
+    (Array.isArray(savedInput) && savedInput.length > 10_000)
   ) {
     set.status = 400;
     return { message: 'Backup is too large to import.' };
   }
 
   try {
-    const [existingReleases, existingWishlist] = await Promise.all([
+    const [existingReleases, existingWishlist, existingSaved] = await Promise.all([
       prisma.release.findMany({
         select: {
           musicbrainzId: true,
@@ -105,11 +126,13 @@ export const importRoutes = new Elysia().post('/api/import', async ({ body, set 
       prisma.wishlistItem.findMany({
         select: {
           musicbrainzId: true,
+          releaseGroupId: true,
           title: true,
           artist: true,
           format: true,
         },
       }),
+      prisma.savedSuggestion.findMany({ select: { releaseGroupId: true } }),
     ]);
 
     const seenReleaseMbids = new Set(
@@ -128,9 +151,16 @@ export const importRoutes = new Elysia().post('/api/import', async ({ body, set 
     const seenWishlistKeys = new Set(
       existingWishlist.map((item) => manualKey(item.title, item.artist, item.format)),
     );
+    const seenWishlistGroupIds = new Set(
+      existingWishlist
+        .map((item) => item.releaseGroupId)
+        .filter((id): id is string => Boolean(id)),
+    );
+    const seenSavedGroupIds = new Set(existingSaved.map((item) => item.releaseGroupId));
 
     const releaseCreates: Array<ReturnType<typeof prisma.release.create>> = [];
     const wishlistCreates: Array<ReturnType<typeof prisma.wishlistItem.create>> = [];
+    const savedCreates: Array<ReturnType<typeof prisma.savedSuggestion.create>> = [];
     let skippedReleases = 0;
     let invalidReleases = 0;
     let skippedWishlist = 0;
@@ -200,8 +230,13 @@ export const importRoutes = new Elysia().post('/api/import', async ({ body, set 
       }
       const data = parsed.data;
       const mbid = data.musicbrainzId?.trim() || null;
+      const groupId = data.releaseGroupId?.trim() || null;
       const key = manualKey(data.title, data.artist, data.format);
-      if ((mbid && seenWishlistMbids.has(mbid)) || (!mbid && seenWishlistKeys.has(key))) {
+      if (
+        (mbid && seenWishlistMbids.has(mbid)) ||
+        (groupId && seenWishlistGroupIds.has(groupId)) ||
+        (!mbid && !groupId && seenWishlistKeys.has(key))
+      ) {
         skippedWishlist += 1;
         continue;
       }
@@ -210,6 +245,7 @@ export const importRoutes = new Elysia().post('/api/import', async ({ body, set 
         prisma.wishlistItem.create({
           data: {
             musicbrainzId: mbid,
+            releaseGroupId: groupId,
             title: data.title,
             artist: data.artist,
             artistId: data.artistId ?? null,
@@ -229,11 +265,46 @@ export const importRoutes = new Elysia().post('/api/import', async ({ body, set 
         }),
       );
       if (mbid) seenWishlistMbids.add(mbid);
+      else if (groupId) seenWishlistGroupIds.add(groupId);
       else seenWishlistKeys.add(key);
     }
 
-    if (releaseCreates.length > 0 || wishlistCreates.length > 0) {
-      await prisma.$transaction([...releaseCreates, ...wishlistCreates]);
+    let skippedSaved = 0;
+    let invalidSaved = 0;
+    for (const raw of Array.isArray(savedInput) ? savedInput : []) {
+      const parsed = savedSchema.safeParse(raw);
+      if (!parsed.success) {
+        invalidSaved += 1;
+        continue;
+      }
+      const data = parsed.data;
+      if (seenSavedGroupIds.has(data.releaseGroupId)) {
+        skippedSaved += 1;
+        continue;
+      }
+      savedCreates.push(
+        prisma.savedSuggestion.create({
+          data: {
+            releaseGroupId: data.releaseGroupId,
+            title: data.title,
+            artist: data.artist,
+            artistId: data.artistId ?? null,
+            year: data.year ?? null,
+            releaseDate: data.releaseDate ?? null,
+            coverUrl: data.coverUrl ?? null,
+            type: data.type,
+          },
+        }),
+      );
+      seenSavedGroupIds.add(data.releaseGroupId);
+    }
+
+    if (
+      releaseCreates.length > 0 ||
+      wishlistCreates.length > 0 ||
+      savedCreates.length > 0
+    ) {
+      await prisma.$transaction([...releaseCreates, ...wishlistCreates, ...savedCreates]);
     }
 
     return {
@@ -243,6 +314,9 @@ export const importRoutes = new Elysia().post('/api/import', async ({ body, set 
       importedWishlist: wishlistCreates.length,
       skippedWishlist,
       invalidWishlist,
+      importedSaved: savedCreates.length,
+      skippedSaved,
+      invalidSaved,
     };
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {

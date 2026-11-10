@@ -5,6 +5,7 @@ import { prisma } from '../db';
 
 const wishlistSchema = z.object({
   musicbrainzId: z.string().nullable().optional(),
+  releaseGroupId: z.string().nullable().optional(),
   title: z.string().min(1, 'Title is required'),
   artist: z.string().min(1, 'Artist is required'),
   artistId: z.string().nullable().optional(),
@@ -55,23 +56,28 @@ export const wishlistRoutes = new Elysia({ prefix: '/api/wishlist' })
     }
     const data = parsed.data;
     try {
+      const releaseGroupId = data.releaseGroupId ?? null;
       if (!data.musicbrainzId) {
         const duplicate = await prisma.wishlistItem.findFirst({
-          where: {
-            musicbrainzId: null,
-            title: data.title,
-            artist: data.artist,
-            format: data.format,
-          },
+          where: releaseGroupId
+            ? { releaseGroupId }
+            : {
+                musicbrainzId: null,
+                releaseGroupId: null,
+                title: data.title,
+                artist: data.artist,
+                format: data.format,
+              },
         });
         if (duplicate) {
           set.status = 409;
-          return { message: 'This release is already on your wishlist.' };
+          return { message: 'This release is already in your wishlist.' };
         }
       }
       const item = await prisma.wishlistItem.create({
         data: {
           musicbrainzId: data.musicbrainzId ?? null,
+          releaseGroupId,
           title: data.title,
           artist: data.artist,
           artistId: data.artistId ?? null,

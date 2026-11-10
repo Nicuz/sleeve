@@ -4,6 +4,7 @@ import { ExternalLink, Loader2, Trash2, X } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import type { WishlistItem } from '@/lib/types';
 import { CURRENCIES, parsePriceInput } from '@/lib/utils';
+import { useApp } from './app-context';
 import { CoverArt } from './cover-art';
 import { useToast } from './toast';
 
@@ -15,6 +16,7 @@ export function WishlistEditDialog({
   onClose: () => void;
 }) {
   const { toast } = useToast();
+  const { openAdd } = useApp();
   const queryClient = useQueryClient();
   const [targetPrice, setTargetPrice] = useState('');
   const [targetCurrency, setTargetCurrency] = useState('EUR');
@@ -166,9 +168,13 @@ export function WishlistEditDialog({
                   .filter(Boolean)
                   .join(' · ')}
               </p>
-              {item.musicbrainzId && (
+              {(item.musicbrainzId || item.releaseGroupId) && (
                 <a
-                  href={`https://musicbrainz.org/release/${item.musicbrainzId}`}
+                  href={
+                    item.musicbrainzId
+                      ? `https://musicbrainz.org/release/${item.musicbrainzId}`
+                      : `https://musicbrainz.org/release-group/${item.releaseGroupId}`
+                  }
                   target="_blank"
                   rel="noreferrer"
                   className="mt-2 inline-flex items-center gap-1 text-[10px] text-muted transition hover:text-cream"
@@ -258,15 +264,32 @@ export function WishlistEditDialog({
             <button type="button" onClick={onClose} className="btn btn-ghost py-2">
               Cancel
             </button>
-            <button
-              type="button"
-              onClick={() => addToLibrary.mutate()}
-              disabled={addToLibrary.isPending || updateItem.isPending}
-              className="btn btn-secondary py-2"
-            >
-              {addToLibrary.isPending && <Loader2 size={14} className="animate-spin" />}
-              Add to library
-            </button>
+            {item.releaseGroupId ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  openAdd({
+                    query: `rgid:${item.releaseGroupId}`,
+                    display: `${item.artist} — ${item.title}`,
+                  });
+                }}
+                disabled={updateItem.isPending}
+                className="btn btn-secondary py-2"
+              >
+                Choose edition
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => addToLibrary.mutate()}
+                disabled={addToLibrary.isPending || updateItem.isPending}
+                className="btn btn-secondary py-2"
+              >
+                {addToLibrary.isPending && <Loader2 size={14} className="animate-spin" />}
+                Add to library
+              </button>
+            )}
             <button
               type="button"
               onClick={() => updateItem.mutate()}

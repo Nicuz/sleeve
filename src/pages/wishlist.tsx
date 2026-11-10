@@ -264,23 +264,25 @@ export function WishlistPage() {
       ) : (
         <>
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-            <div className="relative">
-              <select
-                value={sort}
-                onChange={(event) =>
-                  setSort(event.target.value as 'recent' | 'artist' | 'price')
-                }
-                className="select w-40 pr-8 text-xs"
-                aria-label="Sort wishlist"
-              >
-                <option value="recent">Recently added</option>
-                <option value="artist">Artist A–Z</option>
-                <option value="price">Target price</option>
-              </select>
-              <ChevronDown
-                size={13}
-                className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted"
-              />
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative">
+                <select
+                  value={sort}
+                  onChange={(event) =>
+                    setSort(event.target.value as 'recent' | 'artist' | 'price')
+                  }
+                  className="select w-40 pr-8 text-xs"
+                  aria-label="Sort wishlist"
+                >
+                  <option value="recent">Recently added</option>
+                  <option value="artist">Artist A–Z</option>
+                  <option value="price">Target price</option>
+                </select>
+                <ChevronDown
+                  size={13}
+                  className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted"
+                />
+              </div>
             </div>
 
             <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">

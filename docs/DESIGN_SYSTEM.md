@@ -178,6 +178,13 @@ Rules:
 - Do not add page-level back links to primary destinations; sidebar and mobile nav already provide navigation.
 - Header actions and filters align consistently across pages: filters left, view controls right.
 
+### Discovery workflow
+
+- Discover cards open a suggestion dialog. They do not open the Add release form.
+- Dialog actions: **Add to wishlist**, **Save for later**, **I already own it**.
+- “I already own it” opens the edition picker; never create a Release directly from Discover.
+- Saved suggestions live in Discover, not Wishlist. Wishlist remains buy intent.
+
 ## Components
 
 These classes live in `src/index.css`.

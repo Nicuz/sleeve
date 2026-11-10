@@ -170,17 +170,30 @@ Non-CAA manual image URLs are rendered directly.
 
 ### Wishlist
 
-Wishlist is a separate table, not a release status. Items can be added from MusicBrainz search results without fetching full release detail. Target price/currency, priority and notes are editable per item. Wishlist state is not part of collection stats.
+Wishlist is a separate table, not a release status. It represents buy intent only. Items can be added from MusicBrainz search results without fetching full release detail. Target price/currency and notes are editable per item. Wishlist state is not part of collection stats.
+
+### Saved suggestions
+
+Discover bookmarks live in `SavedSuggestion`, not Wishlist. Saving stores only release-group metadata. The Saved tab in Discover can promote a suggestion into Wishlist, which creates a `WishlistItem` and removes the saved row. Saved items are excluded from future Discover feeds.
 
 ### Discovery
 
-- Reads collection genres and owned artist IDs/names.
-- Uses the top 3 genres.
-- Searches MusicBrainz release groups by tag (`primarytype:album`).
-- Keeps studio albums only (no secondary types).
-- Removes owned artists, Various Artists, duplicates and artists repeated across sections.
-- Up to 8 suggestions per genre; cached through the MB service.
-- Card opens the Add dialog for the release group; artist link opens `/artists/:mbid`.
+`server/discovery.ts` composes a cached feed from three sources:
+
+- **Release Radar** — top 15 owned artists by collection count. One MusicBrainz query batched across their artist IDs, 60-day window, albums/EPs only.
+- **New this week** — top 3 genres. One date-windowed tag query per genre, albums/EPs from the last 30 days, owned artists excluded.
+- **Crate dig** — older albums/EPs from those genres, shuffled for serendipity.
+
+Feed rules:
+
+- Mixes only studio albums/EPs; no secondary types.
+- Removes owned releases, wishlist items, duplicates, Various Artists and repeated artists.
+- Caps: 8 Radar, 8 New, 8 Crate, with artist diversity limits.
+- First Radar item becomes the lead pick and is removed from its section.
+- Feed snapshots live in `DiscoveryFeed` for 6 hours; `?refresh=1` regenerates.
+- Returned release-group IDs are stored in `DiscoverySeen` for 30 days and deprioritised on later generations.
+- Saved and wishlisted release groups are excluded from new feeds.
+- Card opens a suggestion dialog with **Add to wishlist**, **Save for later** and **I already own it**. Owning opens the edition picker; Discover never creates a release directly. Artist link opens `/artists/:mbid`.
 
 ### PWA/offline
 

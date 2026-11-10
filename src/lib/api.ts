@@ -10,6 +10,8 @@ import type {
   Meta,
   Release,
   ReleasePayload,
+  SavedSuggestion,
+  SavedSuggestionPayload,
   SearchResult,
   WishlistItem,
   WishlistPayload,
@@ -75,8 +77,8 @@ export const api = {
     });
   },
 
-  discover() {
-    return request<DiscoverResponse>('/api/discover');
+  discover(refresh = false) {
+    return request<DiscoverResponse>(`/api/discover${refresh ? '?refresh=1' : ''}`);
   },
 
   listWishlist() {
@@ -100,6 +102,28 @@ export const api = {
   deleteWishlistItem(id: string) {
     return request<{ ok: boolean }>(`/api/wishlist/${id}`, {
       method: 'DELETE',
+    });
+  },
+  listSavedSuggestions() {
+    return request<{ items: SavedSuggestion[]; count: number }>('/api/saved');
+  },
+
+  saveSuggestion(payload: SavedSuggestionPayload) {
+    return request<{ item: SavedSuggestion }>('/api/saved', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  removeSavedSuggestion(id: string) {
+    return request<{ ok: boolean }>(`/api/saved/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  promoteSavedSuggestion(id: string) {
+    return request<{ item: WishlistItem }>(`/api/saved/${id}/promote`, {
+      method: 'POST',
     });
   },
 

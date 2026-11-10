@@ -247,7 +247,7 @@ Genres are sorted by frequency, capped at 30, case-normalized by ingestion.
 
 ### `GET /api/wishlist`
 
-Items sorted by priority (high first) then creation date.
+Items sorted by creation date, newest first.
 
 ```json
 { "items": [ /* WishlistItem */ ], "count": 3 }
@@ -258,6 +258,7 @@ Items sorted by priority (high first) then creation date.
 ```json
 {
   "musicbrainzId": "uuid or null",
+  "releaseGroupId": "uuid or null",
   "title": "Random Access Memories",
   "artist": "Daft Punk",
   "artistId": "uuid or null",
@@ -271,37 +272,83 @@ Items sorted by priority (high first) then creation date.
   "formatDetail": "2×12\" Vinyl",
   "coverUrl": "https://coverartarchive.org/...",
   "notes": "Original pressing",
-  "priority": 3,
   "targetPrice": 25,
   "targetCurrency": "EUR"
 }
 ```
 
-`priority`: `1` low, `2` medium, `3` high. Duplicate MBID or manual title/artist/format returns `409`.
+Wishlist is buy intent only. Duplicate MBID, release group or manual title/artist/format returns `409`.
 
 ### `PATCH /api/wishlist/:id`
 
-Partial update; commonly `targetPrice`, `targetCurrency`, `priority`, `notes`.
+Partial update; commonly `targetPrice`, `targetCurrency`, `notes`.
 
 ### `DELETE /api/wishlist/:id`
+
+## Saved suggestions
+
+### `GET /api/saved`
+
+Discover bookmarks. These are not wishlist items.
+
+```json
+{ "items": [ /* SavedSuggestion */ ], "count": 1 }
+```
+
+### `POST /api/saved`
+
+```json
+{
+  "releaseGroupId": "uuid",
+  "title": "Zarathustra Style",
+  "artist": "Fabri Fibra & Neffa",
+  "artistId": "uuid or null",
+  "year": 2026,
+  "releaseDate": "2026-10-09",
+  "coverUrl": "https://coverartarchive.org/...",
+  "type": "Album"
+}
+```
+
+Duplicate release group returns `409`.
+
+### `POST /api/saved/:id/promote`
+
+Moves a saved suggestion into Wishlist as a wanted item and removes the saved row.
+
+### `DELETE /api/saved/:id`
 
 ## Discovery
 
 ### `GET /api/discover`
 
-Uses the top 3 collection genres. Suggestions are studio albums by artists not already owned.
+Builds a Spotify-like feed from the user’s collection:
+
+- **Release Radar** — new albums/EPs from the top 15 owned artists, last 60 days.
+- **New this week** — recent albums/EPs across the top 3 genres, last 30 days.
+- **Crate dig** — randomised older picks from those genres.
+- **Lead pick** — the first Radar item, else first new/crate item.
+
+The generated feed is cached for 6 hours. Add `?refresh=1` to force a new feed. Seen release-group IDs are remembered for 30 days and deprioritised on later refreshes.
 
 ```json
 {
   "basedOn": ["Jazz", "Rock", "Electronic"],
+  "featured": { /* release-group item */ },
   "sections": [
-    { "genre": "Jazz", "items": [ /* release-group suggestions */ ] }
+    {
+      "id": "radar",
+      "kind": "radar",
+      "title": "Release Radar",
+      "subtitle": "New releases from artists you own",
+      "items": [ /* release-group items */ ]
+    }
   ],
   "generatedAt": "2026-…"
 }
 ```
 
-If all genre searches fail: `502`.
+Items include MusicBrainz release-group fields plus `reason` and optional `genre`. If generation fails and no cached feed exists: `502`.
 
 ## Export / import
 
@@ -315,7 +362,8 @@ Full JSON backup:
   "version": 1,
   "exportedAt": "2026-…",
   "releases": [ /* releases with tracks */ ],
-  "wishlist": [ /* wishlist items */ ]
+  "wishlist": [ /* wishlist items */ ],
+  "saved": [ /* saved suggestions */ ]
 }
 ```
 
@@ -330,7 +378,11 @@ Release/track CSV export: one row per track, release fields repeated. Releases w
 Merge-safe JSON import. Accepts:
 
 ```json
-{ "releases": [ /* release objects, tracks optional */ ], "wishlist": [ /* wishlist objects */ ] }
+{
+  "releases": [ /* release objects, tracks optional */ ],
+  "wishlist": [ /* wishlist objects */ ],
+  "saved": [ /* saved suggestion objects */ ]
+}
 ```
 
 or a bare releases array. Unknown IDs are regenerated.
@@ -350,7 +402,10 @@ Response:
   "invalidReleases": 0,
   "importedWishlist": 1,
   "skippedWishlist": 0,
-  "invalidWishlist": 0
+  "invalidWishlist": 0,
+  "importedSaved": 1,
+  "skippedSaved": 0,
+  "invalidSaved": 0
 }
 ```
 

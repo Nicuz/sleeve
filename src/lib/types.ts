@@ -106,13 +106,24 @@ export type DiscoverReleaseGroup = ArtistReleaseGroup & {
   score: number;
 };
 
+export type DiscoveryItem = DiscoverReleaseGroup & {
+  reason: string;
+  genre: string | null;
+};
+
+export type DiscoverSectionKind = 'radar' | 'new' | 'crate';
+
 export type DiscoverSection = {
-  genre: string;
-  items: DiscoverReleaseGroup[];
+  id: string;
+  kind: DiscoverSectionKind;
+  title: string;
+  subtitle: string;
+  items: DiscoveryItem[];
 };
 
 export type DiscoverResponse = {
   basedOn: string[];
+  featured: DiscoveryItem | null;
   sections: DiscoverSection[];
   generatedAt: string;
 };
@@ -148,11 +159,15 @@ export type ImportResult = {
   importedWishlist: number;
   skippedWishlist: number;
   invalidWishlist: number;
+  importedSaved: number;
+  skippedSaved: number;
+  invalidSaved: number;
 };
 
 export type WishlistItem = {
   id: string;
   musicbrainzId: string | null;
+  releaseGroupId: string | null;
   title: string;
   artist: string;
   artistId: string | null;
@@ -174,6 +189,7 @@ export type WishlistItem = {
 
 export type WishlistPayload = {
   musicbrainzId?: string | null;
+  releaseGroupId?: string | null;
   title: string;
   artist: string;
   artistId?: string | null;
@@ -189,6 +205,30 @@ export type WishlistPayload = {
   notes?: string | null;
   targetPrice?: number | null;
   targetCurrency?: string | null;
+};
+
+export type SavedSuggestion = {
+  id: string;
+  releaseGroupId: string;
+  title: string;
+  artist: string;
+  artistId: string | null;
+  year: number | null;
+  releaseDate: string | null;
+  coverUrl: string | null;
+  type: string;
+  createdAt: string;
+};
+
+export type SavedSuggestionPayload = {
+  releaseGroupId: string;
+  title: string;
+  artist: string;
+  artistId?: string | null;
+  year?: number | null;
+  releaseDate?: string | null;
+  coverUrl?: string | null;
+  type: string;
 };
 
 export type StatsRange = 'all' | 'year' | '12m';

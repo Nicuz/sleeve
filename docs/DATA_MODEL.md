@@ -58,16 +58,31 @@ Separate from owned releases.
 | Field | Notes |
 | --- | --- |
 | `id` | CUID |
-| `musicbrainzId` | Unique when present |
+| `musicbrainzId` | Unique when present; absent for release-group-only items |
+| `releaseGroupId` | Unique when present; set when adding a Discover release group |
 | `title`, `artist`, `artistId` | Same semantics as Release |
 | `year`, `releaseDate`, `country`, `label`, `catalogNumber`, `barcode` | Optional metadata |
 | `format`, `formatDetail`, `coverUrl` | Optional/display data |
 | `notes` | User notes |
-| `priority` | 1 low, 2 medium (default), 3 high |
 | `targetPrice`, `targetCurrency` | Optional target |
 | `createdAt`, `updatedAt` | Timestamps |
 
-No tracklist, condition, rating or purchase fields: wishlist items are not owned copies.
+No tracklist, condition, rating or purchase fields: wishlist items are not owned copies. Wishlist means buy intent only.
+
+## SavedSuggestion
+
+Lightweight Discover bookmark, kept out of Wishlist until the user decides to buy.
+
+| Field | Notes |
+| --- | --- |
+| `id` | CUID |
+| `releaseGroupId` | Unique MusicBrainz release-group MBID |
+| `title`, `artist`, `artistId` | Display metadata |
+| `year`, `releaseDate`, `coverUrl` | Optional metadata |
+| `type` | `Album`, `EP`, etc. |
+| `createdAt` | Saved timestamp |
+
+Promoting a saved suggestion creates a `WishlistItem` and deletes the saved row. Saved suggestions are not part of wishlist counts or target totals.
 
 Wishlist is not part of collection stats.
 
@@ -92,6 +107,31 @@ TTL tiers (see `server/musicbrainz.ts`):
 
 Expired rows are deleted on access and opportunistically pruned. Clearing this table does not touch the collection.
 
+## DiscoveryFeed
+
+Single cached Discover payload.
+
+| Field | Notes |
+| --- | --- |
+| `id` | Always `current` |
+| `payload` | JSON discovery feed |
+| `generatedAt` | Last generation time |
+| `expiresAt` | Feed TTL (6 hours) |
+
+`?refresh=1` replaces this row immediately.
+
+## DiscoverySeen
+
+Release groups already shown in Discover.
+
+| Field | Notes |
+| --- | --- |
+| `releaseGroupId` | MusicBrainz release-group MBID, primary key |
+| `artistId` | Optional artist MBID |
+| `seenAt` | Last time shown |
+
+Rows older than 30 days are pruned. Seen items are deprioritised when building a new feed, not hard-excluded, so sparse collections still get suggestions.
+
 ## Cover cache
 
 Not in SQLite. Cover Art Archive images are cached on disk:
@@ -115,6 +155,7 @@ Settings never leave the browser. Export/import does not include them.
 ## Invariants
 
 - Owned data lives in `Release`/`Track`; remote MusicBrainz payloads only in `MetadataCache`.
+- Discover state lives in `DiscoveryFeed`/`DiscoverySeen`; clearing it must not affect the collection.
 - `format` is always a normalized category. Keep the raw string in `formatDetail`.
 - `genres` is comma-separated; ingestion dedupes case-insensitively.
 - MB IDs are unique, but multiple null values are allowed.
@@ -143,12 +184,15 @@ Settings never leave the browser. Export/import does not include them.
     }
   ],
   "wishlist": [
-    { "id": "…", "title": "…", "artist": "…", "priority": 2, "…": "all WishlistItem fields" }
+    { "id": "…", "title": "…", "artist": "…", "…": "all WishlistItem fields" }
+  ],
+  "saved": [
+    { "id": "…", "title": "…", "artist": "…", "…": "all SavedSuggestion fields" }
   ]
 }
 ```
 
-CSV export is release/track rows: one row per track, release fields repeated; releases with no tracks still produce one row. CSV export does not include wishlist.
+CSV export is release/track rows: one row per track, release fields repeated; releases with no tracks still produce one row. CSV export does not include wishlist or saved suggestions.
 
 ## Import rules
 
@@ -158,6 +202,7 @@ CSV export is release/track rows: one row per track, release fields repeated; re
 - If `musicbrainzId` exists, dedupe by MBID only. This permits separate editions.
 - If `musicbrainzId` is null, dedupe by normalized `title|artist|format`.
 - Wishlist uses the same rules.
+- Saved suggestions dedupe by `releaseGroupId`.
 - Invalid rows are counted and skipped; the rest still import.
 - Tracks are created with the release in the same transaction.
 - `genres` accepts string or array.

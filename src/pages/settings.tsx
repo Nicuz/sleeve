@@ -194,17 +194,20 @@ export function SettingsPage() {
       const result = await api.importData(parsed);
       queryClient.invalidateQueries();
       queryClient.removeQueries({ queryKey: ['release'] });
-      if (result.importedReleases + result.importedWishlist === 0) {
+      if (
+        result.importedReleases + result.importedWishlist + result.importedSaved ===
+        0
+      ) {
         toast('Backup read: nothing new to import.', 'info');
       } else {
         toast(
-          `Imported ${pluralize(result.importedReleases, 'release')} and ${pluralize(result.importedWishlist, 'wishlist item')}.`,
+          `Imported ${pluralize(result.importedReleases, 'release')}, ${pluralize(result.importedWishlist, 'wishlist item')} and ${pluralize(result.importedSaved, 'saved suggestion')}.`,
           'success',
         );
       }
-      if (result.invalidReleases + result.invalidWishlist > 0) {
+      if (result.invalidReleases + result.invalidWishlist + result.invalidSaved > 0) {
         toast(
-          `${pluralize(result.invalidReleases + result.invalidWishlist, 'item')} could not be read.`,
+          `${pluralize(result.invalidReleases + result.invalidWishlist + result.invalidSaved, 'item')} could not be read.`,
           'error',
         );
       }

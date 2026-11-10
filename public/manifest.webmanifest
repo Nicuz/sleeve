@@ -1,7 +1,7 @@
 {
-  "name": "Sleeve — listening archive",
+  "name": "Sleeve — your dust-free shelf",
   "short_name": "Sleeve",
-  "description": "A private listening archive for your CDs and vinyl.",
+  "description": "A private, dust-free shelf for your CDs and vinyl.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

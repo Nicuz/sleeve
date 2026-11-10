@@ -47,7 +47,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
             sleeve
           </span>
           <span className="mt-1 block text-[8px] font-semibold tracking-[0.26em] text-muted/70 uppercase">
-            listening archive
+            dust-free shelf
           </span>
         </div>
       )}

@@ -14,15 +14,19 @@ const formatStyles: Record<string, string> = {
 export function FormatBadge({
   format,
   className,
+  overlay = false,
 }: {
   format: string;
   className?: string;
+  overlay?: boolean;
 }) {
   return (
     <span
       className={cn(
-        'rounded-full border px-2 py-0.5 text-[9px] font-semibold tracking-[0.12em] uppercase backdrop-blur-md',
-        formatStyles[format] ?? formatStyles.Other,
+        'inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-semibold tracking-[0.12em] uppercase backdrop-blur-md',
+        overlay
+          ? 'border-white/15 bg-black/60 px-2.5 py-1 text-[10px] text-white'
+          : (formatStyles[format] ?? formatStyles.Other),
         className,
       )}
     >
@@ -59,15 +63,15 @@ export function ReleaseCard({
       onClick={() => onOpen(release.id)}
       className="group w-full text-left outline-none"
     >
-      <div className="relative aspect-square overflow-hidden rounded-xl border border-white/10 shadow-lg shadow-black/40 transition duration-300 group-hover:-translate-y-1 group-hover:border-white/20 group-hover:shadow-2xl group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
+      <div className="relative aspect-square overflow-hidden rounded-xl border border-white/10   transition duration-300 group-hover:-translate-y-1 group-hover:border-white/20  group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
         <CoverArt
           src={release.coverUrl}
           title={release.title}
           className="h-full w-full transition duration-500 group-hover:scale-[1.05]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
-        <FormatBadge format={release.format} className="absolute top-2 left-2" />
-        <span className="absolute right-2.5 bottom-2.5 grid h-9 w-9 translate-y-2 place-items-center rounded-full bg-accent text-ink-950 opacity-0 shadow-lg shadow-black/40 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        <FormatBadge format={release.format} overlay className="absolute top-2 left-2" />
+        <span className="absolute right-2.5 bottom-2.5 grid h-9 w-9 translate-y-2 place-items-center rounded-full bg-accent text-ink-950 opacity-0   transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           <Disc3 size={17} />
         </span>
       </div>

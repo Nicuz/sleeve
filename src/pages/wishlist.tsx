@@ -25,15 +25,15 @@ function WishlistCard({
       onClick={() => onEdit(item)}
       className="group w-full text-left outline-none"
     >
-      <div className="relative aspect-square overflow-hidden rounded-xl border border-white/10 shadow-lg shadow-black/40 transition duration-300 group-hover:-translate-y-1 group-hover:border-white/20 group-hover:shadow-2xl group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
+      <div className="relative aspect-square overflow-hidden rounded-xl border border-white/10   transition duration-300 group-hover:-translate-y-1 group-hover:border-white/20  group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
         <CoverArt
           src={item.coverUrl}
           title={item.title}
           className="h-full w-full transition duration-500 group-hover:scale-[1.05]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
-        <FormatBadge format={item.format} className="absolute top-2 left-2" />
-        <span className="absolute right-2.5 bottom-2.5 rounded-full bg-accent px-2.5 py-1 text-[9px] font-semibold text-ink-950 opacity-0 shadow-lg shadow-black/40 transition duration-300 group-hover:opacity-100">
+        <FormatBadge format={item.format} overlay className="absolute top-2 left-2" />
+        <span className="absolute right-2.5 bottom-2.5 rounded-full bg-accent px-2.5 py-1 text-[9px] font-semibold text-ink-950 opacity-0   transition duration-300 group-hover:opacity-100">
           Edit
         </span>
       </div>

@@ -43,7 +43,7 @@ export function ShuffleDialog({ open, onClose }: { open: boolean; onClose: () =>
       }}
     >
       <div
-        className="animate-scale-in w-full max-w-lg overflow-hidden rounded-t-3xl border border-white/10 bg-ink-900 shadow-2xl shadow-black/60 sm:rounded-3xl"
+        className="animate-scale-in w-full max-w-lg overflow-hidden rounded-t-3xl border border-white/10 bg-ink-900   sm:rounded-3xl"
         role="dialog"
         aria-modal="true"
         aria-label="Pick a shuffle album"
@@ -72,7 +72,7 @@ export function ShuffleDialog({ open, onClose }: { open: boolean; onClose: () =>
               <CoverArt
                 src={release.coverUrl}
                 title={release.title}
-                className="h-40 w-40 rounded-2xl border border-white/10 shadow-xl shadow-black/30"
+                className="h-40 w-40 rounded-2xl border border-white/10  "
                 iconSize={30}
               />
               <p className="mt-4 font-display text-lg font-semibold text-cream">

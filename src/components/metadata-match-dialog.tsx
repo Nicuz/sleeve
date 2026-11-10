@@ -104,7 +104,7 @@ export function MetadataMatchDialog({
       }}
     >
       <div
-        className="animate-scale-in flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-ink-900 shadow-2xl shadow-black/60 sm:max-h-[88vh] sm:rounded-3xl"
+        className="animate-scale-in flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-ink-900   sm:max-h-[88vh] sm:rounded-3xl"
         role="dialog"
         aria-modal="true"
         aria-label="Match metadata manually"

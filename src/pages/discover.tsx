@@ -22,7 +22,7 @@ function DiscoverCard({
       <button
         type="button"
         onClick={() => onAdd(group)}
-        className="relative block aspect-square w-full overflow-hidden rounded-xl border border-white/10 shadow-lg shadow-black/40 transition duration-300 outline-none group-hover:-translate-y-1 group-hover:border-white/20 group-hover:shadow-2xl group-focus-visible:ring-2 group-focus-visible:ring-accent/60"
+        className="relative block aspect-square w-full overflow-hidden rounded-xl border border-white/10   transition duration-300 outline-none group-hover:-translate-y-1 group-hover:border-white/20  group-focus-visible:ring-2 group-focus-visible:ring-accent/60"
         aria-label={`Add ${group.title} by ${group.artist}`}
       >
         <CoverArt
@@ -34,7 +34,7 @@ function DiscoverCard({
         <span className="absolute top-2 left-2 rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 text-[9px] font-semibold tracking-[0.1em] text-accent uppercase backdrop-blur-md">
           {group.primaryType}
         </span>
-        <span className="absolute right-2.5 bottom-2.5 flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-[9px] font-semibold text-ink-950 opacity-0 shadow-lg shadow-black/40 transition duration-300 group-hover:opacity-100">
+        <span className="absolute right-2.5 bottom-2.5 flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-[9px] font-semibold text-ink-950 opacity-0   transition duration-300 group-hover:opacity-100">
           <Plus size={11} />
           Add
         </span>

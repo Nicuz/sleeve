@@ -124,7 +124,7 @@ export function MetadataEnrichDialog({
       }}
     >
       <div
-        className="animate-scale-in flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-ink-900 shadow-2xl shadow-black/60 sm:max-h-[85vh] sm:rounded-3xl"
+        className="animate-scale-in flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-ink-900   sm:max-h-[85vh] sm:rounded-3xl"
         role="dialog"
         aria-modal="true"
         aria-label="Download metadata"

@@ -20,7 +20,7 @@ export function OfflineBanner() {
   if (!offline) return null;
 
   return (
-    <div className="fixed bottom-24 left-1/2 z-[45] flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-ink-900/95 px-3.5 py-2 text-[11px] font-medium text-cream shadow-xl shadow-black/40 backdrop-blur-xl lg:bottom-6">
+    <div className="fixed bottom-24 left-1/2 z-[45] flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-ink-900/95 px-3.5 py-2 text-[11px] font-medium text-cream   backdrop-blur-xl lg:bottom-6">
       <WifiOff size={13} className="text-accent" />
       Offline · showing cached data
     </div>

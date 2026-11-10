@@ -15,7 +15,7 @@ export function ArtistAvatar({ name, className }: { name: string; className?: st
       role="img"
       aria-label={name}
       className={cn(
-        'grid shrink-0 place-items-center rounded-full border border-white/10 font-display font-semibold text-cream shadow-2xl shadow-black/40',
+        'grid shrink-0 place-items-center rounded-full border border-white/10 font-display font-semibold text-cream  ',
         className,
       )}
       style={{

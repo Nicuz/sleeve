@@ -49,7 +49,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {items.map((item) => (
           <div
             key={item.id}
-            className="animate-scale-in pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border border-white/10 bg-ink-800/95 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl"
+            className="animate-scale-in pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border border-white/10 bg-ink-800/95 px-4 py-3   backdrop-blur-xl"
           >
             <span
               className={

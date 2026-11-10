@@ -29,7 +29,7 @@ export function UpdatePrompt() {
 
   return (
     <div className="animate-scale-in fixed right-4 bottom-20 z-[80] w-[calc(100%-2rem)] max-w-sm sm:bottom-6">
-      <div className="panel flex items-start gap-3 bg-ink-800/95 p-4 shadow-2xl shadow-black/40 backdrop-blur-xl">
+      <div className="panel flex items-start gap-3 bg-ink-800/95 p-4   backdrop-blur-xl">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent/15 text-accent">
           <RefreshCw size={16} className={reloading ? 'animate-spin' : undefined} />
         </span>

@@ -309,7 +309,7 @@ export function ReleasePage() {
 
         <div className="pointer-events-none absolute top-1/2 right-12 hidden h-56 w-56 -translate-y-1/2 opacity-40 min-[1280px]:block">
           <div
-            className="animate-spin-slow relative h-full w-full rounded-full border border-white/10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.9)]"
+            className="animate-spin-slow relative h-full w-full rounded-full border border-white/10 "
             style={{
               backgroundImage:
                 'repeating-radial-gradient(circle at 50% 50%, #1c212b 0px, #1c212b 2px, #0a0c10 3px, #0a0c10 8px)',
@@ -327,7 +327,7 @@ export function ReleasePage() {
             <CoverArt
               src={release.coverUrl}
               title={release.title}
-              className="h-44 w-44 rounded-2xl border border-white/15 shadow-2xl shadow-black/50 sm:h-56 sm:w-56"
+              className="h-44 w-44 rounded-2xl border border-white/15   sm:h-56 sm:w-56"
               iconSize={46}
               onError={() => setCoverFailed(true)}
             />

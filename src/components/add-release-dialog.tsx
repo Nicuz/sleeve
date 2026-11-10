@@ -379,7 +379,7 @@ export function AddReleaseDialog() {
       }}
     >
       <div
-        className="animate-scale-in flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-ink-900 shadow-2xl shadow-black/60 sm:max-h-[90vh] sm:rounded-3xl"
+        className="animate-scale-in flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-ink-900   sm:max-h-[90vh] sm:rounded-3xl"
         role="dialog"
         aria-modal="true"
         aria-label="Add a release"
@@ -976,7 +976,7 @@ function ReleaseEditor({
         <CoverArt
           src={detail.coverUrl}
           title={detail.title}
-          className="h-28 w-28 shrink-0 rounded-xl border border-white/10 shadow-lg shadow-black/30"
+          className="h-28 w-28 shrink-0 rounded-xl border border-white/10  "
           iconSize={26}
         />
         <div className="min-w-0 flex-1 pt-0.5">

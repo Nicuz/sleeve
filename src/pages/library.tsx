@@ -140,16 +140,16 @@ export function LibraryPage() {
 
   return (
     <div className="pb-24">
-      <section className="relative mt-6 overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-accent/[0.13] via-ink-800/80 to-ink-900 px-6 py-8 shadow-2xl shadow-black/20 md:px-10 md:py-11">
+      <section className="relative mt-6 overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-accent/[0.13] via-ink-800/80 to-ink-900 px-6 py-8   md:px-10 md:py-11">
         <div className="pointer-events-none absolute -top-28 -right-20 hidden h-[360px] w-[360px] opacity-70 md:block">
           <div
-            className="animate-spin-slow relative h-full w-full rounded-full border border-white/10 shadow-[0_20px_80px_-20px_rgba(0,0,0,0.9)]"
+            className="animate-spin-slow relative h-full w-full rounded-full border border-white/10 "
             style={{
               backgroundImage:
                 'repeating-radial-gradient(circle at 50% 50%, #1c212b 0px, #1c212b 2px, #0a0c10 3px, #0a0c10 8px)',
             }}
           >
-            <div className="absolute inset-0 m-auto grid h-28 w-28 place-items-center rounded-full bg-accent text-ink-950 shadow-inner">
+            <div className="absolute inset-0 m-auto grid h-28 w-28 place-items-center rounded-full bg-accent text-ink-950 ">
               <div className="grid h-9 w-9 place-items-center rounded-full bg-ink-950/15">
                 <span className="h-2 w-2 rounded-full bg-ink-950/70" />
               </div>
@@ -210,7 +210,7 @@ export function LibraryPage() {
         <div className="pointer-events-none absolute -top-16 -right-10 h-48 w-48 rounded-full bg-accent/[0.08] blur-2xl" />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
-            <span className="relative grid h-14 w-14 shrink-0 place-items-center rounded-full border border-white/10 bg-ink-950/60 shadow-lg shadow-black/20">
+            <span className="relative grid h-14 w-14 shrink-0 place-items-center rounded-full border border-white/10 bg-ink-950/60  ">
               <Disc3 size={30} className="animate-spin-slow text-accent/80" />
             </span>
             <div>

@@ -100,7 +100,7 @@ function ReleaseGroupCard({
       onClick={() => onAdd(group)}
       className="group w-full text-left outline-none"
     >
-      <div className="relative aspect-square overflow-hidden rounded-xl border border-white/10 shadow-lg shadow-black/40 transition duration-300 group-hover:-translate-y-1 group-hover:border-white/20 group-hover:shadow-2xl group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
+      <div className="relative aspect-square overflow-hidden rounded-xl border border-white/10   transition duration-300 group-hover:-translate-y-1 group-hover:border-white/20  group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
         <CoverArt
           src={group.coverUrl}
           title={group.title}
@@ -115,7 +115,7 @@ function ReleaseGroupCard({
         >
           {group.primaryType}
         </span>
-        <span className="absolute right-2.5 bottom-2.5 flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-[9px] font-semibold text-ink-950 opacity-0 shadow-lg shadow-black/40 transition duration-300 group-hover:opacity-100">
+        <span className="absolute right-2.5 bottom-2.5 flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-[9px] font-semibold text-ink-950 opacity-0   transition duration-300 group-hover:opacity-100">
           <Plus size={11} />
           Choose edition
         </span>

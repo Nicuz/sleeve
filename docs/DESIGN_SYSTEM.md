@@ -184,6 +184,7 @@ Rules:
 - Dialog actions: **Add to wishlist**, **Save for later**, **I already own it**.
 - “I already own it” opens the edition picker; never create a Release directly from Discover.
 - Saved suggestions live in Discover, not Wishlist. Wishlist remains buy intent.
+- Do not expose a manual Discover refresh button. Show `Updated …` and refresh automatically; use album-oriented weekly/monthly sections.
 
 ## Components
 

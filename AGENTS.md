@@ -47,7 +47,8 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
   - `applyReleaseMatch` (manual MusicBrainz ID)
 - `server/routes/` — releases, wishlist, discovery, import, export, stats, metadata cache, covers, meta, MusicBrainz proxies.
 - `prisma/schema.prisma` — `Release`, `Track`, `WishlistItem`, `SavedSuggestion`, `MetadataCache`, `DiscoveryFeed`, `DiscoverySeen`.
-- `server/discovery.ts` — builds the cached Discover feed (Release Radar, New this week, Crate dig).
+- `server/discovery.ts` — builds the cached Discover feed (Release Radar, New this week, New this month, Crate dig), ranks with ListenBrainz popularity and refreshes automatically.
+- `server/listenbrainz.ts` — batched release-group popularity lookup with in-memory 24h cache..
 - `prisma/seed.ts` — demo data. Destructive only with `--reset`.
 
 ### Frontend
@@ -115,10 +116,25 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
 3. Confirm no test records remain: `bun -e 'import { prisma } from "./server/db"; …'`
 4. `git status` and commit only if asked.
 
+## Fast lookup
+
+Use these before exploring the whole repo:
+
+| Question about | Read |
+| --- | --- |
+| Discover inputs, ranking, popularity, cache, refresh | `docs/DISCOVERY.md` |
+| Overall flows and component layout | `docs/ARCHITECTURE.md` |
+| API request/response shapes | `docs/API.md` |
+| Database fields, invariants, import/export | `docs/DATA_MODEL.md` |
+| UI patterns, colors, page rules | `docs/DESIGN_SYSTEM.md` |
+| Dev/prod, backups, troubleshooting | `docs/OPERATIONS.md` |
+| Why a technical choice was made | `docs/DECISIONS.md` |
+
 ## Docs
 
 - `README.md` — setup and overview
 - `docs/ARCHITECTURE.md` — flows and design
+- `docs/DISCOVERY.md` — Discover inputs, queries, ranking, cache and refresh
 - `docs/DESIGN_SYSTEM.md` — visual language and component patterns
 - `docs/API.md` — endpoints
 - `docs/DATA_MODEL.md` — schema, invariants, import/export

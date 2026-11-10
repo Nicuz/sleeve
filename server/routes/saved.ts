@@ -2,6 +2,7 @@ import { Elysia } from 'elysia';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../db';
+import { invalidateDiscoveryFeed } from '../discovery';
 
 const savedSchema = z.object({
   releaseGroupId: z.string().min(1),
@@ -49,6 +50,7 @@ export const savedRoutes = new Elysia({ prefix: '/api/saved' })
           type: data.type,
         },
       });
+      void invalidateDiscoveryFeed();
       set.status = 201;
       return { item };
     } catch (error) {
@@ -88,6 +90,7 @@ export const savedRoutes = new Elysia({ prefix: '/api/saved' })
         }),
         prisma.savedSuggestion.delete({ where: { id: saved.id } }),
       ]);
+      void invalidateDiscoveryFeed();
       return { item };
     } catch (error) {
       if (
@@ -104,6 +107,7 @@ export const savedRoutes = new Elysia({ prefix: '/api/saved' })
   .delete('/:id', async ({ params, set }) => {
     try {
       await prisma.savedSuggestion.delete({ where: { id: params.id } });
+      void invalidateDiscoveryFeed();
       return { ok: true };
     } catch (error) {
       if (

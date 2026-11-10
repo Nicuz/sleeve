@@ -178,21 +178,23 @@ Discover bookmarks live in `SavedSuggestion`, not Wishlist. Saving stores only r
 
 ### Discovery
 
-`server/discovery.ts` composes a cached feed from three sources:
+See `docs/DISCOVERY.md` for the full algorithm. Short version: `server/discovery.ts` composes a cached feed from four album-oriented sources:
 
-- **Release Radar** — top 15 owned artists by collection count. One MusicBrainz query batched across their artist IDs, 60-day window, albums/EPs only.
-- **New this week** — top 3 genres. One date-windowed tag query per genre, albums/EPs from the last 30 days, owned artists excluded.
-- **Crate dig** — older albums/EPs from those genres, shuffled for serendipity.
+- **Release Radar** — top 15 owned artists by collection count. One MusicBrainz query batched across their artist IDs, last 30 days.
+- **New this week** — top 3 genres, albums/EPs released in the last 7 days.
+- **New this month** — albums/EPs released 8–30 days ago.
+- **Crate dig** — all-time older albums/EPs, rotated deterministically by month key.
 
 Feed rules:
 
 - Mixes only studio albums/EPs; no secondary types.
-- Removes owned releases, wishlist items, duplicates, Various Artists and repeated artists.
-- Caps: 8 Radar, 8 New, 8 Crate, with artist diversity limits.
-- First Radar item becomes the lead pick and is removed from its section.
-- Feed snapshots live in `DiscoveryFeed` for 6 hours; `?refresh=1` regenerates.
+- Removes owned releases, wishlist/saved items, duplicates, Various Artists and repeated artists.
+- Caps: 8 per section, with artist diversity limits.
+- Popularity comes from ListenBrainz release-group listen/user counts; MusicBrainz `releaseCount` is the fallback proxy.
+- First available item becomes the lead pick and is removed from its section.
+- Feed snapshots live in `DiscoveryFeed` for 12 hours. Expired feeds are served stale while a background rebuild runs; there is no user-facing refresh button.
+- `?refresh=1` is a dev/internal override. Release, wishlist and saved mutations invalidate the cache.
 - Returned release-group IDs are stored in `DiscoverySeen` for 30 days and deprioritised on later generations.
-- Saved and wishlisted release groups are excluded from new feeds.
 - Card opens a suggestion dialog with **Add to wishlist**, **Save for later** and **I already own it**. Owning opens the edition picker; Discover never creates a release directly. Artist link opens `/artists/:mbid`.
 
 ### PWA/offline

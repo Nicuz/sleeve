@@ -324,12 +324,13 @@ Moves a saved suggestion into Wishlist as a wanted item and removes the saved ro
 
 Builds a Spotify-like feed from the user’s collection:
 
-- **Release Radar** — new albums/EPs from the top 15 owned artists, last 60 days.
-- **New this week** — recent albums/EPs across the top 3 genres, last 30 days.
-- **Crate dig** — randomised older picks from those genres.
-- **Lead pick** — the first Radar item, else first new/crate item.
+- **Release Radar** — new albums/EPs from the top 15 owned artists, last 30 days.
+- **New this week** — albums/EPs released in the last 7 days across the top 3 genres.
+- **New this month** — albums/EPs released 8–30 days ago.
+- **Crate dig** — all-time older picks, rotated deterministically once per month.
+- **Lead pick** — the first Radar item, else first week/month/crate item.
 
-The generated feed is cached for 6 hours. Add `?refresh=1` to force a new feed. Seen release-group IDs are remembered for 30 days and deprioritised on later refreshes.
+Candidates are ranked with ListenBrainz release-group listen/user counts; if unavailable, MusicBrainz `releaseCount` is used as a fallback proxy. The feed is cached for 12 hours and refreshed automatically. Stale requests return the cached feed immediately while a rebuild runs in the background. `?refresh=1` is an internal/dev override. Library, wishlist and saved-suggestion mutations invalidate the feed. Seen release-group IDs are remembered for 30 days and deprioritised on later builds.
 
 ```json
 {
@@ -340,7 +341,7 @@ The generated feed is cached for 6 hours. Add `?refresh=1` to force a new feed. 
       "id": "radar",
       "kind": "radar",
       "title": "Release Radar",
-      "subtitle": "New releases from artists you own",
+      "subtitle": "New albums and EPs from artists you own",
       "items": [ /* release-group items */ ]
     }
   ],

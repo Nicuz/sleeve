@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import { Bookmark, Compass, Disc3, Heart, RefreshCw, Sparkles, X } from 'lucide-react';
+import { Bookmark, Compass, Disc3, Heart, Sparkles, X } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import type { DiscoveryItem, SavedSuggestion } from '@/lib/types';
 import { pluralize } from '@/lib/utils';
@@ -10,6 +10,18 @@ import { CoverArt } from '@/components/cover-art';
 import { EmptyState } from '@/components/empty-state';
 import { SuggestionDialog } from '@/components/suggestion-dialog';
 import { useToast } from '@/components/toast';
+
+function updatedLabel(iso: string): string {
+  const minutes = Math.max(
+    0,
+    Math.floor((Date.now() - new Date(iso).getTime()) / 60_000),
+  );
+  if (minutes < 1) return 'Updated just now';
+  if (minutes < 60) return `Updated ${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `Updated ${hours}h ago`;
+  return `Updated ${Math.floor(hours / 24)}d ago`;
+}
 
 function DiscoverCard({
   item,
@@ -111,6 +123,7 @@ function FeaturedPick({
   item,
   saved,
   wishlisted,
+  onOpen,
   onAdd,
   onWishlist,
   onSave,
@@ -118,6 +131,7 @@ function FeaturedPick({
   item: DiscoveryItem;
   saved: boolean;
   wishlisted: boolean;
+  onOpen: (item: DiscoveryItem) => void;
   onAdd: (item: DiscoveryItem) => void;
   onWishlist: (item: DiscoveryItem) => void;
   onSave: (item: DiscoveryItem) => void;
@@ -125,12 +139,19 @@ function FeaturedPick({
   return (
     <section className="panel mt-6 p-5 sm:p-6">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end">
-        <CoverArt
-          src={item.coverUrl}
-          title={item.title}
-          className="h-40 w-40 shrink-0 rounded-2xl"
-          iconSize={32}
-        />
+        <button
+          type="button"
+          onClick={() => onOpen(item)}
+          className="group shrink-0 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+          aria-label={`Open ${item.title} by ${item.artist}`}
+        >
+          <CoverArt
+            src={item.coverUrl}
+            title={item.title}
+            className="h-40 w-40 rounded-2xl transition duration-500 group-hover:scale-[1.02]"
+            iconSize={32}
+          />
+        </button>
         <div className="min-w-0 flex-1">
           <p className="eyebrow flex items-center gap-2">
             <Sparkles size={12} />
@@ -239,22 +260,6 @@ export function DiscoverPage() {
     else query.delete('view');
     setParams(query, { replace: true });
   }
-
-  const refresh = useMutation({
-    mutationFn: () => api.discover(true),
-    onSuccess: (next) => {
-      queryClient.setQueryData(['discover'], next);
-      toast('Fresh picks loaded', 'success');
-    },
-    onError: (mutationError) => {
-      toast(
-        mutationError instanceof ApiError
-          ? mutationError.message
-          : 'Could not load new picks',
-        'error',
-      );
-    },
-  });
 
   const addToWishlist = useMutation({
     mutationFn: (item: DiscoveryItem) =>
@@ -394,21 +399,9 @@ export function DiscoverPage() {
           New artists and albums from the genres you collect — filtered to leave out the
           artists already on your shelves.
         </p>
-        <button
-          type="button"
-          onClick={() => {
-            setView('for-you');
-            refresh.mutate();
-          }}
-          disabled={refresh.isPending}
-          className="btn btn-primary mt-5"
-        >
-          <RefreshCw
-            size={14}
-            className={refresh.isPending ? 'animate-spin' : undefined}
-          />
-          Find new music
-        </button>
+        <p className="mt-2 text-[11px] text-muted/60">
+          {updatedLabel(data.generatedAt)} · refreshes automatically
+        </p>
         <div className="mt-4 flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
           <button
             type="button"
@@ -530,21 +523,9 @@ export function DiscoverPage() {
             No fresh suggestions right now
           </p>
           <p className="mt-1 max-w-sm text-xs text-muted">
-            MusicBrainz did not return new artists for your top genres. Check back in a
-            little while.
+            MusicBrainz did not return new albums for your top genres. The feed will
+            refresh automatically later.
           </p>
-          <button
-            type="button"
-            onClick={() => refresh.mutate()}
-            disabled={refresh.isPending}
-            className="btn btn-secondary mt-4"
-          >
-            <RefreshCw
-              size={14}
-              className={refresh.isPending ? 'animate-spin' : undefined}
-            />
-            Try again
-          </button>
         </div>
       ) : (
         <>
@@ -553,6 +534,7 @@ export function DiscoverPage() {
               item={data.featured}
               saved={savedGroupIds.has(data.featured.id)}
               wishlisted={wishlistedGroupIds.has(data.featured.id)}
+              onOpen={setSelected}
               onAdd={addGroup}
               onWishlist={wishlistItem}
               onSave={saveItem}

@@ -1,4 +1,5 @@
 import { prisma } from './db';
+import { getReleaseGroupPopularity, type ReleaseGroupPopularity } from './listenbrainz';
 import {
   searchNewReleaseGroupsByTag,
   searchReleaseGroupsByArtistIds,
@@ -25,14 +26,17 @@ export type DiscoveryFeed = {
   generatedAt: string;
 };
 
-const FEED_TTL_MS = 6 * 60 * 60 * 1000;
+const VARIOUS_ARTISTS_ID = '89ad4ac3-39f7-470e-963a-56509c546377';
+const FEED_TTL_MS = 12 * 60 * 60 * 1000;
 const SEEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
-const RADAR_WINDOW_DAYS = 60;
-const NEW_WINDOW_DAYS = 30;
-const CRATE_WINDOW_DAYS = 730;
+const RADAR_WINDOW_DAYS = 30;
+const WEEK_WINDOW_DAYS = 7;
+const MONTH_WINDOW_DAYS = 30;
+const CRATE_SINCE = '1950-01-01';
 const UPCOMING_WINDOW_DAYS = 90;
 const RADAR_LIMIT = 8;
-const NEW_LIMIT = 8;
+const WEEK_LIMIT = 8;
+const MONTH_LIMIT = 8;
 const CRATE_LIMIT = 8;
 
 function isoDate(date: Date): string {
@@ -75,13 +79,54 @@ function uniqueById(items: DiscoveryItem[]): DiscoveryItem[] {
   return [...map.values()];
 }
 
-function shuffled<T>(items: T[]): T[] {
-  const copy = [...items];
-  for (let index = copy.length - 1; index > 0; index -= 1) {
-    const swap = Math.floor(Math.random() * (index + 1));
-    [copy[index], copy[swap]] = [copy[swap], copy[index]];
+function monthlyRotation(
+  items: DiscoveryItem[],
+  monthKey: string,
+  popularity: Map<string, ReleaseGroupPopularity>,
+): DiscoveryItem[] {
+  function randomScore(id: string): number {
+    let hash = 2166136261;
+    for (const char of `${monthKey}:${id}`) {
+      hash ^= char.charCodeAt(0);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0) / 0xffffffff;
   }
-  return copy;
+  const scored = items.map((item) => ({
+    item,
+    random: randomScore(item.id),
+    popularity: popularityScore(item, popularity),
+  }));
+  const maxPopularity = Math.max(1, ...scored.map((entry) => entry.popularity));
+  return scored
+    .sort(
+      (a, b) =>
+        b.random * 0.72 +
+        (b.popularity / maxPopularity) * 0.28 -
+        (a.random * 0.72 + (a.popularity / maxPopularity) * 0.28),
+    )
+    .map((entry) => entry.item);
+}
+
+function popularityScore(
+  item: DiscoveryItem,
+  popularity: Map<string, ReleaseGroupPopularity>,
+): number {
+  const stats = popularity.get(item.id);
+  if (stats) {
+    return Math.log10(1 + stats.listenCount) + Math.log10(1 + stats.userCount) * 0.35;
+  }
+  return Math.log10(1 + item.releaseCount) * 1.5;
+}
+
+function sortByPopularity(
+  items: DiscoveryItem[],
+  popularity: Map<string, ReleaseGroupPopularity>,
+): DiscoveryItem[] {
+  return [...items].sort((a, b) => {
+    const diff = popularityScore(b, popularity) - popularityScore(a, popularity);
+    return diff || byReleaseDate(a, b);
+  });
 }
 
 function selectDiverse(
@@ -192,12 +237,18 @@ function isOwnedArtist(
   return snapshot.ownedArtistNames.has(normalize(group.artist));
 }
 
+function isVariousArtists(group: DiscoverReleaseGroup): boolean {
+  if (group.artistId === VARIOUS_ARTISTS_ID) return true;
+  return normalize(group.artist) === 'various artists';
+}
+
 async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> {
   const snapshot = await getCollectionSnapshot();
   const sinceRadar = daysFromNow(-RADAR_WINDOW_DAYS);
-  const sinceNew = daysFromNow(-NEW_WINDOW_DAYS);
-  const sinceCrate = daysFromNow(-CRATE_WINDOW_DAYS);
+  const sinceWeek = daysFromNow(-WEEK_WINDOW_DAYS);
+  const sinceMonth = daysFromNow(-MONTH_WINDOW_DAYS);
   const until = daysFromNow(UPCOMING_WINDOW_DAYS);
+  const monthKey = new Date().toISOString().slice(0, 7);
   const seenCutoff = new Date(Date.now() - SEEN_TTL_MS);
 
   const seenRows = await prisma.discoverySeen.findMany({
@@ -218,6 +269,7 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
       );
       radarCandidates = groups
         .filter(isAlbumOrEp)
+        .filter((group) => !isVariousArtists(group))
         .filter((group) => !isOwnedRelease(group, snapshot))
         .map((group) => ({
           ...group,
@@ -230,83 +282,130 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
     }
   }
 
-  const newCandidates: DiscoveryItem[] = [];
+  const weekCandidates: DiscoveryItem[] = [];
+  const monthCandidates: DiscoveryItem[] = [];
   const crateCandidates: DiscoveryItem[] = [];
 
   for (const genre of snapshot.topGenres) {
     try {
-      const groups = await searchNewReleaseGroupsByTag(
+      const recent = await searchNewReleaseGroupsByTag(
         genre,
-        sinceCrate,
+        sinceMonth,
         until,
         100,
         signal,
       );
-      for (const group of groups) {
-        if (!isAlbumOrEp(group)) continue;
+      for (const group of recent) {
+        if (!isAlbumOrEp(group) || isVariousArtists(group)) continue;
         if (isOwnedRelease(group, snapshot) || isOwnedArtist(group, snapshot)) {
           continue;
         }
         const date = group.firstReleaseDate ?? '';
+        if (!date) continue;
         const item = {
           ...group,
-          reason:
-            date >= sinceNew ? `Because you collect ${genre}` : `Crate dig · ${genre}`,
+          reason: `Because you collect ${genre}`,
           genre,
         };
-        if (date >= sinceNew) newCandidates.push(item);
-        else crateCandidates.push(item);
+        if (date >= sinceWeek) weekCandidates.push(item);
+        else monthCandidates.push(item);
+      }
+
+      const older = await searchNewReleaseGroupsByTag(
+        genre,
+        CRATE_SINCE,
+        sinceMonth,
+        100,
+        signal,
+      );
+      for (const group of older) {
+        if (!isAlbumOrEp(group) || isVariousArtists(group)) continue;
+        if (isOwnedRelease(group, snapshot) || isOwnedArtist(group, snapshot)) {
+          continue;
+        }
+        const date = group.firstReleaseDate ?? '';
+        if (!date || date >= sinceMonth) continue;
+        crateCandidates.push({
+          ...group,
+          reason: `Crate dig · ${genre}`,
+          genre,
+        });
       }
     } catch {
       // A single genre failure should not blank the whole feed.
     }
   }
 
+  const popularity = await getReleaseGroupPopularity(
+    uniqueById([
+      ...radarCandidates,
+      ...weekCandidates,
+      ...monthCandidates,
+      ...crateCandidates,
+    ]).map((item) => item.id),
+    signal,
+  );
+
   const radar = selectDiverse(
-    uniqueById(radarCandidates).sort(byReleaseDate),
+    sortByPopularity(uniqueById(radarCandidates), popularity),
     RADAR_LIMIT,
     2,
     seen,
     new Set(),
   );
   const used = new Set(radar.map((item) => item.id));
-  const fresh = selectDiverse(
-    uniqueById(newCandidates).sort(byReleaseDate),
-    NEW_LIMIT,
+  const week = selectDiverse(
+    sortByPopularity(uniqueById(weekCandidates), popularity),
+    WEEK_LIMIT,
     2,
     seen,
     used,
   );
-  for (const item of fresh) used.add(item.id);
+  for (const item of week) used.add(item.id);
+  const month = selectDiverse(
+    sortByPopularity(uniqueById(monthCandidates), popularity),
+    MONTH_LIMIT,
+    2,
+    seen,
+    used,
+  );
+  for (const item of month) used.add(item.id);
   const crate = selectDiverse(
-    shuffled(uniqueById(crateCandidates)),
+    monthlyRotation(uniqueById(crateCandidates), monthKey, popularity),
     CRATE_LIMIT,
     1,
     seen,
     used,
   );
 
-  const featured = radar[0] ?? fresh[0] ?? crate[0] ?? null;
+  const featured = radar[0] ?? week[0] ?? month[0] ?? crate[0] ?? null;
   const allSections: DiscoverySection[] = [
     {
       id: 'radar',
       kind: 'radar',
       title: 'Release Radar',
-      subtitle: 'New releases from artists you own',
+      subtitle: 'New albums and EPs from artists you own',
       items: radar.filter((item) => item.id !== featured?.id),
     },
     {
-      id: 'new',
+      id: 'new-week',
       kind: 'new',
       title: 'New this week',
-      subtitle: 'Fresh albums across your top genres',
-      items: fresh.filter((item) => item.id !== featured?.id),
+      subtitle: 'Albums and EPs released in the last 7 days',
+      items: week.filter((item) => item.id !== featured?.id),
+    },
+    {
+      id: 'new-month',
+      kind: 'new',
+      title: 'New this month',
+      subtitle: 'Albums and EPs released 8–30 days ago',
+      items: month.filter((item) => item.id !== featured?.id),
     },
     {
       id: 'crate',
       kind: 'crate',
       title: 'Crate dig',
-      subtitle: 'A random pull from your collection’s orbit',
+      subtitle: 'A monthly rotation from your collection’s orbit',
       items: crate.filter((item) => item.id !== featured?.id),
     },
   ];
@@ -337,54 +436,83 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
   return feed;
 }
 
+function parseFeed(payload: string): DiscoveryFeed | null {
+  try {
+    return JSON.parse(payload) as DiscoveryFeed;
+  } catch {
+    return null;
+  }
+}
+
+let rebuildPromise: Promise<DiscoveryFeed> | null = null;
+
+async function rebuildFeed(signal?: AbortSignal): Promise<DiscoveryFeed> {
+  if (rebuildPromise) return rebuildPromise;
+
+  rebuildPromise = (async () => {
+    const feed = await buildDiscoveryFeed(signal);
+
+    if (feed.sections.length === 0) {
+      const existing = await prisma.discoveryFeed.findUnique({
+        where: { id: 'current' },
+      });
+      const cached = existing ? parseFeed(existing.payload) : null;
+      if (cached) {
+        await prisma.discoveryFeed
+          .update({
+            where: { id: 'current' },
+            data: { expiresAt: new Date(Date.now() + FEED_TTL_MS) },
+          })
+          .catch(() => undefined);
+        return cached;
+      }
+    }
+
+    await prisma.discoveryFeed.upsert({
+      where: { id: 'current' },
+      create: {
+        id: 'current',
+        payload: JSON.stringify(feed),
+        expiresAt: new Date(Date.now() + FEED_TTL_MS),
+      },
+      update: {
+        payload: JSON.stringify(feed),
+        generatedAt: new Date(),
+        expiresAt: new Date(Date.now() + FEED_TTL_MS),
+      },
+    });
+
+    return feed;
+  })().finally(() => {
+    rebuildPromise = null;
+  });
+
+  return rebuildPromise;
+}
+
+export async function invalidateDiscoveryFeed(): Promise<void> {
+  await prisma.discoveryFeed
+    .updateMany({ data: { expiresAt: new Date(0) } })
+    .catch(() => undefined);
+}
+
 export async function getDiscoveryFeed(
   refresh = false,
   signal?: AbortSignal,
 ): Promise<DiscoveryFeed> {
-  const cached = await prisma.discoveryFeed.findUnique({ where: { id: 'current' } });
-  if (!refresh && cached && cached.expiresAt.getTime() > Date.now()) {
-    try {
-      return JSON.parse(cached.payload) as DiscoveryFeed;
-    } catch {
-      // Ignore corrupt cache and regenerate.
-    }
+  const cachedRow = await prisma.discoveryFeed.findUnique({ where: { id: 'current' } });
+  const cached = cachedRow ? parseFeed(cachedRow.payload) : null;
+
+  if (!refresh && cached) {
+    if (cachedRow && cachedRow.expiresAt.getTime() > Date.now()) return cached;
+    void rebuildFeed().catch(() => undefined);
+    return cached;
   }
 
-  let feed: DiscoveryFeed;
   try {
-    feed = await buildDiscoveryFeed(signal);
+    return await rebuildFeed(signal);
   } catch (error) {
-    if (cached) {
-      try {
-        return JSON.parse(cached.payload) as DiscoveryFeed;
-      } catch {
-        // Fall through to the original error.
-      }
-    }
+    if (cached) return cached;
     throw error;
   }
-
-  if (feed.sections.length === 0 && cached) {
-    try {
-      return JSON.parse(cached.payload) as DiscoveryFeed;
-    } catch {
-      // No usable cache; return the empty feed.
-    }
-  }
-
-  await prisma.discoveryFeed.upsert({
-    where: { id: 'current' },
-    create: {
-      id: 'current',
-      payload: JSON.stringify(feed),
-      expiresAt: new Date(Date.now() + FEED_TTL_MS),
-    },
-    update: {
-      payload: JSON.stringify(feed),
-      generatedAt: new Date(),
-      expiresAt: new Date(Date.now() + FEED_TTL_MS),
-    },
-  });
-
-  return feed;
 }

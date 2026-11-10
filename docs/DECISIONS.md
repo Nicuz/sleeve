@@ -97,7 +97,7 @@ The CSV import page is loaded with `React.lazy` because Papa Parse and mapping U
 
 **Status:** accepted
 
-Discover is not one random genre query. `server/discovery.ts` composes three feeds: Release Radar (new releases from owned artists), New this week (recent releases across top genres) and Crate dig (older shuffled picks). The generated feed is cached for 6 hours in `DiscoveryFeed`; `?refresh=1` replaces it. Shown release groups are recorded in `DiscoverySeen` for 30 days and deprioritised, then allowed again so sparse collections still get suggestions. Benefits: clearer intent, stable page reloads, and a refresh action that visibly changes content without hammering MusicBrainz.
+Discover is not one random genre query. `server/discovery.ts` composes album-oriented feeds: Release Radar (last 30 days from owned artists), New this week (last 7 days across top genres), New this month (8–30 days), and Crate dig (all-time older picks rotated monthly). Candidates are ranked with ListenBrainz popularity where available; MusicBrainz `releaseCount` is the fallback proxy. The feed is cached for 12 hours in `DiscoveryFeed` and refreshed automatically; stale requests return the cache immediately while a background rebuild runs. There is no user-facing refresh button. `?refresh=1` remains a dev/internal override. Release, wishlist and saved mutations invalidate the cache. Shown release groups are recorded in `DiscoverySeen` for 30 days and deprioritised, then allowed again so sparse collections still get suggestions. Benefits: streaming-like cadence, stable page reloads, and no repeated manual refresh.
 
 ## ADR-016 — Saved suggestions are separate from Wishlist
 

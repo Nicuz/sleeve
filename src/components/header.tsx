@@ -136,10 +136,16 @@ export function Header() {
           <button
             type="button"
             onClick={() => openAdd()}
-            className="btn btn-primary ml-auto h-10 px-3 sm:px-4"
+            aria-label="Add release"
+            className="btn btn-primary group ml-auto h-10 w-10 shrink-0 gap-0 overflow-hidden px-0 transition-[width] duration-300 hover:w-36 hover:bg-accent focus-visible:w-36"
           >
-            <Plus size={16} />
-            <span className="hidden sm:inline">Add release</span>
+            <Plus
+              strokeWidth={2.5}
+              className="h-[22px] w-[22px] shrink-0 transition-[width,height] duration-300 group-hover:h-4 group-hover:w-4 group-focus-visible:h-4 group-focus-visible:w-4"
+            />
+            <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 group-hover:ml-2 group-hover:max-w-28 group-hover:opacity-100 group-focus-visible:ml-2 group-focus-visible:max-w-28 group-focus-visible:opacity-100">
+              Add release
+            </span>
           </button>
         </div>
       </header>

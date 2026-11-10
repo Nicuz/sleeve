@@ -144,12 +144,11 @@ Do not introduce another display font or all-caps body copy.
 ## Surfaces, radius and shadows
 
 - Panels: `.panel` — `rounded-2xl border border-white/10 bg-ink-900/60`.
-- Cards/covers: `rounded-xl`, border, black shadow.
-- Hero/empty panels: `rounded-2xl`/`rounded-3xl`.
+- Cards: `rounded-xl`; covers are borderless.
+- Empty panels: `rounded-2xl`.
 - Inputs: `rounded-xl`.
 - Buttons/chips/selects: pill (`rounded-full`).
 - Dialogs: `rounded-t-3xl` mobile, `sm:rounded-3xl`.
-- Cover shadows: `shadow-lg shadow-black/40`.
 - Hover cards: lift `-translate-y-1`, cover scales `1.05`.
 - Avoid bright white surfaces and heavy inner glows.
 
@@ -159,7 +158,25 @@ Do not introduce another display font or all-caps body copy.
 - Fixed radial accent wash top-right.
 - Fixed coral wash top-left.
 - 3% fractal-noise overlay via `body::before`.
-- Do not add additional page-wide gradients; use accent-tinted hero panels locally.
+- Do not add additional page-wide gradients.
+
+## Page headers and actions
+
+Index pages — Library, Discover, Wishlist, Insights, Settings — use a plain header:
+
+1. Eyebrow with section icon.
+2. Display title.
+3. One short description line.
+4. Primary action left-aligned directly below the description, using `.btn-primary` (accent fill).
+
+Rules:
+
+- Do not wrap index headers in gradient boxes, rounded cards or decorative vinyl backdrops.
+- Keep one accent-filled action per header. Secondary actions can sit beside it as `.btn-secondary`.
+- Supporting stats use the same number-and-label row directly below the actions.
+- Detail pages (release, artist) may use a back link above their content panel.
+- Do not add page-level back links to primary destinations; sidebar and mobile nav already provide navigation.
+- Header actions and filters align consistently across pages: filters left, view controls right.
 
 ## Components
 
@@ -211,6 +228,7 @@ These classes live in `src/index.css`.
 
 - Always use `CoverArt`; never raw `<img>` for CAA URLs.
 - `CoverArt` rewrites CAA URLs to `/api/cover` for disk/browser caching.
+- Covers are borderless. Do not add colored, white or hover borders around cover art.
 - Loading/failure fallback: hue-derived dark gradient + `Disc3` + truncated title in small uppercase.
 - Hover: image scale, dark gradient overlay, accent circular action.
 - Use lazy loading; do not render huge raw covers in lists.
@@ -266,7 +284,7 @@ Examples: Add release, wishlist add/edit, metadata enrich/match.
 - Icons: Lucide, stroke-based, 11–22px.
 - Active nav uses accent icon, not accent background.
 - Artist links in release/discover pages use quiet hover-to-cream text.
-- Page eyebrows identify the section; page-level back links sit above the hero.
+- Page eyebrows identify the section. Use back links on detail pages only; primary destinations rely on the sidebar and mobile nav.
 
 ## Motion
 
@@ -318,12 +336,16 @@ Known gaps to improve:
 - Add loading, empty and error states.
 - Check mobile and desktop.
 - Keep one primary action per region.
+- Put the primary page action on the left, accent-filled, below the header description.
+- Keep covers borderless.
 
 **Don’t**
 
 - Introduce a new palette or font.
 - Hardcode `#f4b860` in components.
 - Use raw CAA image URLs.
+- Add borders around cover art.
+- Wrap index page headers in gradient boxes or vinyl decorations.
 - Nest buttons/links inside card buttons.
 - Add autoplay/audio affordances before playback exists.
 - Add comments or decorative animation that does not clarify state.
@@ -334,7 +356,7 @@ Known gaps to improve:
 ### New page
 
 1. Create `src/pages/<page>.tsx`.
-2. Reuse the page header pattern: back link, eyebrow, display title, description, page action.
+2. Reuse the plain page header pattern: eyebrow, display title, description and a left-aligned accent primary action. Add a back link only on detail pages.
 3. Use `panel`, `chip`, `btn` rather than new primitives.
 4. Register the route in `src/App.tsx`.
 5. Add nav entry only if it is a primary destination.

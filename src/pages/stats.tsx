@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
-  ArrowLeft,
   ArrowUpRight,
   ChevronDown,
   Disc3,
@@ -229,7 +228,7 @@ export function StatsPage() {
 
   return (
     <div className="pb-24">
-      <header className="mt-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+      <header className="mt-8">
         <div>
           <p className="eyebrow flex items-center gap-2">
             {spending ? <Wallet size={12} /> : <Sparkles size={12} />}
@@ -244,10 +243,6 @@ export function StatsPage() {
               : 'A read on what is on your shelves — formats, eras, artists and the genres you keep coming back to.'}
           </p>
         </div>
-        <Link to="/" className="btn btn-secondary self-start sm:self-auto">
-          <ArrowLeft size={15} />
-          Back to library
-        </Link>
       </header>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">

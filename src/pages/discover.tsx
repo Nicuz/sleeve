@@ -130,28 +130,26 @@ export function DiscoverPage() {
 
   return (
     <div className="pb-24">
-      <header className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="eyebrow flex items-center gap-2">
-            <Compass size={12} />
-            Discover
-          </p>
-          <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-cream md:text-5xl">
-            A wider groove.
-          </h1>
-          <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted">
-            New artists and albums from the genres you collect — filtered to leave out the
-            artists already on your shelves.
-          </p>
-        </div>
+      <header className="mt-8">
+        <p className="eyebrow flex items-center gap-2">
+          <Compass size={12} />
+          Discover
+        </p>
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-cream md:text-5xl">
+          A wider groove.
+        </h1>
+        <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted">
+          New artists and albums from the genres you collect — filtered to leave out the
+          artists already on your shelves.
+        </p>
         <button
           type="button"
           onClick={() => refetch()}
           disabled={isFetching}
-          className="btn btn-secondary self-start sm:self-auto"
+          className="btn btn-primary mt-5"
         >
           <RefreshCw size={14} className={isFetching ? 'animate-spin' : ''} />
-          Refresh
+          Find new music
         </button>
       </header>
 
@@ -185,7 +183,7 @@ export function DiscoverPage() {
             No fresh suggestions right now
           </p>
           <p className="mt-1 max-w-sm text-xs text-muted">
-            MusicBrainz did not return new artists for your top genres. Refresh in a
+            MusicBrainz did not return new artists for your top genres. Check back in a
             little while.
           </p>
           <button

@@ -1,11 +1,46 @@
+export function LogoMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="10 10 80 80" className={className} aria-hidden="true" fill="none">
+      <g
+        transform="rotate(-6 50 50)"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle
+          cx="50"
+          cy="50"
+          r="32"
+          strokeWidth="7.5"
+          strokeDasharray="128 28"
+          strokeDashoffset="18"
+        />
+        <circle
+          cx="50"
+          cy="50"
+          r="21"
+          strokeWidth="6"
+          strokeDasharray="78 24"
+          strokeDashoffset="-10"
+        />
+        <circle
+          cx="50"
+          cy="50"
+          r="11"
+          strokeWidth="5"
+          strokeDasharray="36 14"
+          strokeDashoffset="8"
+        />
+      </g>
+      <circle cx="50" cy="50" r="4" fill="var(--color-accent, #f4b860)" />
+    </svg>
+  );
+}
+
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-cream text-ink-950">
-        <span className="absolute inset-[3px] rounded-full border border-ink-950/20" />
-        <span className="absolute inset-[7px] rounded-full border border-ink-950/10" />
-        <span className="h-2 w-2 rounded-full bg-accent" />
-      </div>
+      <LogoMark className="h-9 w-9 shrink-0 text-cream" />
       {!compact && (
         <div className="leading-none">
           <span className="font-display text-xl font-semibold tracking-tight text-cream">

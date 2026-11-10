@@ -1,4 +1,4 @@
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL_CACHE = `sleeve-shell-${VERSION}`;
 const RUNTIME_CACHE = `sleeve-runtime-${VERSION}`;
 const API_CACHE = `sleeve-api-${VERSION}`;

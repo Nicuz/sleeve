@@ -153,7 +153,7 @@ export function WishlistEditDialog({
             <CoverArt
               src={item.coverUrl}
               title={item.title}
-              className="h-24 w-24 shrink-0 rounded-xl border border-white/10"
+              className="h-24 w-24 shrink-0 rounded-xl"
               iconSize={24}
             />
             <div className="min-w-0 flex-1 pt-0.5">

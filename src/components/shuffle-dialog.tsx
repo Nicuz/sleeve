@@ -72,7 +72,7 @@ export function ShuffleDialog({ open, onClose }: { open: boolean; onClose: () =>
               <CoverArt
                 src={release.coverUrl}
                 title={release.title}
-                className="h-40 w-40 rounded-2xl border border-white/10  "
+                className="h-40 w-40 rounded-2xl"
                 iconSize={30}
               />
               <p className="mt-4 font-display text-lg font-semibold text-cream">

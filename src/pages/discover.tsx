@@ -22,7 +22,7 @@ function DiscoverCard({
       <button
         type="button"
         onClick={() => onAdd(group)}
-        className="relative block aspect-square w-full overflow-hidden rounded-xl border border-white/10   transition duration-300 outline-none group-hover:-translate-y-1 group-hover:border-white/20  group-focus-visible:ring-2 group-focus-visible:ring-accent/60"
+        className="relative block aspect-square w-full overflow-hidden rounded-xl transition duration-300 outline-none group-hover:-translate-y-1 group-focus-visible:ring-2 group-focus-visible:ring-accent/60"
         aria-label={`Add ${group.title} by ${group.artist}`}
       >
         <CoverArt

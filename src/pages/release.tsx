@@ -7,6 +7,7 @@ import {
   Disc3,
   ExternalLink,
   Loader2,
+  MoreHorizontal,
   Pencil,
   RefreshCw,
   Search,
@@ -26,7 +27,6 @@ import {
   formatTotalDuration,
   parseGenres,
   parsePriceInput,
-  proxiedCoverUrl,
   splitList,
   todayInputValue,
 } from '@/lib/utils';
@@ -293,41 +293,13 @@ export function ReleasePage() {
         <p className="text-[10px] tracking-[0.18em] text-muted/40 uppercase">Release</p>
       </div>
 
-      <section className="panel relative mt-4 overflow-hidden">
-        <div className="absolute inset-0">
-          {release.coverUrl ? (
-            <img
-              src={proxiedCoverUrl(release.coverUrl) ?? release.coverUrl}
-              alt=""
-              className="h-full w-full scale-125 object-cover opacity-25 blur-3xl"
-            />
-          ) : (
-            <div className="h-full w-full bg-gradient-to-br from-accent/20 to-transparent" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-br from-accent/[0.08] via-ink-900/75 to-ink-950" />
-        </div>
-
-        <div className="pointer-events-none absolute top-1/2 right-12 hidden h-56 w-56 -translate-y-1/2 opacity-40 min-[1280px]:block">
-          <div
-            className="animate-spin-slow relative h-full w-full rounded-full border border-white/10 "
-            style={{
-              backgroundImage:
-                'repeating-radial-gradient(circle at 50% 50%, #1c212b 0px, #1c212b 2px, #0a0c10 3px, #0a0c10 8px)',
-            }}
-          >
-            <div className="absolute inset-0 m-auto grid h-16 w-16 place-items-center rounded-full bg-accent text-ink-950">
-              <span className="h-2 w-2 rounded-full bg-ink-950/70" />
-            </div>
-            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/[0.06] to-transparent" />
-          </div>
-        </div>
-
+      <section className="panel relative mt-4">
         <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-end md:p-9">
           <div className="shrink-0">
             <CoverArt
               src={release.coverUrl}
               title={release.title}
-              className="h-44 w-44 rounded-2xl border border-white/15   sm:h-56 sm:w-56"
+              className="h-44 w-44 rounded-2xl sm:h-56 sm:w-56"
               iconSize={46}
               onError={() => setCoverFailed(true)}
             />
@@ -413,54 +385,62 @@ export function ReleasePage() {
                 <Trash2 size={15} />
                 Remove
               </button>
-              {release.musicbrainzId ? (
-                <button
-                  type="button"
-                  onClick={() => refreshMetadata.mutate()}
-                  disabled={refreshMetadata.isPending}
-                  className="btn btn-ghost"
-                >
-                  {refreshMetadata.isPending ? (
-                    <Loader2 size={14} className="animate-spin" />
+              <details className="relative">
+                <summary className="btn btn-secondary cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                  <MoreHorizontal size={16} />
+                  More
+                </summary>
+                <div className="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-ink-900 p-1 shadow-2xl">
+                  {release.musicbrainzId ? (
+                    <button
+                      type="button"
+                      onClick={() => refreshMetadata.mutate()}
+                      disabled={refreshMetadata.isPending}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-cream/80 transition hover:bg-white/[0.06] hover:text-cream disabled:opacity-50"
+                    >
+                      {refreshMetadata.isPending ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <RefreshCw size={14} />
+                      )}
+                      Refresh metadata
+                    </button>
                   ) : (
-                    <RefreshCw size={14} />
+                    <button
+                      type="button"
+                      onClick={() => enrichMetadata.mutate()}
+                      disabled={enrichMetadata.isPending}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-cream/80 transition hover:bg-white/[0.06] hover:text-cream disabled:opacity-50"
+                    >
+                      {enrichMetadata.isPending ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <CloudDownload size={14} />
+                      )}
+                      Fetch metadata
+                    </button>
                   )}
-                  Refresh
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => enrichMetadata.mutate()}
-                  disabled={enrichMetadata.isPending}
-                  className="btn btn-ghost"
-                >
-                  {enrichMetadata.isPending ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <CloudDownload size={14} />
+                  <button
+                    type="button"
+                    onClick={() => setMatchOpen(true)}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-cream/80 transition hover:bg-white/[0.06] hover:text-cream"
+                  >
+                    <Search size={14} />
+                    Search match
+                  </button>
+                  {release.musicbrainzId && (
+                    <a
+                      href={`https://musicbrainz.org/release/${release.musicbrainzId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-cream/80 transition hover:bg-white/[0.06] hover:text-cream"
+                    >
+                      <ExternalLink size={14} />
+                      Open on MusicBrainz
+                    </a>
                   )}
-                  Fetch metadata
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setMatchOpen(true)}
-                className="btn btn-ghost"
-              >
-                <Search size={14} />
-                Search match
-              </button>
-              {release.musicbrainzId && (
-                <a
-                  href={`https://musicbrainz.org/release/${release.musicbrainzId}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn btn-ghost"
-                >
-                  MusicBrainz
-                  <ExternalLink size={13} />
-                </a>
-              )}
+                </div>
+              </details>
             </div>
           </div>
         </div>

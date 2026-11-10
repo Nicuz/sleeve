@@ -216,7 +216,7 @@ export function WishlistAddDialog({
                     <CoverArt
                       src={result.coverUrl}
                       title={result.title}
-                      className="h-12 w-12 shrink-0 rounded-lg border border-white/10"
+                      className="h-12 w-12 shrink-0 rounded-lg"
                       iconSize={18}
                     />
                     <div className="min-w-0 flex-1">

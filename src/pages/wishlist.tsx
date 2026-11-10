@@ -25,7 +25,7 @@ function WishlistCard({
       onClick={() => onEdit(item)}
       className="group w-full text-left outline-none"
     >
-      <div className="relative aspect-square overflow-hidden rounded-xl border border-white/10   transition duration-300 group-hover:-translate-y-1 group-hover:border-white/20  group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
+      <div className="relative aspect-square overflow-hidden rounded-xl transition duration-300 group-hover:-translate-y-1 group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
         <CoverArt
           src={item.coverUrl}
           title={item.title}
@@ -89,7 +89,7 @@ function WishlistRow({
       <CoverArt
         src={item.coverUrl}
         title={item.title}
-        className="h-12 w-12 shrink-0 rounded-lg border border-white/10"
+        className="h-12 w-12 shrink-0 rounded-lg"
         iconSize={20}
       />
       <div className="min-w-0 flex-1">

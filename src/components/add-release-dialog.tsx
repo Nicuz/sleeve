@@ -635,7 +635,7 @@ export function AddReleaseDialog() {
                           <CoverArt
                             src={result.coverUrl}
                             title={result.title}
-                            className="h-12 w-12 shrink-0 rounded-lg border border-white/10"
+                            className="h-12 w-12 shrink-0 rounded-lg"
                             iconSize={18}
                           />
                           <div className="min-w-0 flex-1">
@@ -976,7 +976,7 @@ function ReleaseEditor({
         <CoverArt
           src={detail.coverUrl}
           title={detail.title}
-          className="h-28 w-28 shrink-0 rounded-xl border border-white/10  "
+          className="h-28 w-28 shrink-0 rounded-xl"
           iconSize={26}
         />
         <div className="min-w-0 flex-1 pt-0.5">

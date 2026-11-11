@@ -16,6 +16,9 @@
   --color-accent: #f4b860;
   --color-accent-soft: #ffd9a0;
   --color-coral: #ef7d5b;
+  --color-format-cassette: #7fb8f5;
+  --color-format-digital: #c6a5ff;
+  --color-format-other: rgba(255, 255, 255, 0.35);
 }
 
 @layer base {
@@ -172,6 +175,9 @@ html[data-theme='light'] {
   --color-cream: #191a1f;
   --color-muted: #626874;
   --color-coral: #b5472f;
+  --color-format-cassette: #2e6cae;
+  --color-format-digital: #7343c4;
+  --color-format-other: rgba(20, 22, 28, 0.35);
 }
 
 html[data-theme='light'] body {

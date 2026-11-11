@@ -20,9 +20,9 @@ import { cn, formatPrice, pluralize } from '@/lib/utils';
 const FORMAT_COLORS: Record<string, string> = {
   CD: 'var(--color-accent)',
   Vinyl: 'var(--color-coral)',
-  Cassette: '#7fb8f5',
-  Digital: '#c6a5ff',
-  Other: 'rgba(255,255,255,0.35)',
+  Cassette: 'var(--color-format-cassette)',
+  Digital: 'var(--color-format-digital)',
+  Other: 'var(--color-format-other)',
 };
 
 function MoneyCard({

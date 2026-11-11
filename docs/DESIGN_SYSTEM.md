@@ -6,9 +6,9 @@ Canonical reference for Sleeve’s visual language, tokens and UI patterns. Read
 
 **Direction:** dark “vinyl lounge” — warm analog accents, editorial typography, album art as the hero, Spotify-like navigation and density.
 
-- Dark only. There is no light theme.
+- Dark by default, with an optional warm light reading theme.
 - Warm amber by default, with user-selectable accents.
-- Surfaces are near-black with subtle white borders, not pure black.
+- Surfaces are near-black with subtle white borders in dark mode, warm paper in light mode.
 - Covers are square, prominent and use fallback art when CAA fails.
 - Filled primary actions use the accent; everything else is quiet glass/secondary.
 - Rounded, pill-heavy language for controls; rounded cards for surfaces.
@@ -37,6 +37,8 @@ Common transparent treatments:
 - Muted surfaces: `bg-white/[0.02]`, `bg-white/[0.04]`.
 - Hover: `border-white/20`, `bg-white/[0.08]`.
 - Disabled: `disabled:opacity-50` / `disabled:pointer-events-none`.
+
+The light theme remaps `ink-*`, `cream`, `muted`, `coral` and the format chart tokens in `src/index.css`. It also maps the standard white-alpha utilities above onto dark alpha values, so new UI should reuse those ratios instead of new one-off colors. Media overlays on cover art keep fixed black/white values because the image stays dark in both themes. Use `bg-ink-950/60`, not `bg-black/40`, for neutral chips that must adapt.
 
 ### Accent presets
 

@@ -37,8 +37,8 @@ const LINK_LABELS: Record<string, string> = {
 const TYPE_STYLES: Record<string, string> = {
   Album: 'border-accent/30 bg-accent/15 text-accent',
   EP: 'border-sky-400/25 bg-sky-400/10 text-sky-300',
-  Single: 'border-white/15 bg-black/40 text-cream/80',
-  Other: 'border-white/10 bg-black/40 text-muted',
+  Single: 'border-white/15 bg-ink-950/60 text-cream/80',
+  Other: 'border-white/10 bg-ink-950/60 text-muted',
 };
 
 const TYPE_ORDER = ['Album', 'EP', 'Single', 'Other'];

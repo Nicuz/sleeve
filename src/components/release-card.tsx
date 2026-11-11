@@ -10,7 +10,7 @@ const formatStyles: Record<string, string> = {
   Vinyl: 'border-coral/30 bg-coral/15 text-coral',
   Cassette: 'border-sky-400/25 bg-sky-400/10 text-sky-300',
   Digital: 'border-violet-400/25 bg-violet-400/10 text-violet-300',
-  Other: 'border-white/15 bg-black/40 text-cream/80',
+  Other: 'border-white/15 bg-ink-950/60 text-cream/80',
 };
 
 export function FormatBadge({

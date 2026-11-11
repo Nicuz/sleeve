@@ -107,6 +107,12 @@ function loadSaved() {
   });
 }
 
+function loadFollows() {
+  return prisma.artistFollow.findMany({
+    orderBy: { name: 'asc' },
+  });
+}
+
 export const exportRoutes = new Elysia().get('/api/export', async ({ query, set }) => {
   const format = query.format === 'csv' ? 'csv' : 'json';
   const stamp = new Date().toISOString().slice(0, 10);
@@ -119,10 +125,11 @@ export const exportRoutes = new Elysia().get('/api/export', async ({ query, set 
     return toCsv(releases);
   }
 
-  const [releases, wishlist, saved] = await Promise.all([
+  const [releases, wishlist, saved, follows] = await Promise.all([
     loadReleases(),
     loadWishlist(),
     loadSaved(),
+    loadFollows(),
   ]);
   set.headers['content-type'] = 'application/json; charset=utf-8';
   set.headers['content-disposition'] =
@@ -135,6 +142,7 @@ export const exportRoutes = new Elysia().get('/api/export', async ({ query, set 
       releases,
       wishlist,
       saved,
+      follows,
     },
     null,
     2,

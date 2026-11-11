@@ -43,7 +43,7 @@ export type DiscoveryEventInput = {
   action: DiscoveryEventAction;
 };
 
-export const DISCOVERY_VERSION = 3;
+export const DISCOVERY_VERSION = 4;
 
 const VARIOUS_ARTISTS_ID = '89ad4ac3-39f7-470e-963a-56509c546377';
 const FEED_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -63,6 +63,7 @@ const SIMILAR_ARTIST_LIMIT = 40;
 const SIMILAR_ARTIST_WEIGHT = 2.5;
 const OPEN_WEIGHT = 0.25;
 const REMOVE_SAVE_WEIGHT = -0.5;
+const FOLLOW_WEIGHT = 1.5;
 const MAX_ARTIST_AFFINITY = 12;
 const MIN_ARTIST_AFFINITY = -4;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -160,7 +161,7 @@ type ScoredItem = {
   exploration: number;
 };
 
-type ArtistSource = 'owned' | 'wishlist' | 'saved';
+type ArtistSource = 'owned' | 'wishlist' | 'saved' | 'followed';
 
 type CollectionSnapshot = {
   topGenres: string[];
@@ -178,7 +179,7 @@ type CollectionSnapshot = {
 
 async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
   const eventCutoff = new Date(Date.now() - EVENT_WINDOW_DAYS * DAY_MS);
-  const [releases, wishlist, saved, events] = await Promise.all([
+  const [releases, wishlist, saved, follows, events] = await Promise.all([
     prisma.release.findMany({
       select: { title: true, artist: true, artistId: true, genres: true, rating: true },
     }),
@@ -187,6 +188,10 @@ async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
     }),
     prisma.savedSuggestion.findMany({
       select: { releaseGroupId: true, artist: true, artistId: true },
+    }),
+    prisma.artistFollow.findMany({
+      select: { artistId: true, name: true },
+      orderBy: { createdAt: 'desc' },
     }),
     prisma.discoveryEvent.findMany({
       where: { createdAt: { gt: eventCutoff } },
@@ -207,7 +212,12 @@ async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
   const ownedKeys = new Set<string>();
   const ownedArtistIds = new Set<string>();
   const ownedArtistNames = new Set<string>();
-  const sourceRank: Record<ArtistSource, number> = { saved: 1, wishlist: 2, owned: 3 };
+  const sourceRank: Record<ArtistSource, number> = {
+    saved: 1,
+    wishlist: 2,
+    owned: 3,
+    followed: 4,
+  };
 
   function markArtistSource(
     id: string | null | undefined,
@@ -267,6 +277,11 @@ async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
     markArtistSource(item.artistId, item.artist, 'saved');
   }
 
+  for (const follow of follows) {
+    addArtist(follow.artistId, follow.name, FOLLOW_WEIGHT);
+    markArtistSource(follow.artistId, follow.name, 'followed');
+  }
+
   const openedGroups = new Set<string>();
   for (const event of events) {
     const key = artistKey(event.artistId, event.artist ?? '');
@@ -301,12 +316,13 @@ async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
     .slice(0, 3)
     .map(([, value]) => value.name);
 
-  const seedArtistIds = [...artistAffinity.entries()]
-    .filter(([key, value]) => key.startsWith('id:') && value > 0)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, ARTIST_SEED_LIMIT)
-    .map(([key]) => artistIdFromKey(key))
-    .filter((id): id is string => Boolean(id));
+  const seedIds = new Set(follows.map((follow) => follow.artistId));
+  for (const [key, value] of [...artistAffinity.entries()].sort((a, b) => b[1] - a[1])) {
+    if (!key.startsWith('id:') || value <= 0) continue;
+    const id = artistIdFromKey(key);
+    if (id) seedIds.add(id);
+  }
+  const seedArtistIds = [...seedIds].slice(0, ARTIST_SEED_LIMIT);
 
   return {
     topGenres,
@@ -621,6 +637,7 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
 
   function radarReason(group: DiscoverReleaseGroup): string {
     const source = snapshot.artistSources.get(artistKey(group.artistId, group.artist));
+    if (source === 'followed') return 'New from an artist you follow';
     if (source === 'owned') return 'New from an artist you own';
     if (source === 'wishlist') return 'New from an artist on your wishlist';
     if (source === 'saved') return 'New from an artist you saved';
@@ -659,6 +676,7 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
   function orbitReason(group: DiscoverReleaseGroup): string {
     const source = group.artistId ? expansion.sources.get(group.artistId) : undefined;
     if (!source) return 'From an artist near your collection';
+    if (source.kind === 'followed') return `Because you follow ${source.name}`;
     if (source.kind === 'owned') return `Because you own ${source.name}`;
     if (source.kind === 'wishlist') {
       return `Because ${source.name} is on your wishlist`;
@@ -834,7 +852,7 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
       id: 'radar',
       kind: 'radar',
       title: 'From your artists',
-      subtitle: 'Recent and upcoming albums from your library and wishlist',
+      subtitle: 'Recent and upcoming albums from artists you own, want or follow',
       items: radar.filter((item) => item.id !== featured?.id),
     },
     {

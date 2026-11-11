@@ -90,9 +90,10 @@ Metadata application and matching:
 | `releases.ts` | CRUD, list filters, owned lookup, refresh/enrich/manual match, clear library |
 | `musicbrainz.ts` | Release search, barcode search, artist search/detail, group pages, release detail |
 | `wishlist.ts` | Wishlist CRUD |
+| `follows.ts` | Followed artists list, follow/unfollow |
 | `discover.ts` | Genre-based suggestions |
-| `import.ts` | Merge-safe JSON import (releases + wishlist) |
-| `export.ts` | JSON (releases, tracks, wishlist) and CSV (release/track rows) |
+| `import.ts` | Merge-safe JSON import (releases, wishlist, saved, follows) |
+| `export.ts` | JSON (releases, tracks, wishlist, saved, follows) and CSV (release/track rows) |
 | `stats.ts` | Collection stats, spending stats, missing-metadata count |
 | `meta.ts` | Format/genre/decade filter options |
 | `maintenance.ts` | Metadata cache stats + clear |
@@ -174,13 +175,13 @@ Wishlist is a separate table, not a release status. It represents buy intent onl
 
 ### Saved suggestions
 
-Discover bookmarks live in `SavedSuggestion`, not Wishlist. Saving stores only release-group metadata. The Saved tab in Discover can promote a suggestion into Wishlist, which creates a `WishlistItem` and removes the saved row. Saved items are excluded from future Discover feeds.
+Discover bookmarks live in `SavedSuggestion`, not Wishlist. Saving stores only release-group metadata. The Saved tab in Discover can promote a suggestion into Wishlist, which creates a `WishlistItem` and removes the saved row. Saved items are excluded from future Discover feeds. Following an artist is separate: `ArtistFollow` is a taste signal, never an album bookmark or buy intent.
 
 ### Discovery
 
 See `docs/DISCOVERY.md` for the full algorithm. Short version: `server/discovery.ts` composes a cached feed from four album-oriented sources:
 
-- **Release Radar** — top owned/wishlist artists by weighted affinity. One MusicBrainz query batched across their artist IDs, last 30 days plus upcoming.
+- **Release Radar** — top owned/wishlist/followed artists by weighted affinity. One MusicBrainz query batched across their artist IDs, last 30 days plus upcoming.
 - **New this week** — top 3 genres and similar artists, albums/EPs released in the last 7 days.
 - **New this month** — albums/EPs released 8–30 days ago.
 - **Lost in the Stacks** — all-time older albums/EPs from top genres and similar artists, rotated deterministically by month key.
@@ -248,6 +249,7 @@ Visual language and component patterns are documented in [DESIGN_SYSTEM.md](DESI
 | --- | --- |
 | Owned releases/tracks | SQLite `Release`/`Track` |
 | Wishlist | SQLite `WishlistItem` |
+| Followed artists | SQLite `ArtistFollow` |
 | MusicBrainz payload cache | SQLite `MetadataCache` |
 | Cover images | `data/covers` disk cache |
 | User preferences | Browser `localStorage` |

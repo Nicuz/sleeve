@@ -149,7 +149,7 @@ Do not introduce another display font or all-caps body copy.
 - Inputs: `rounded-xl`.
 - Buttons/chips/selects: pill (`rounded-full`).
 - Dialogs: `rounded-t-3xl` mobile, `sm:rounded-3xl`.
-- Hover cards: lift `-translate-y-1`, cover scales `1.05`.
+- Hover cards: full-card soft halo, no lift; covers do not zoom.
 - Avoid bright white surfaces and heavy inner glows.
 
 ## Background
@@ -239,7 +239,7 @@ These classes live in `src/index.css`.
 - `CoverArt` rewrites CAA URLs to `/api/cover` for disk/browser caching.
 - Covers are borderless. Do not add colored, white or hover borders around cover art.
 - Loading/failure fallback: hue-derived dark gradient + `Disc3` + truncated title in small uppercase.
-- Hover: image scale, dark gradient overlay, accent circular action.
+- Hover: full-card soft halo, dark gradient overlay, accent circular action.
 - Use lazy loading; do not render huge raw covers in lists.
 - CAA 404 is common; show fallback and a **Search match** path on release pages.
 
@@ -250,7 +250,7 @@ These classes live in `src/index.css`.
 - Cards click through to `/releases/:id`; do not nest links inside card buttons.
 - Artist/wishlist/discover cards reuse the same square-cover rhythm.
 - Discover cards keep Album/EP type in the text block beside the year, not over the cover.
-- Discover card hover highlights the full card surface; the cover does not zoom or lift.
+- All grid cards (library, wishlist, artist, Discover) use the same full-surface hover halo; covers do not zoom or lift.
 
 ### Dialogs
 
@@ -300,7 +300,7 @@ Examples: Add release, wishlist add/edit, metadata enrich/match.
 ## Motion
 
 - Standard interaction duration: 200ms.
-- Hover covers/cards: 300–500ms.
+- Hover halo: 200ms; overlays and actions: 300–500ms.
 - Page/dialog entry: `animate-scale-in` 240ms, fade 200ms.
 - Drawer slide: `animate-slide-in` 260ms (kept for future panels).
 - Slow vinyl spin: 26s.

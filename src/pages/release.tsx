@@ -31,6 +31,7 @@ import {
   todayInputValue,
 } from '@/lib/utils';
 import { CoverArt } from '@/components/cover-art';
+import { FollowArtistButton } from '@/components/follow-artist-button';
 import { FormatBadge } from '@/components/release-card';
 import { useToast } from '@/components/toast';
 import { MetadataMatchDialog } from '@/components/metadata-match-dialog';
@@ -322,18 +323,23 @@ export function ReleasePage() {
             <h1 className="mt-3 font-display text-3xl leading-tight font-semibold tracking-tight text-cream md:text-5xl">
               {release.title}
             </h1>
-            <p className="mt-2 text-base text-muted md:text-lg">
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-base text-muted md:text-lg">
               {release.artistId ? (
                 <Link
                   to={`/artists/${release.artistId}`}
-                  className="underline-offset-4 transition hover:text-cream hover:underline"
+                  className="inline-flex items-center gap-1.5 text-cream/90 underline decoration-white/25 underline-offset-4 transition hover:decoration-cream"
                 >
                   {release.artist}
                 </Link>
               ) : (
-                release.artist
+                <span>{release.artist}</span>
               )}
-            </p>
+              <FollowArtistButton
+                artistId={release.artistId}
+                name={release.artist}
+                compact
+              />
+            </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <FormatBadge format={release.format} />

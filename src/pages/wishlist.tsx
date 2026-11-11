@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import type { WishlistItem } from '@/lib/types';
 import { useSettings } from '@/lib/settings';
 import { cn, formatPrice } from '@/lib/utils';
+import { CardHalo } from '@/components/card-halo';
 import { CoverArt } from '@/components/cover-art';
 import { FormatBadge } from '@/components/release-card';
 import { EmptyState } from '@/components/empty-state';
@@ -23,14 +24,11 @@ function WishlistCard({
     <button
       type="button"
       onClick={() => onEdit(item)}
-      className="group w-full text-left outline-none"
+      className="group relative w-full text-left outline-none"
     >
-      <div className="relative aspect-square overflow-hidden rounded-xl transition duration-300 group-hover:-translate-y-1 group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
-        <CoverArt
-          src={item.coverUrl}
-          title={item.title}
-          className="h-full w-full transition duration-500 group-hover:scale-[1.05]"
-        />
+      <CardHalo />
+      <div className="relative aspect-square overflow-hidden rounded-xl group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
+        <CoverArt src={item.coverUrl} title={item.title} className="h-full w-full" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
         <FormatBadge format={item.format} overlay className="absolute top-2 left-2" />
         <span className="absolute right-2.5 bottom-2.5 rounded-full bg-accent px-2.5 py-1 text-[9px] font-semibold text-ink-950 opacity-0   transition duration-300 group-hover:opacity-100">

@@ -318,19 +318,45 @@ Moves a saved suggestion into Wishlist as a wanted item and removes the saved ro
 
 ### `DELETE /api/saved/:id`
 
+## Artist follows
+
+Follow is an explicit taste signal for an artist, not a wishlist or saved item. It never excludes the artist from Discover.
+
+### `GET /api/artists/follows`
+
+Followed artists sorted by name. Each item includes `ownedCount`, the number of releases by that artist in the library.
+
+```json
+{ "items": [ /* FollowedArtist, with ownedCount */ ], "count": 2 }
+```
+
+### `PUT /api/artists/:artistId/follow`
+
+Idempotent create/update.
+
+```json
+{ "name": "Godspeed You! Black Emperor" }
+```
+
+Response: `{ "item": { "artistId": "uuid", "name": "…", "createdAt": "…" } }`.
+
+### `DELETE /api/artists/:artistId/follow`
+
+Idempotent. Returns `{ "ok": true }` even if the artist was not followed.
+
 ## Discovery
 
 ### `GET /api/discover`
 
 Builds a personalised feed from the user’s collection:
 
-- **Release Radar** — new albums/EPs from top owned/wishlist artists, last 30 days plus upcoming.
+- **Release Radar** — new albums/EPs from top owned/wishlist/followed artists, last 30 days plus upcoming.
 - **New this week** — recent or upcoming albums/EPs from top genres and similar artists.
 - **New this month** — albums/EPs released 8–30 days ago from top genres and similar artists.
 - **Lost in the Stacks** — all-time older picks from top genres and similar artists, rotated deterministically once per month.
 - **Lead pick** — first Radar item, else first similar-artist pick, else first available item.
 
-Candidates are expanded with ListenBrainz similar artists and ranked with library-weighted artist/genre affinity plus ListenBrainz artist and release-group listen/user counts. The feed is cached for 7 days and refreshed automatically. Stale requests return the cached feed immediately while a rebuild runs in the background. `?refresh=1` is an internal/dev override. Saving or wishlisting does not rebuild the current feed; owning a record prunes only the matching item. Seen release-group IDs are remembered for 30 days and deprioritised on later builds. The payload carries a `version`; a version mismatch rebuilds before serving.
+Candidates are expanded with ListenBrainz similar artists and ranked with library-weighted artist/genre affinity plus ListenBrainz artist and release-group listen/user counts. The feed is cached for 7 days and refreshed automatically. Stale requests return the cached feed immediately while a rebuild runs in the background. `?refresh=1` is an internal/dev override. Saving, wishlisting or following does not rebuild the current feed; owning a record prunes only the matching item. Seen release-group IDs are remembered for 30 days and deprioritised on later builds. The payload carries a `version`; a version mismatch rebuilds before serving.
 
 ```json
 {
@@ -381,7 +407,8 @@ Full JSON backup:
   "exportedAt": "2026-…",
   "releases": [ /* releases with tracks */ ],
   "wishlist": [ /* wishlist items */ ],
-  "saved": [ /* saved suggestions */ ]
+  "saved": [ /* saved suggestions */ ],
+  "follows": [ /* followed artists */ ]
 }
 ```
 
@@ -399,7 +426,8 @@ Merge-safe JSON import. Accepts:
 {
   "releases": [ /* release objects, tracks optional */ ],
   "wishlist": [ /* wishlist objects */ ],
-  "saved": [ /* saved suggestion objects */ ]
+  "saved": [ /* saved suggestion objects */ ],
+  "follows": [ /* followed artist objects */ ]
 }
 ```
 
@@ -410,6 +438,8 @@ Dedupe:
 - releases with MBID → by `musicbrainzId`
 - manual releases → normalized `title|artist|format`
 - wishlist → same rules
+- saved suggestions → by `releaseGroupId`
+- followed artists → by `artistId`
 
 Response:
 
@@ -423,7 +453,10 @@ Response:
   "invalidWishlist": 0,
   "importedSaved": 1,
   "skippedSaved": 0,
-  "invalidSaved": 0
+  "invalidSaved": 0,
+  "importedFollows": 1,
+  "skippedFollows": 0,
+  "invalidFollows": 0
 }
 ```
 

@@ -4,7 +4,7 @@ Canonical reference for how Discover builds its feed. Read this before changing 
 
 ## TL;DR
 
-- Source data: owned releases (including rating), wishlist, saved suggestions, `DiscoverySeen`, `DiscoveryEvent`.
+- Source data: owned releases (including rating), wishlist, saved suggestions, followed artists, `DiscoverySeen`, `DiscoveryEvent`.
 - Metadata: MusicBrainz release groups and release-group tags.
 - Personalisation: library-weighted artist/genre affinity, ListenBrainz similar artists, ListenBrainz artist and release-group popularity.
 - Sections: Release Radar, New this week, New this month, Lost in the Stacks.
@@ -16,7 +16,7 @@ Canonical reference for how Discover builds its feed. Read this before changing 
 
 ## Interaction model
 
-Discover adds no required interactions. It learns from the core flows:
+Discover adds no required interactions. It learns from the core flows plus one optional explicit signal:
 
 | Signal | Source | Weight |
 | --- | --- | --- |
@@ -24,10 +24,11 @@ Discover adds no required interactions. It learns from the core flows:
 | Rating | `Release.rating` | 0.3×–2× on the purchase weight |
 | Wishlist item | `WishlistItem` | +1.2 |
 | Saved suggestion | `SavedSuggestion` | +0.8 |
+| Followed artist | `ArtistFollow` | +1.5 |
 | Opened suggestion | `DiscoveryEvent: open` | +0.25, once per release group |
 | Removed saved suggestion | `DiscoveryEvent: remove-save` | −0.5 |
 
-Negative event weights decay with a 120-day half-life. There is no "not interested" button, onboarding or rating prompt. Removing a saved suggestion is the only implicit negative feedback; removing a wishlist item is ignored because it often means the record was purchased.
+Negative event weights decay with a 120-day half-life. There is no "not interested" button, onboarding or rating prompt. Removing a saved suggestion is the only implicit negative feedback; removing a wishlist item is ignored because it often means the record was purchased. Following an artist is the explicit taste signal: it says "show me more from them" without creating a fake wishlist or saved item. Unfollowing removes that signal but does not create a negative event.
 
 `DiscoverySeen` is still a novelty control, not a taste signal. Being shown without interacting does not count as a dislike.
 
@@ -40,15 +41,16 @@ Negative event weights decay with a 120-day half-life. There is no "not interest
 | `Release` | `title`, `artist`, `artistId`, `genres`, `rating` | affinity, genre weights, owned keys |
 | `WishlistItem` | `title`, `artist`, `artistId` | affinity, exclusion |
 | `SavedSuggestion` | `releaseGroupId`, `artist`, `artistId` | affinity, exclusion |
+| `ArtistFollow` | `artistId`, `name` | explicit artist affinity, similar-artist seed |
 | `DiscoveryEvent` | release group, artist, action, date | weak opens / removals |
 | `DiscoverySeen` | `releaseGroupId` | deprioritise recent impressions |
 
 Derived values:
 
-- `artistAffinity`: rating-weighted purchases + wishlist/saved + event signals, clamped to `[-4, 12]`.
+- `artistAffinity`: rating-weighted purchases + wishlist/saved/follows + event signals, clamped to `[-4, 12]`.
 - `genreAffinity`: rating-weighted genre occurrence across owned releases.
 - `topGenres`: top 3 genres by weighted affinity.
-- `seedArtistIds`: top 10 positive artists with MBIDs, used for similar-artist expansion.
+- `seedArtistIds`: followed artist MBIDs first, then remaining top positive artists, capped at 10. Used for Radar and similar-artist expansion.
 - `ownedKeys`, `wishlistKeys`, `savedGroupIds`, `ownedArtistIds`, `ownedArtistNames`.
 
 ## Similar artists
@@ -63,7 +65,7 @@ GET https://labs.api.listenbrainz.org/similar-artists/json
 
 - Results are aggregated per seed, filtered to exclude owned artists, capped at 40 artists.
 - Similarity is normalised per seed and weighted by the seed artist's affinity.
-- Matching candidate artists get an affinity boost and a source-aware reason: “Because you own …”, “Because … is on your wishlist”, “Because you saved …”, or “Similar to …”.
+- Matching candidate artists get an affinity boost and a source-aware reason: “Because you follow …”, “Because you own …”, “Because … is on your wishlist”, “Because you saved …”, or “Similar to …”.
 - Cached in memory for 7 days; failures fall back to owned artists and genre candidates.
 
 This is the main candidate-quality improvement: Discover can now surface artists near the collection, not only artists already owned or the top 3 raw tags.
@@ -74,7 +76,7 @@ All MusicBrainz calls live in `server/musicbrainz.ts`.
 
 ### Release Radar
 
-Seeded by owned/wishlist artists only:
+Seeded by owned, wishlist and followed artists:
 
 ```text
 arid:(<seed artist IDs>)
@@ -128,7 +130,7 @@ Applied to every candidate:
 
 - Keep studio albums/EPs only: `secondaryTypes` empty, primary type `Album` or `EP`.
 - Remove Various Artists.
-- Remove owned releases, wishlist items and saved release groups.
+- Remove owned releases, wishlist items and saved release groups. Following an artist never excludes that artist.
 - New week/month genre sections also remove owned artists.
 - Deduplicate release-group IDs.
 - Limit repeated artists, genres and eras during selection.
@@ -294,7 +296,7 @@ Rows older than 180 days are pruned. Events never create UI prompts.
 The weekly feed is deliberately stable for a physical-first collection.
 
 - Adding a release calls `removeOwnedReleaseFromDiscoveryFeed()`: only matching artist/title items are pruned from the cached payload; the rest of the shelf stays put and the weekly timer is unchanged.
-- Wishlist and saved-suggestion mutations do not rebuild the feed. They update affinity and exclusions for the next weekly refresh. The UI still reflects saved/wishlisted state on the current cards.
+- Wishlist, saved-suggestion and follow mutations do not rebuild the feed. They update affinity and exclusions for the next weekly refresh. The UI still reflects saved/wishlisted/followed state on the current cards.
 - Release update, delete, enrich, match and refresh do not rebuild the feed.
 - Removing a saved suggestion still records a `remove-save` event for the next refresh.
 - Opening a suggestion records an `open` event; it never invalidates the feed.
@@ -321,12 +323,13 @@ Restarting the server alone does **not** clear the cached feed.
 
 `src/pages/discover.tsx`:
 
-- Tabs: `For you` and `Saved N` (`?view=saved`).
+- Tabs: `For you`, `Saved N` (`?view=saved`) and `Following N` (`?view=following`).
 - `For you` shows lead pick + sections.
 - Cards open `SuggestionDialog`, not the Add release form.
 - Opening a card silently records a `DiscoveryEvent`.
 - Listen on ListenBrainz sits under the recommendation reason.
 - Dialog actions: Add to wishlist, Save for later, I already own it — Add to library.
+- `Following` lists followed artists with artist-page links and unfollow controls. It is the visible management surface for the explicit taste signal.
 - `I already own it — Add to library` opens the edition picker prefilled with `rgid:<releaseGroupId>`.
 - No manual refresh button. Shows `Updated … · next refresh in …`.
 

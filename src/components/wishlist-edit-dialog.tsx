@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Loader2, Trash2, X } from 'lucide-react';
+import { Loader2, Trash2, X } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import type { WishlistItem } from '@/lib/types';
 import { CURRENCIES, parsePriceInput } from '@/lib/utils';
 import { useApp } from './app-context';
 import { CoverArt } from './cover-art';
+import { FollowArtistButton } from './follow-artist-button';
 import { useToast } from './toast';
 
 export function WishlistEditDialog({
@@ -133,17 +134,17 @@ export function WishlistEditDialog({
       }}
     >
       <div
-        className="animate-scale-in flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-ink-900   sm:max-h-[85vh] sm:rounded-3xl"
+        className="animate-scale-in flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-ink-900   sm:max-h-[85vh] sm:rounded-3xl"
         role="dialog"
         aria-modal="true"
         aria-label="Edit wishlist item"
       >
-        <div className="flex items-center justify-between gap-4 border-b border-white/[0.07] px-5 py-4">
+        <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] px-5 py-4">
           <div>
-            <h2 className="font-display text-lg font-semibold text-cream">
+            <p className="eyebrow">Wishlist</p>
+            <h2 className="mt-1 font-display text-lg font-semibold text-cream">
               Wishlist details
             </h2>
-            <p className="mt-0.5 text-xs text-muted">Target price and private notes.</p>
           </div>
           <button type="button" onClick={onClose} className="icon-btn" aria-label="Close">
             <X size={16} />
@@ -162,27 +163,15 @@ export function WishlistEditDialog({
               <p className="truncate font-display text-base font-semibold text-cream">
                 {item.title}
               </p>
-              <p className="mt-0.5 truncate text-xs text-muted">{item.artist}</p>
+              <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
+                <p className="truncate text-xs text-muted">{item.artist}</p>
+                <FollowArtistButton artistId={item.artistId} name={item.artist} compact />
+              </div>
               <p className="mt-1.5 text-[10px] text-muted/60">
                 {[item.year ?? undefined, item.format, item.label ?? undefined]
                   .filter(Boolean)
                   .join(' · ')}
               </p>
-              {(item.musicbrainzId || item.releaseGroupId) && (
-                <a
-                  href={
-                    item.musicbrainzId
-                      ? `https://musicbrainz.org/release/${item.musicbrainzId}`
-                      : `https://musicbrainz.org/release-group/${item.releaseGroupId}`
-                  }
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-1 text-[10px] text-muted transition hover:text-cream"
-                >
-                  MusicBrainz
-                  <ExternalLink size={10} />
-                </a>
-              )}
             </div>
           </div>
 
@@ -261,7 +250,7 @@ export function WishlistEditDialog({
             Remove
           </button>
           <div className="flex flex-wrap justify-end gap-2">
-            <button type="button" onClick={onClose} className="btn btn-ghost py-2">
+            <button type="button" onClick={onClose} className="btn btn-ghost">
               Cancel
             </button>
             {item.releaseGroupId ? (
@@ -275,7 +264,7 @@ export function WishlistEditDialog({
                   });
                 }}
                 disabled={updateItem.isPending}
-                className="btn btn-secondary py-2"
+                className="btn btn-secondary"
               >
                 Choose edition
               </button>
@@ -284,7 +273,7 @@ export function WishlistEditDialog({
                 type="button"
                 onClick={() => addToLibrary.mutate()}
                 disabled={addToLibrary.isPending || updateItem.isPending}
-                className="btn btn-secondary py-2"
+                className="btn btn-secondary"
               >
                 {addToLibrary.isPending && <Loader2 size={14} className="animate-spin" />}
                 Add to library
@@ -294,7 +283,7 @@ export function WishlistEditDialog({
               type="button"
               onClick={() => updateItem.mutate()}
               disabled={updateItem.isPending || addToLibrary.isPending}
-              className="btn btn-primary py-2"
+              className="btn btn-primary"
             >
               {updateItem.isPending && <Loader2 size={14} className="animate-spin" />}
               Save changes

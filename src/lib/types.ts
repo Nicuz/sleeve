@@ -164,6 +164,9 @@ export type ImportResult = {
   importedSaved: number;
   skippedSaved: number;
   invalidSaved: number;
+  importedFollows: number;
+  skippedFollows: number;
+  invalidFollows: number;
 };
 
 export type WishlistItem = {
@@ -231,6 +234,13 @@ export type SavedSuggestionPayload = {
   releaseDate?: string | null;
   coverUrl?: string | null;
   type: string;
+};
+
+export type FollowedArtist = {
+  artistId: string;
+  name: string;
+  createdAt: string;
+  ownedCount?: number;
 };
 
 export type StatsRange = 'all' | 'year' | '12m';

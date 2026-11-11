@@ -74,6 +74,11 @@ const savedSchema = z.object({
   type: z.string().min(1).default('Other'),
 });
 
+const followSchema = z.object({
+  artistId: z.string().min(1),
+  name: z.string().min(1),
+});
+
 function manualKey(title: string, artist: string, format: string) {
   return `${title.trim().toLowerCase()}|${artist.trim().toLowerCase()}|${format.trim().toLowerCase()}`;
 }
@@ -89,51 +94,59 @@ function genresToString(genres: string | string[] | null | undefined): string | 
 
 export const importRoutes = new Elysia().post('/api/import', async ({ body, set }) => {
   const payload = body as
-    | { releases?: unknown; wishlist?: unknown; saved?: unknown }
+    | { releases?: unknown; wishlist?: unknown; saved?: unknown; follows?: unknown }
     | unknown[]
     | null;
   const releasesInput = Array.isArray(payload) ? payload : payload?.releases;
   const wishlistInput = Array.isArray(payload) ? [] : payload?.wishlist;
   const savedInput = Array.isArray(payload) ? [] : payload?.saved;
+  const followsInput = Array.isArray(payload) ? [] : payload?.follows;
 
   if (
     !Array.isArray(releasesInput) &&
     !Array.isArray(wishlistInput) &&
-    !Array.isArray(savedInput)
+    !Array.isArray(savedInput) &&
+    !Array.isArray(followsInput)
   ) {
     set.status = 400;
-    return { message: 'No releases, wishlist or saved suggestions found in the backup.' };
+    return {
+      message:
+        'No releases, wishlist items, saved suggestions or followed artists found in the backup.',
+    };
   }
   if (
     (Array.isArray(releasesInput) && releasesInput.length > 10_000) ||
     (Array.isArray(wishlistInput) && wishlistInput.length > 10_000) ||
-    (Array.isArray(savedInput) && savedInput.length > 10_000)
+    (Array.isArray(savedInput) && savedInput.length > 10_000) ||
+    (Array.isArray(followsInput) && followsInput.length > 10_000)
   ) {
     set.status = 400;
     return { message: 'Backup is too large to import.' };
   }
 
   try {
-    const [existingReleases, existingWishlist, existingSaved] = await Promise.all([
-      prisma.release.findMany({
-        select: {
-          musicbrainzId: true,
-          title: true,
-          artist: true,
-          format: true,
-        },
-      }),
-      prisma.wishlistItem.findMany({
-        select: {
-          musicbrainzId: true,
-          releaseGroupId: true,
-          title: true,
-          artist: true,
-          format: true,
-        },
-      }),
-      prisma.savedSuggestion.findMany({ select: { releaseGroupId: true } }),
-    ]);
+    const [existingReleases, existingWishlist, existingSaved, existingFollows] =
+      await Promise.all([
+        prisma.release.findMany({
+          select: {
+            musicbrainzId: true,
+            title: true,
+            artist: true,
+            format: true,
+          },
+        }),
+        prisma.wishlistItem.findMany({
+          select: {
+            musicbrainzId: true,
+            releaseGroupId: true,
+            title: true,
+            artist: true,
+            format: true,
+          },
+        }),
+        prisma.savedSuggestion.findMany({ select: { releaseGroupId: true } }),
+        prisma.artistFollow.findMany({ select: { artistId: true } }),
+      ]);
 
     const seenReleaseMbids = new Set(
       existingReleases
@@ -157,10 +170,12 @@ export const importRoutes = new Elysia().post('/api/import', async ({ body, set 
         .filter((id): id is string => Boolean(id)),
     );
     const seenSavedGroupIds = new Set(existingSaved.map((item) => item.releaseGroupId));
+    const seenFollowIds = new Set(existingFollows.map((item) => item.artistId));
 
     const releaseCreates: Array<ReturnType<typeof prisma.release.create>> = [];
     const wishlistCreates: Array<ReturnType<typeof prisma.wishlistItem.create>> = [];
     const savedCreates: Array<ReturnType<typeof prisma.savedSuggestion.create>> = [];
+    const followCreates: Array<ReturnType<typeof prisma.artistFollow.create>> = [];
     let skippedReleases = 0;
     let invalidReleases = 0;
     let skippedWishlist = 0;
@@ -299,12 +314,42 @@ export const importRoutes = new Elysia().post('/api/import', async ({ body, set 
       seenSavedGroupIds.add(data.releaseGroupId);
     }
 
+    let skippedFollows = 0;
+    let invalidFollows = 0;
+    for (const raw of Array.isArray(followsInput) ? followsInput : []) {
+      const parsed = followSchema.safeParse(raw);
+      if (!parsed.success) {
+        invalidFollows += 1;
+        continue;
+      }
+      const data = parsed.data;
+      if (seenFollowIds.has(data.artistId)) {
+        skippedFollows += 1;
+        continue;
+      }
+      followCreates.push(
+        prisma.artistFollow.create({
+          data: {
+            artistId: data.artistId,
+            name: data.name,
+          },
+        }),
+      );
+      seenFollowIds.add(data.artistId);
+    }
+
     if (
       releaseCreates.length > 0 ||
       wishlistCreates.length > 0 ||
-      savedCreates.length > 0
+      savedCreates.length > 0 ||
+      followCreates.length > 0
     ) {
-      await prisma.$transaction([...releaseCreates, ...wishlistCreates, ...savedCreates]);
+      await prisma.$transaction([
+        ...releaseCreates,
+        ...wishlistCreates,
+        ...savedCreates,
+        ...followCreates,
+      ]);
     }
 
     return {
@@ -317,6 +362,9 @@ export const importRoutes = new Elysia().post('/api/import', async ({ body, set 
       importedSaved: savedCreates.length,
       skippedSaved,
       invalidSaved,
+      importedFollows: followCreates.length,
+      skippedFollows,
+      invalidFollows,
     };
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {

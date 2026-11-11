@@ -4,6 +4,7 @@ import { Bookmark, Disc3, ExternalLink, Headphones, Heart, X } from 'lucide-reac
 import type { DiscoveryItem } from '@/lib/types';
 import { formatDate } from '@/lib/utils';
 import { CoverArt } from './cover-art';
+import { FollowArtistButton } from './follow-artist-button';
 import { FormatBadge } from './release-card';
 
 export function SuggestionDialog({
@@ -80,7 +81,7 @@ export function SuggestionDialog({
               <h3 className="mt-2 font-display text-2xl font-semibold tracking-tight text-cream">
                 {item.title}
               </h3>
-              <p className="mt-1 text-sm text-muted">
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
                 {item.artistId ? (
                   <Link
                     to={`/artists/${item.artistId}`}
@@ -90,9 +91,10 @@ export function SuggestionDialog({
                     {item.artist}
                   </Link>
                 ) : (
-                  item.artist
+                  <span>{item.artist}</span>
                 )}
-              </p>
+                <FollowArtistButton artistId={item.artistId} name={item.artist} compact />
+              </div>
               <p className="mt-1 text-xs text-muted">
                 {[
                   item.firstReleaseDate ? formatDate(item.firstReleaseDate) : null,

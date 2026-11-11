@@ -86,6 +86,18 @@ Promoting a saved suggestion creates a `WishlistItem` and deletes the saved row.
 
 Wishlist is not part of collection stats.
 
+## ArtistFollow
+
+Explicit “show me more from this artist” signal. It is not a wishlist or saved item and does not imply ownership.
+
+| Field | Notes |
+| --- | --- |
+| `artistId` | MusicBrainz artist MBID, primary key |
+| `name` | Display name captured when followed |
+| `createdAt` | Follow timestamp |
+
+Index: `name`. Follows feed Discover affinity and similar-artist seeds. Unfollowing only removes the signal; it creates no negative event. Followed artists are never excluded from Discover.
+
 ## MetadataCache
 
 Persistent MusicBrainz payload cache.
@@ -171,6 +183,7 @@ Settings never leave the browser. Export/import does not include them.
 
 - Owned data lives in `Release`/`Track`; remote MusicBrainz payloads only in `MetadataCache`.
 - Discover state lives in `DiscoveryFeed`/`DiscoverySeen`/`DiscoveryEvent`; clearing it must not affect the collection.
+- `ArtistFollow` is a taste signal, not an acquisition state. It must not create wishlist or saved rows.
 - `format` is always a normalized category. Keep the raw string in `formatDetail`.
 - `genres` is comma-separated; ingestion dedupes case-insensitively.
 - MB IDs are unique, but multiple null values are allowed.
@@ -203,11 +216,14 @@ Settings never leave the browser. Export/import does not include them.
   ],
   "saved": [
     { "id": "…", "title": "…", "artist": "…", "…": "all SavedSuggestion fields" }
+  ],
+  "follows": [
+    { "artistId": "…", "name": "…", "createdAt": "…" }
   ]
 }
 ```
 
-CSV export is release/track rows: one row per track, release fields repeated; releases with no tracks still produce one row. CSV export does not include wishlist or saved suggestions.
+CSV export is release/track rows: one row per track, release fields repeated; releases with no tracks still produce one row. CSV export does not include wishlist, saved suggestions or followed artists.
 
 ## Import rules
 
@@ -218,6 +234,7 @@ CSV export is release/track rows: one row per track, release fields repeated; re
 - If `musicbrainzId` is null, dedupe by normalized `title|artist|format`.
 - Wishlist uses the same rules.
 - Saved suggestions dedupe by `releaseGroupId`.
+- Followed artists dedupe by `artistId`.
 - Invalid rows are counted and skipped; the rest still import.
 - Tracks are created with the release in the same transaction.
 - `genres` accepts string or array.

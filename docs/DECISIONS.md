@@ -117,6 +117,12 @@ Saved suggestions are a pre-decision queue (“listen and decide later”), not 
 
 Clicking a Discover card opens a suggestion dialog, not the Add release dialog. The recommendation reason is followed by **Listen on ListenBrainz**; the action row offers **Add to wishlist**, **Save for later** and **I already own it — Add to library**. Listening links to the ListenBrainz release-group page in a new tab; it is not an embedded player and playback depends on the user's connected music service. “I already own it — Add to library” opens the existing edition picker prefilled with the release group, because a physical release still needs a specific edition, format and condition. Benefits: Discover stays focused on decisions, and collection data is only created through the explicit edition flow.
 
+## ADR-020 — Artist follow separates taste from acquisition
+
+**Status:** accepted
+
+Discover needs explicit artist taste without forcing users to save an album they do not want or add a fake wishlist item. `ArtistFollow` stores one row per MusicBrainz artist and contributes a strong positive affinity signal; followed artists are prioritised as similar-artist and Release Radar seeds. It does not exclude the artist from Discover, create a saved item or imply buy intent. Follow is available on artist pages, release pages, wishlist search/edit dialogs and in the Discover suggestion dialog. The Discover `Following` tab makes the list visible and manageable without adding a new navigation destination. Benefits: a cleaner saved shelf, more accurate discovery input, and one clear meaning per action: rate owned records, want albums, save release groups, follow artists.
+
 ## ADR-019 — Weekly, stable Discover cadence for a physical collection
 
 **Status:** accepted

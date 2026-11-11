@@ -6,6 +6,7 @@ import { useSettings } from '@/lib/settings';
 import type { SearchResult } from '@/lib/types';
 import { cn, pluralize } from '@/lib/utils';
 import { CoverArt } from './cover-art';
+import { FollowArtistButton } from './follow-artist-button';
 import { useToast } from './toast';
 
 export function WishlistAddDialog({
@@ -118,21 +119,19 @@ export function WishlistAddDialog({
         aria-modal="true"
         aria-label="Add to wishlist"
       >
-        <div className="flex items-center justify-between gap-4 border-b border-white/[0.07] px-5 py-4">
+        <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] px-5 py-4">
           <div>
-            <h2 className="font-display text-lg font-semibold text-cream">
+            <p className="eyebrow">Wishlist</p>
+            <h2 className="mt-1 font-display text-lg font-semibold text-cream">
               Add to wishlist
             </h2>
-            <p className="mt-0.5 text-xs text-muted">
-              Search MusicBrainz. Set the target price afterwards.
-            </p>
           </div>
           <button type="button" onClick={onClose} className="icon-btn" aria-label="Close">
             <X size={16} />
           </button>
         </div>
 
-        <div className="border-b border-white/[0.06] p-4">
+        <div className="border-b border-white/[0.06] p-5">
           <div className="relative">
             <Search
               size={15}
@@ -223,7 +222,14 @@ export function WishlistAddDialog({
                       <p className="truncate text-xs font-semibold text-cream">
                         {result.title}
                       </p>
-                      <p className="truncate text-[11px] text-muted">{result.artist}</p>
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        <p className="truncate text-[11px] text-muted">{result.artist}</p>
+                        <FollowArtistButton
+                          artistId={result.artistId}
+                          name={result.artist}
+                          compact
+                        />
+                      </div>
                       <p className="mt-0.5 truncate text-[10px] text-muted/60">
                         {[
                           result.year ?? undefined,

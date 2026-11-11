@@ -14,7 +14,9 @@ import { api } from '@/lib/api';
 import type { ArtistReleaseGroup } from '@/lib/types';
 import { cn, pluralize } from '@/lib/utils';
 import { ArtistAvatar } from '@/components/artist-avatar';
+import { CardHalo } from '@/components/card-halo';
 import { CoverArt } from '@/components/cover-art';
+import { FollowArtistButton } from '@/components/follow-artist-button';
 import { useApp } from '@/components/app-context';
 import { useToast } from '@/components/toast';
 
@@ -98,14 +100,11 @@ function ReleaseGroupCard({
     <button
       type="button"
       onClick={() => onAdd(group)}
-      className="group w-full text-left outline-none"
+      className="group relative w-full text-left outline-none"
     >
-      <div className="relative aspect-square overflow-hidden rounded-xl transition duration-300 group-hover:-translate-y-1 group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
-        <CoverArt
-          src={group.coverUrl}
-          title={group.title}
-          className="h-full w-full transition duration-500 group-hover:scale-[1.05]"
-        />
+      <CardHalo />
+      <div className="relative aspect-square overflow-hidden rounded-xl group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
+        <CoverArt src={group.coverUrl} title={group.title} className="h-full w-full" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
         <span
           className={cn(
@@ -314,6 +313,7 @@ export function ArtistPage() {
                 <Plus size={15} />
                 Add a release
               </button>
+              <FollowArtistButton artistId={artist.id} name={artist.name} />
               <a
                 href={`https://musicbrainz.org/artist/${artist.id}`}
                 target="_blank"

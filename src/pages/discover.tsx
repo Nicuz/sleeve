@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Bookmark,
   Clock,
@@ -10,12 +10,16 @@ import {
   Headphones,
   Heart,
   Sparkles,
+  UserMinus,
+  Users,
   X,
 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
-import type { DiscoveryItem, SavedSuggestion } from '@/lib/types';
-import { pluralize } from '@/lib/utils';
+import type { DiscoveryItem, FollowedArtist, SavedSuggestion } from '@/lib/types';
+import { formatDate, pluralize } from '@/lib/utils';
 import { useApp } from '@/components/app-context';
+import { ArtistAvatar } from '@/components/artist-avatar';
+import { CardHalo } from '@/components/card-halo';
 import { CoverArt } from '@/components/cover-art';
 import { EmptyState } from '@/components/empty-state';
 import { SuggestionDialog } from '@/components/suggestion-dialog';
@@ -68,7 +72,7 @@ function DiscoverCard({
       className="group relative w-full rounded-2xl text-left outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
       aria-label={`Open ${item.title} by ${item.artist}`}
     >
-      <span className="pointer-events-none absolute -inset-2.5 rounded-2xl bg-white/[0.08] opacity-0 transition duration-200 group-hover:opacity-100 group-focus-visible:opacity-100" />
+      <CardHalo />
       <div className="relative aspect-square overflow-hidden rounded-xl">
         <CoverArt src={item.coverUrl} title={item.title} className="h-full w-full" />
       </div>
@@ -134,6 +138,47 @@ function SavedCard({
           Remove
         </button>
       </div>
+    </div>
+  );
+}
+
+function FollowingRow({
+  artist,
+  onUnfollow,
+  busy,
+}: {
+  artist: FollowedArtist;
+  onUnfollow: (artist: FollowedArtist) => void;
+  busy: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3 transition hover:border-white/10">
+      <Link
+        to={`/artists/${artist.artistId}`}
+        className="group flex min-w-0 flex-1 items-center gap-3"
+      >
+        <ArtistAvatar name={artist.name} className="h-10 w-10 text-sm" />
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-semibold text-cream transition group-hover:text-accent">
+            {artist.name}
+          </span>
+          <span className="mt-0.5 block truncate text-[11px] text-muted">
+            Followed {formatDate(artist.createdAt)}
+            {artist.ownedCount
+              ? ` · ${pluralize(artist.ownedCount, 'release')} in library`
+              : ' · not in library'}
+          </span>
+        </span>
+      </Link>
+      <button
+        type="button"
+        onClick={() => onUnfollow(artist)}
+        disabled={busy}
+        className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/10 px-2.5 py-1 text-[10px] font-medium text-muted transition hover:border-coral/30 hover:bg-coral/10 hover:text-coral disabled:opacity-50"
+      >
+        <UserMinus size={11} />
+        Unfollow
+      </button>
     </div>
   );
 }
@@ -260,7 +305,8 @@ export function DiscoverPage() {
   const queryClient = useQueryClient();
   const [params, setParams] = useSearchParams();
   const [selected, setSelected] = useState<DiscoveryItem | null>(null);
-  const view = params.get('view') === 'saved' ? 'saved' : 'for-you';
+  const viewParam = params.get('view');
+  const view = viewParam === 'saved' || viewParam === 'following' ? viewParam : 'for-you';
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['discover'],
     queryFn: () => api.discover(),
@@ -276,7 +322,16 @@ export function DiscoverPage() {
     queryFn: api.listWishlist,
     staleTime: 30_000,
   });
+  const followsQuery = useQuery({
+    queryKey: ['artist-follows'],
+    queryFn: api.listFollowedArtists,
+    staleTime: 30_000,
+  });
   const savedItems = savedQuery.data?.items ?? [];
+  const followedArtists = followsQuery.data?.items ?? [];
+  const followedInLibrary = followedArtists.filter(
+    (artist) => (artist.ownedCount ?? 0) > 0,
+  ).length;
   const savedGroupIds = new Set(savedItems.map((item) => item.releaseGroupId));
   const wishlistedGroupIds = new Set(
     (wishlistQuery.data?.items ?? [])
@@ -284,10 +339,10 @@ export function DiscoverPage() {
       .filter((id): id is string => Boolean(id)),
   );
 
-  function setView(next: 'for-you' | 'saved') {
+  function setView(next: 'for-you' | 'saved' | 'following') {
     const query = new URLSearchParams(params);
-    if (next === 'saved') query.set('view', 'saved');
-    else query.delete('view');
+    if (next === 'for-you') query.delete('view');
+    else query.set('view', next);
     setParams(query, { replace: true });
   }
 
@@ -372,6 +427,22 @@ export function DiscoverPage() {
         mutationError instanceof ApiError
           ? mutationError.message
           : 'Could not remove this release',
+        'error',
+      );
+    },
+  });
+
+  const unfollowArtist = useMutation({
+    mutationFn: (artist: FollowedArtist) => api.unfollowArtist(artist.artistId),
+    onSuccess: (_result, artist) => {
+      queryClient.invalidateQueries({ queryKey: ['artist-follows'] });
+      toast(`Unfollowed ${artist.name}`, 'info');
+    },
+    onError: (mutationError) => {
+      toast(
+        mutationError instanceof ApiError
+          ? mutationError.message
+          : 'Could not unfollow this artist',
         'error',
       );
     },
@@ -464,14 +535,14 @@ export function DiscoverPage() {
             {updatedLabel(data.generatedAt)}
           </p>
         </div>
-        <div className="mt-4 flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
+        <div className="mt-4 flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-full border border-white/10 bg-white/[0.02] p-1">
           <button
             type="button"
             onClick={() => setView('for-you')}
             className={
               view === 'for-you'
-                ? 'rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-cream'
-                : 'rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted transition hover:text-cream'
+                ? 'shrink-0 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-cream'
+                : 'shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted transition hover:text-cream'
             }
             aria-pressed={view === 'for-you'}
           >
@@ -482,8 +553,8 @@ export function DiscoverPage() {
             onClick={() => setView('saved')}
             className={
               view === 'saved'
-                ? 'inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-cream'
-                : 'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted transition hover:text-cream'
+                ? 'inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-cream'
+                : 'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted transition hover:text-cream'
             }
             aria-pressed={view === 'saved'}
           >
@@ -496,6 +567,27 @@ export function DiscoverPage() {
               }
             >
               {savedItems.length}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setView('following')}
+            className={
+              view === 'following'
+                ? 'inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-cream'
+                : 'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted transition hover:text-cream'
+            }
+            aria-pressed={view === 'following'}
+          >
+            Following
+            <span
+              className={
+                view === 'following'
+                  ? 'rounded-full bg-white/15 px-1.5 py-0.5 text-[10px] tabular-nums text-cream/80'
+                  : 'rounded-full bg-white/[0.06] px-1.5 py-0.5 text-[10px] tabular-nums text-muted'
+              }
+            >
+              {followedArtists.length}
             </span>
           </button>
         </div>
@@ -572,6 +664,69 @@ export function DiscoverPage() {
                   onPromote={(saved) => promoteSaved.mutate(saved)}
                   onRemove={(saved) => removeSaved.mutate(saved)}
                   busy={promoteSaved.isPending || removeSaved.isPending}
+                />
+              ))}
+            </div>
+          </section>
+        )
+      ) : view === 'following' ? (
+        followsQuery.isLoading ? (
+          <div className="mt-8 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="skeleton h-16 rounded-2xl" />
+            ))}
+          </div>
+        ) : followsQuery.isError ? (
+          <div className="panel mt-8 flex flex-col items-center px-6 py-16 text-center">
+            <Users size={26} className="text-coral" />
+            <p className="mt-3 text-sm font-medium text-cream">
+              Could not load followed artists
+            </p>
+            <button
+              type="button"
+              onClick={() => followsQuery.refetch()}
+              className="btn btn-secondary mt-4"
+            >
+              Try again
+            </button>
+          </div>
+        ) : followedArtists.length === 0 ? (
+          <div className="panel mt-8">
+            <EmptyState
+              icon={<Users size={20} />}
+              title="No followed artists yet"
+              description="Follow an artist from any artist page or discovery suggestion. They will appear here and shape future recommendations."
+              actionLabel="Browse suggestions"
+              onAction={() => setView('for-you')}
+            />
+          </div>
+        ) : (
+          <section className="mt-8">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="font-display text-2xl font-semibold text-cream">
+                  Artists you follow
+                </h2>
+                <p className="mt-1 max-w-lg text-xs text-muted">
+                  A direct taste signal for future picks. Following never saves or
+                  wishlists an album.
+                </p>
+              </div>
+              <p className="text-[11px] text-muted">
+                {pluralize(followedArtists.length, 'artist')}
+                {followedInLibrary > 0 ? ` · ${followedInLibrary} in your library` : ''}
+              </p>
+            </div>
+            <div className="mt-5 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+              {followedArtists.map((artist) => (
+                <FollowingRow
+                  key={artist.artistId}
+                  artist={artist}
+                  onUnfollow={(item) => unfollowArtist.mutate(item)}
+                  busy={
+                    unfollowArtist.isPending &&
+                    unfollowArtist.variables?.artistId === artist.artistId
+                  }
                 />
               ))}
             </div>

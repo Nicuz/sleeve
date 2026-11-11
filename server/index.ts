@@ -10,6 +10,7 @@ import { metaRoutes } from './routes/meta';
 import { exportRoutes } from './routes/export';
 import { wishlistRoutes } from './routes/wishlist';
 import { savedRoutes } from './routes/saved';
+import { followRoutes } from './routes/follows';
 import { discoverRoutes } from './routes/discover';
 import { importRoutes } from './routes/import';
 import { maintenanceRoutes } from './routes/maintenance';
@@ -62,6 +63,7 @@ const app = new Elysia()
   .use(exportRoutes)
   .use(wishlistRoutes)
   .use(savedRoutes)
+  .use(followRoutes)
   .use(discoverRoutes)
   .use(importRoutes)
   .use(maintenanceRoutes)

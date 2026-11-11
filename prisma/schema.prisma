@@ -82,6 +82,14 @@ model SavedSuggestion {
   @@index([createdAt])
 }
 
+model ArtistFollow {
+  artistId  String   @id
+  name      String
+  createdAt DateTime @default(now())
+
+  @@index([name])
+}
+
 model MetadataCache {
   key       String   @id
   payload   String

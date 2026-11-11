@@ -4,6 +4,7 @@ import type {
   ArtistSearchResult,
   DiscoverResponse,
   EnrichResult,
+  FollowedArtist,
   ImportResult,
   MetadataCacheInfo,
   MbRelease,
@@ -137,6 +138,27 @@ export const api = {
     return request<{ item: WishlistItem }>(`/api/saved/${id}/promote`, {
       method: 'POST',
     });
+  },
+
+  listFollowedArtists() {
+    return request<{ items: FollowedArtist[]; count: number }>('/api/artists/follows');
+  },
+
+  followArtist(artistId: string, name: string) {
+    return request<{ item: FollowedArtist }>(
+      `/api/artists/${encodeURIComponent(artistId)}/follow`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({ name }),
+      },
+    );
+  },
+
+  unfollowArtist(artistId: string) {
+    return request<{ ok: boolean }>(
+      `/api/artists/${encodeURIComponent(artistId)}/follow`,
+      { method: 'DELETE' },
+    );
   },
 
   applyReleaseMatch(id: string, musicbrainzId: string) {

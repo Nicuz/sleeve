@@ -1,6 +1,8 @@
-import { ChevronRight, Disc3, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronRight, Star } from 'lucide-react';
 import type { Release } from '@/lib/types';
 import { cn, formatDate } from '@/lib/utils';
+import { CardHalo } from './card-halo';
 import { CoverArt } from './cover-art';
 
 const formatStyles: Record<string, string> = {
@@ -58,37 +60,51 @@ export function ReleaseCard({
   onOpen: (id: string) => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={() => onOpen(release.id)}
-      className="group w-full text-left outline-none"
-    >
-      <div className="relative aspect-square overflow-hidden rounded-xl transition duration-300 group-hover:-translate-y-1 group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
-        <CoverArt
-          src={release.coverUrl}
+    <div className="group relative w-full text-left">
+      <CardHalo />
+      <button
+        type="button"
+        onClick={() => onOpen(release.id)}
+        className="group relative block w-full text-left outline-none"
+      >
+        <div className="relative aspect-square overflow-hidden rounded-xl group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
+          <CoverArt
+            src={release.coverUrl}
+            title={release.title}
+            className="h-full w-full"
+          />
+          <FormatBadge
+            format={release.format}
+            overlay
+            className="absolute top-2 left-2"
+          />
+        </div>
+        <span
+          className="mt-3 block truncate text-sm font-semibold text-cream"
           title={release.title}
-          className="h-full w-full transition duration-500 group-hover:scale-[1.05]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
-        <FormatBadge format={release.format} overlay className="absolute top-2 left-2" />
-        <span className="absolute right-2.5 bottom-2.5 grid h-9 w-9 translate-y-2 place-items-center rounded-full bg-accent text-ink-950 opacity-0   transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-          <Disc3 size={17} />
-        </span>
-      </div>
-      <div className="mt-3 min-w-0">
-        <p className="truncate text-sm font-semibold text-cream" title={release.title}>
+        >
           {release.title}
-        </p>
+        </span>
+      </button>
+      {release.artistId ? (
+        <Link
+          to={`/artists/${release.artistId}`}
+          className="mt-0.5 block truncate text-xs text-muted transition hover:text-cream"
+          title={release.artist}
+        >
+          {release.artist}
+        </Link>
+      ) : (
         <p className="mt-0.5 truncate text-xs text-muted" title={release.artist}>
           {release.artist}
         </p>
-        <div className="mt-1 flex items-center gap-1.5 text-[10px] tracking-wide text-muted/60">
-          {release.year && <span>{release.year}</span>}
-          {release.year && <span>·</span>}
-          <span>{release.trackCount ?? 0} tracks</span>
-        </div>
+      )}
+      <div className="mt-1 flex items-center gap-1.5 text-[10px] tracking-wide text-muted/60">
+        {release.year && <span>{release.year}</span>}
+        {release.year && <span>·</span>}
+        <span>{release.trackCount ?? 0} tracks</span>
       </div>
-    </button>
+    </div>
   );
 }
 

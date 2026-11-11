@@ -7,7 +7,7 @@ Canonical reference for how Discover builds its feed. Read this before changing 
 - Source data: owned releases (including rating), wishlist, saved suggestions, `DiscoverySeen`, `DiscoveryEvent`.
 - Metadata: MusicBrainz release groups and release-group tags.
 - Personalisation: library-weighted artist/genre affinity, ListenBrainz similar artists, ListenBrainz artist and release-group popularity.
-- Sections: Release Radar, New this week, New this month, Crate dig.
+- Sections: Release Radar, New this week, New this month, Lost in the Stacks.
 - Feed is cached 7 days and refreshed automatically. There is no user-facing refresh button.
 - `GET /api/discover?refresh=1` forces a rebuild (dev/internal only).
 - Saving or wishlisting does not rebuild the current feed; those signals shape the next weekly refresh.
@@ -63,7 +63,7 @@ GET https://labs.api.listenbrainz.org/similar-artists/json
 
 - Results are aggregated per seed, filtered to exclude owned artists, capped at 40 artists.
 - Similarity is normalised per seed and weighted by the seed artist's affinity.
-- Matching candidate artists get an affinity boost and a "More like …" reason.
+- Matching candidate artists get an affinity boost and a source-aware reason: “Because you own …”, “Because … is on your wishlist”, “Because you saved …”, or “Similar to …”.
 - Cached in memory for 7 days; failures fall back to owned artists and genre candidates.
 
 This is the main candidate-quality improvement: Discover can now surface artists near the collection, not only artists already owned or the top 3 raw tags.
@@ -89,9 +89,9 @@ Function: `searchReleaseGroupsByArtistIds`.
 Similar artists are queried separately:
 
 - recent: `[today-30d TO today+90d]` → New this week / New this month
-- older: `[1950-01-01 TO today-30d]` → Crate dig
+- older: `[1950-01-01 TO today-30d]` → Lost in the Stacks
 
-These candidates carry a "More like …" reason and are ranked by affinity.
+These candidates carry a source-aware reason and are ranked by affinity.
 
 ### New this week / New this month
 
@@ -110,7 +110,7 @@ Partitioning:
 - `firstReleaseDate >= today-7d` → **New this week** (includes upcoming releases)
 - `today-30d <= firstReleaseDate < today-7d` → **New this month**
 
-### Crate dig
+### Lost in the Stacks
 
 For each top genre:
 
@@ -185,7 +185,7 @@ Per section, normalise affinity, popularity and freshness across the candidate p
 - Freshness is 1 for future releases, decaying to 0 over 90 days.
 - Exploration is a deterministic hash of the current date + release group.
 
-### Crate dig
+### Lost in the Stacks
 
 Monthly deterministic blend:
 
@@ -197,7 +197,7 @@ Monthly deterministic blend:
 
 - `monthKey` is `YYYY-MM`.
 - Same month + same data → stable rotation.
-- Different month → different Crate dig shelf.
+- Different month → different Lost in the Stacks shelf.
 - Max 1 per artist, 8 items.
 
 ### Diversity
@@ -205,7 +205,7 @@ Monthly deterministic blend:
 `selectDiverse`:
 
 - unseen items first, seen items later
-- max 2 per artist for new sections, 1 for Crate dig
+- max 2 per artist for new sections, 1 for Lost in the Stacks
 - max 3 per genre and 4 per era when alternatives exist
 - a second pass relaxes genre/era caps if a section would otherwise be short
 - blocked IDs are skipped across sections
@@ -216,7 +216,7 @@ Priority:
 
 ```text
 Release Radar
-→ first "More like …" item in New this week / New this month / Crate dig
+→ first similar-artist item in New this week / New this month / Lost in the Stacks
 → first available item
 ```
 
@@ -325,7 +325,7 @@ Restarting the server alone does **not** clear the cached feed.
 - `For you` shows lead pick + sections.
 - Cards open `SuggestionDialog`, not the Add release form.
 - Opening a card silently records a `DiscoveryEvent`.
-- Dialog actions: Add to wishlist, Save for later, I already own it.
+- Dialog actions: Add to wishlist, Save for later, Listen on ListenBrainz, I already own it.
 - `I already own it` opens the edition picker prefilled with `rgid:<releaseGroupId>`.
 - No manual refresh button. Shows `Updated … · next refresh in …`.
 
@@ -342,6 +342,6 @@ Restarting the server alone does **not** clear the cached feed.
 
 1. Version the feed cache key for every algorithm experiment (already stores `version`; bump it).
 2. Add relative popularity floors for New this week/month when enough candidates exist.
-3. Expand candidate pools with decade partitions for Crate dig.
+3. Expand candidate pools with decade partitions for Lost in the Stacks.
 4. Persist similar-artist results in SQLite if rebuild latency becomes an issue.
 5. Optional ListenBrainz account connection for true collaborative-filtering signals.

@@ -47,7 +47,7 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
   - `applyReleaseMatch` (manual MusicBrainz ID)
 - `server/routes/` — releases, wishlist, discovery, import, export, stats, metadata cache, covers, meta, MusicBrainz proxies.
 - `prisma/schema.prisma` — `Release`, `Track`, `WishlistItem`, `SavedSuggestion`, `MetadataCache`, `DiscoveryFeed`, `DiscoverySeen`, `DiscoveryEvent`.
-- `server/discovery.ts` — builds the cached Discover feed (Release Radar, New this week, New this month, Crate dig), expands candidates with similar artists, ranks with library affinity + ListenBrainz popularity and refreshes automatically.
+- `server/discovery.ts` — builds the cached Discover feed (Release Radar, New this week, New this month, Lost in the Stacks), expands candidates with similar artists, ranks with library affinity + ListenBrainz popularity and refreshes automatically.
 - `server/listenbrainz.ts` — batched release-group and artist popularity plus similar-artist lookup, with in-memory caches and 1s request spacing.
 - `prisma/seed.ts` — demo data. Destructive only with `--reset`.
 

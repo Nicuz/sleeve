@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, Disc3, ExternalLink, Heart, X } from 'lucide-react';
+import { Bookmark, ExternalLink, Headphones, Heart, X } from 'lucide-react';
 import type { DiscoveryItem } from '@/lib/types';
 import { formatDate } from '@/lib/utils';
 import { CoverArt } from './cover-art';
@@ -112,13 +112,23 @@ export function SuggestionDialog({
           <div className="divider my-5" />
 
           <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={`https://listenbrainz.org/release-group/${item.id}/`}
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-primary"
+            >
+              <Headphones size={15} />
+              Listen on ListenBrainz
+              <ExternalLink size={12} />
+            </a>
             <button
               type="button"
               onClick={() => onWishlist(item)}
               disabled={wishlisted}
-              className="btn btn-primary"
+              className="btn btn-secondary"
             >
-              <Heart size={15} />
+              <Heart size={14} />
               {wishlisted ? 'In wishlist' : 'Add to wishlist'}
             </button>
             <button
@@ -130,29 +140,19 @@ export function SuggestionDialog({
               <Bookmark size={14} />
               {saved ? 'Saved' : 'Save for later'}
             </button>
-            <button
-              type="button"
-              onClick={() => onOwn(item)}
-              className="btn btn-secondary"
-            >
-              <Disc3 size={14} />I already own it
-            </button>
           </div>
 
           <p className="mt-3 text-[11px] leading-relaxed text-muted/60">
-            Owning it? Choose the exact pressing and format before adding it to your
-            collection.
+            Already own it?{' '}
+            <button
+              type="button"
+              onClick={() => onOwn(item)}
+              className="font-medium text-accent underline-offset-4 transition hover:text-accent-soft hover:underline"
+            >
+              Choose the exact pressing
+            </button>
+            .
           </p>
-
-          <a
-            href={`https://musicbrainz.org/release-group/${item.id}`}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 inline-flex items-center gap-1.5 text-[10px] text-muted transition hover:text-cream"
-          >
-            View on MusicBrainz
-            <ExternalLink size={11} />
-          </a>
         </div>
       </div>
     </div>

@@ -160,11 +160,14 @@ type ScoredItem = {
   exploration: number;
 };
 
+type ArtistSource = 'owned' | 'wishlist' | 'saved';
+
 type CollectionSnapshot = {
   topGenres: string[];
   genreAffinity: Map<string, number>;
   artistAffinity: Map<string, number>;
   artistNames: Map<string, string>;
+  artistSources: Map<string, ArtistSource>;
   seedArtistIds: string[];
   ownedKeys: Set<string>;
   wishlistKeys: Set<string>;
@@ -200,9 +203,23 @@ async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
   const genreWeights = new Map<string, { name: string; weight: number }>();
   const artistAffinity = new Map<string, number>();
   const artistNames = new Map<string, string>();
+  const artistSources = new Map<string, ArtistSource>();
   const ownedKeys = new Set<string>();
   const ownedArtistIds = new Set<string>();
   const ownedArtistNames = new Set<string>();
+  const sourceRank: Record<ArtistSource, number> = { saved: 1, wishlist: 2, owned: 3 };
+
+  function markArtistSource(
+    id: string | null | undefined,
+    name: string,
+    source: ArtistSource,
+  ) {
+    const key = artistKey(id, name);
+    const current = artistSources.get(key);
+    if (!current || sourceRank[source] > sourceRank[current]) {
+      artistSources.set(key, source);
+    }
+  }
 
   function addArtist(id: string | null | undefined, name: string, weight: number) {
     if (!name) return;
@@ -227,6 +244,7 @@ async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
     if (release.artistId) ownedArtistIds.add(release.artistId);
     const weight = ratingWeight(release.rating);
     addArtist(release.artistId, release.artist, weight);
+    markArtistSource(release.artistId, release.artist, 'owned');
     for (const genre of (release.genres ?? '')
       .split(',')
       .map((item) => item.trim())
@@ -239,12 +257,14 @@ async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
   for (const item of wishlist) {
     wishlistKeys.add(releaseKey(item.artist, item.title));
     addArtist(item.artistId, item.artist, 1.2);
+    markArtistSource(item.artistId, item.artist, 'wishlist');
   }
 
   const savedGroupIds = new Set<string>();
   for (const item of saved) {
     savedGroupIds.add(item.releaseGroupId);
     addArtist(item.artistId, item.artist, 0.8);
+    markArtistSource(item.artistId, item.artist, 'saved');
   }
 
   const openedGroups = new Set<string>();
@@ -293,6 +313,7 @@ async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
     genreAffinity,
     artistAffinity,
     artistNames,
+    artistSources,
     seedArtistIds,
     ownedKeys,
     wishlistKeys,
@@ -304,7 +325,7 @@ async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
 
 type SimilarExpansion = {
   affinity: Map<string, number>;
-  sources: Map<string, { name: string; score: number }>;
+  sources: Map<string, { name: string; score: number; kind: ArtistSource | null }>;
   artistIds: string[];
 };
 
@@ -349,9 +370,14 @@ async function expandSimilarArtists(
       (expansion.affinity.get(match.artistId) ?? 0) + contribution,
     );
     const source = snapshot.artistNames.get(`id:${match.referenceId}`);
+    const sourceKind = snapshot.artistSources.get(`id:${match.referenceId}`) ?? null;
     const current = expansion.sources.get(match.artistId);
     if (source && (!current || contribution > current.score)) {
-      expansion.sources.set(match.artistId, { name: source, score: contribution });
+      expansion.sources.set(match.artistId, {
+        name: source,
+        score: contribution,
+        kind: sourceKind,
+      });
     }
   }
 
@@ -592,6 +618,15 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
   const orbitArtistIds = expansion.artistIds.filter(
     (id) => !snapshot.seedArtistIds.includes(id),
   );
+
+  function radarReason(group: DiscoverReleaseGroup): string {
+    const source = snapshot.artistSources.get(artistKey(group.artistId, group.artist));
+    if (source === 'owned') return 'New from an artist you own';
+    if (source === 'wishlist') return 'New from an artist on your wishlist';
+    if (source === 'saved') return 'New from an artist you saved';
+    return 'New from an artist near your collection';
+  }
+
   if (radarArtistIds.length > 0) {
     try {
       const groups = await searchReleaseGroupsByArtistIds(
@@ -607,9 +642,7 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
         .filter((group) => !isOwnedRelease(group, snapshot))
         .map((group) => ({
           ...group,
-          reason: isOwnedArtist(group, snapshot)
-            ? 'New from an artist you own'
-            : 'New from an artist near your collection',
+          reason: radarReason(group),
           genre: null,
         }))
         .sort(byReleaseDate);
@@ -621,12 +654,17 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
   const weekCandidates: DiscoveryItem[] = [];
   const monthCandidates: DiscoveryItem[] = [];
   const crateCandidates: DiscoveryItem[] = [];
+  const orbitCandidateIds = new Set<string>();
 
   function orbitReason(group: DiscoverReleaseGroup): string {
-    const source = group.artistId
-      ? expansion.sources.get(group.artistId)?.name
-      : undefined;
-    return source ? `More like ${source}` : 'From an artist near your collection';
+    const source = group.artistId ? expansion.sources.get(group.artistId) : undefined;
+    if (!source) return 'From an artist near your collection';
+    if (source.kind === 'owned') return `Because you own ${source.name}`;
+    if (source.kind === 'wishlist') {
+      return `Because ${source.name} is on your wishlist`;
+    }
+    if (source.kind === 'saved') return `Because you saved ${source.name}`;
+    return `Similar to ${source.name}`;
   }
 
   if (orbitArtistIds.length > 0) {
@@ -643,6 +681,7 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
         if (isOwnedRelease(group, snapshot)) continue;
         const date = group.firstReleaseDate ?? '';
         if (!date) continue;
+        orbitCandidateIds.add(group.id);
         const item = {
           ...group,
           reason: orbitReason(group),
@@ -664,9 +703,10 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
         if (isOwnedRelease(group, snapshot)) continue;
         const date = group.firstReleaseDate ?? '';
         if (!date || date >= sinceMonth) continue;
+        orbitCandidateIds.add(group.id);
         crateCandidates.push({
           ...group,
-          reason: `Crate dig · ${orbitReason(group)}`,
+          reason: orbitReason(group),
           genre: null,
         });
       }
@@ -716,7 +756,7 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
         if (!date || date >= sinceMonth) continue;
         crateCandidates.push({
           ...group,
-          reason: `Crate dig · ${genre}`,
+          reason: `Because you collect ${genre}`,
           genre,
         });
       }
@@ -784,9 +824,9 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
   );
 
   const orbitFeatured =
-    week.find((item) => item.reason.startsWith('More like')) ??
-    month.find((item) => item.reason.startsWith('More like')) ??
-    crate.find((item) => item.reason.includes('More like')) ??
+    week.find((item) => orbitCandidateIds.has(item.id)) ??
+    month.find((item) => orbitCandidateIds.has(item.id)) ??
+    crate.find((item) => orbitCandidateIds.has(item.id)) ??
     null;
   const featured = radar[0] ?? orbitFeatured ?? week[0] ?? month[0] ?? crate[0] ?? null;
   const allSections: DiscoverySection[] = [
@@ -794,28 +834,28 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
       id: 'radar',
       kind: 'radar',
       title: 'From your artists',
-      subtitle: 'Recent and upcoming albums from artists in your library or wishlist',
+      subtitle: 'Recent and upcoming albums from your library and wishlist',
       items: radar.filter((item) => item.id !== featured?.id),
     },
     {
       id: 'new-week',
       kind: 'new',
       title: 'New this week',
-      subtitle: 'Albums and EPs released in the last 7 days',
+      subtitle: 'Fresh releases and announced albums',
       items: week.filter((item) => item.id !== featured?.id),
     },
     {
       id: 'new-month',
       kind: 'new',
       title: 'New this month',
-      subtitle: 'Albums and EPs released 8–30 days ago',
+      subtitle: 'Recent releases you may have missed',
       items: month.filter((item) => item.id !== featured?.id),
     },
     {
       id: 'crate',
       kind: 'crate',
-      title: 'Crate dig',
-      subtitle: 'A monthly rotation from your collection’s orbit',
+      title: 'Lost in the Stacks',
+      subtitle: 'Older albums from artists and genres you collect, rotated monthly',
       items: crate.filter((item) => item.id !== featured?.id),
     },
   ];

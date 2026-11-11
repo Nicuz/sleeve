@@ -1,7 +1,16 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import { Bookmark, Clock, Compass, Disc3, Heart, Sparkles, X } from 'lucide-react';
+import {
+  Bookmark,
+  Clock,
+  Compass,
+  Disc3,
+  Headphones,
+  Heart,
+  Sparkles,
+  X,
+} from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import type { DiscoveryItem, SavedSuggestion } from '@/lib/types';
 import { pluralize } from '@/lib/utils';
@@ -159,7 +168,11 @@ function FeaturedPick({
 }) {
   return (
     <section className="panel mt-6 p-5 sm:p-6">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-end">
+      <p className="eyebrow flex items-center gap-2">
+        <Sparkles size={12} />
+        Lead pick
+      </p>
+      <div className="mt-3 flex flex-col gap-5 sm:flex-row sm:items-start">
         <button
           type="button"
           onClick={() => onOpen(item)}
@@ -174,20 +187,13 @@ function FeaturedPick({
           />
         </button>
         <div className="min-w-0 flex-1">
-          <p className="eyebrow flex items-center gap-2">
-            <Sparkles size={12} />
-            Lead pick
-          </p>
-          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-cream">
+          <h2 className="font-display text-2xl font-semibold tracking-tight text-cream">
             {item.title}
           </h2>
           <p className="mt-1 text-sm text-muted">
             {[item.artist, item.year, item.primaryType].filter(Boolean).join(' · ')}
           </p>
           <p className="mt-2 text-xs text-muted/70">{item.reason}</p>
-          <blockquote className="mt-3 border-l-2 border-accent/40 pl-3 text-[11px] leading-relaxed text-muted/60 italic">
-            “A record picked for you from artists you own and artists like them.”
-          </blockquote>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -207,6 +213,15 @@ function FeaturedPick({
               <Bookmark size={14} />
               {saved ? 'Saved' : 'Save'}
             </button>
+            <a
+              href={`https://listenbrainz.org/release-group/${item.id}/`}
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-secondary"
+            >
+              <Headphones size={14} />
+              Listen on ListenBrainz
+            </a>
             <button
               type="button"
               onClick={() => onAdd(item)}
@@ -599,16 +614,11 @@ export function DiscoverPage() {
 
           {data.sections.map((section) => (
             <section key={section.id} className="mt-10">
-              <div className="flex items-end justify-between gap-4">
-                <div>
-                  <h2 className="font-display text-2xl font-semibold text-cream">
-                    {section.title}
-                  </h2>
-                  <p className="mt-1 text-xs text-muted">{section.subtitle}</p>
-                </div>
-                <p className="text-[11px] text-muted/60">
-                  {pluralize(section.items.length, 'pick')}
-                </p>
+              <div>
+                <h2 className="font-display text-2xl font-semibold text-cream">
+                  {section.title}
+                </h2>
+                <p className="mt-1 text-xs text-muted">{section.subtitle}</p>
               </div>
               <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {section.items.map((item) => (

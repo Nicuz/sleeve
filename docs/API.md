@@ -325,9 +325,9 @@ Moves a saved suggestion into Wishlist as a wanted item and removes the saved ro
 Builds a personalised feed from the user’s collection:
 
 - **Release Radar** — new albums/EPs from top owned/wishlist artists, last 30 days plus upcoming.
-- **New this week** — albums/EPs released in the last 7 days from top genres and similar artists.
+- **New this week** — recent or upcoming albums/EPs from top genres and similar artists.
 - **New this month** — albums/EPs released 8–30 days ago from top genres and similar artists.
-- **Crate dig** — all-time older picks from top genres and similar artists, rotated deterministically once per month.
+- **Lost in the Stacks** — all-time older picks from top genres and similar artists, rotated deterministically once per month.
 - **Lead pick** — first Radar item, else first similar-artist pick, else first available item.
 
 Candidates are expanded with ListenBrainz similar artists and ranked with library-weighted artist/genre affinity plus ListenBrainz artist and release-group listen/user counts. The feed is cached for 7 days and refreshed automatically. Stale requests return the cached feed immediately while a rebuild runs in the background. `?refresh=1` is an internal/dev override. Saving or wishlisting does not rebuild the current feed; owning a record prunes only the matching item. Seen release-group IDs are remembered for 30 days and deprioritised on later builds. The payload carries a `version`; a version mismatch rebuilds before serving.
@@ -342,7 +342,7 @@ Candidates are expanded with ListenBrainz similar artists and ranked with librar
       "id": "radar",
       "kind": "radar",
       "title": "From your artists",
-      "subtitle": "Recent and upcoming albums from artists in your library or wishlist",
+      "subtitle": "Recent and upcoming albums from your library and wishlist",
       "items": [ /* release-group items */ ]
     }
   ],

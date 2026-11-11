@@ -34,12 +34,30 @@ export async function ensureMigrations() {
   // Release the Prisma connection before the CLI writes to SQLite.
   await prisma.$disconnect();
 
-  const result = Bun.spawnSync(['bunx', 'prisma', 'migrate', 'deploy'], {
-    stdout: 'inherit',
-    stderr: 'inherit',
-    env: process.env,
-  });
-  if (result.exitCode !== 0) {
-    throw new Error('Database migrations failed.');
+  const attempts = 5;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const result = Bun.spawnSync(['bunx', 'prisma', 'migrate', 'deploy'], {
+      stdout: 'pipe',
+      stderr: 'pipe',
+      env: process.env,
+    });
+    const stdout = result.stdout.toString();
+    const stderr = result.stderr.toString();
+    if (stdout) process.stdout.write(stdout);
+    if (result.exitCode === 0) return;
+
+    const locked = /database is locked|SQLITE_BUSY/i.test(`${stdout}${stderr}`);
+    if (!locked || attempt === attempts) {
+      if (stderr) process.stderr.write(stderr);
+      throw new Error(
+        locked
+          ? 'Database is locked by another process. Stop the running dev server (`bun run dev`) or run `bun run db:deploy` once, then restart.'
+          : 'Database migrations failed.',
+      );
+    }
+    console.warn(
+      `[server] database is locked, retrying migrations (${attempt}/${attempts})…`,
+    );
+    await Bun.sleep(750 * attempt);
   }
 }

@@ -16,7 +16,7 @@ The compose file binds to localhost only and stores everything in the `sleeve-da
 ```text
 /data/sleeve.db      SQLite database
 /data/covers/        cover image cache (safe to delete)
-/data/backups/       database snapshots
+/data/backups/       internal pre-import snapshots
 ```
 
 Set a real contact so MusicBrainz can reach you:
@@ -56,25 +56,34 @@ Set both auth variables together to enable Basic auth. Leave both empty for a LA
 
 ## Backups
 
-Create a snapshot from Settings → Data & backups, or:
+Use **Settings → Backup & restore → Download backup** in the browser. The JSON file lands on the host, outside the container and outside the Docker volume. This is the primary backup.
+
+Restore with **Restore a backup** in the browser. Preview, then add to the library or replace it.
+
+Sleeve also writes automatic `pre-import-*.db` snapshots to `/data/backups` before each restore. Keep the last 5. They are an internal rollback safety net, not the main backup. They are not exposed in Settings.
+
+Do not rely on the Docker volume as your only backup:
 
 ```bash
-bun run backup
+# This deletes the database, covers and snapshots.
+docker compose down -v
 ```
 
-Snapshots are written to `$BACKUP_DIR` as `sleeve-<timestamp>.db`. Covers are a cache and can be re-fetched.
+### Exact snapshot restore in Docker
 
-Restore (stop Sleeve first):
+Stop the running app, run the restore in a one-off container, then start again:
 
 ```bash
-bun run restore -- sleeve-2026-11-09T22-00-00-000Z.db
-# or an absolute path
-bun run restore -- /backups/my-sleeve.db
+docker compose stop sleeve
+docker compose run --rm --entrypoint bun sleeve run restore -- pre-import-2026-11-09T22-00-00-000Z.db
+docker compose start sleeve
 ```
+
+Do not run `docker compose exec` against the live app for restore. It would replace a SQLite file under an active Prisma connection.
 
 The restore command preserves the current database as `pre-restore-<timestamp>.db` before replacing it.
 
-Back up the whole `DATA_DIR` if you want covers too.
+Back up the whole `DATA_DIR` volume if you want covers too.
 
 ## Upgrades
 

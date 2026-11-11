@@ -1,9 +1,17 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, Grid2x2, List, Loader2, Moon, Sun } from 'lucide-react';
+import { Check, Download, Grid2x2, List, Loader2, Moon, Sun, Upload } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
-import { ACCENTS, SORT_OPTIONS, useSettings, type AccentKey } from '@/lib/settings';
+import {
+  ACCENTS,
+  DEFAULT_COLLECTION_DEFAULTS,
+  SORT_OPTIONS,
+  useSettings,
+  type AccentKey,
+} from '@/lib/settings';
+import type { AppSettings } from '@/lib/types';
 import { CONDITIONS, CURRENCIES, cn, FORMAT_OPTIONS, pluralize } from '@/lib/utils';
+import { ImportBackupDialog } from '@/components/import-backup-dialog';
 import { useToast } from '@/components/toast';
 
 function Section({
@@ -77,16 +85,55 @@ function formatBytes(bytes: number): string {
   return `${(kb / 1024).toFixed(1)} MB`;
 }
 
-const dataRowClass =
-  'group flex w-full items-center gap-3 border-b border-white/[0.04] px-1 py-3.5 text-left transition last:border-b-0 hover:bg-white/[0.02] disabled:opacity-60';
-
 export function SettingsPage() {
   const { settings, updateSettings, resetSettings } = useSettings();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [deleteText, setDeleteText] = useState('');
-  const [importing, setImporting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importOpen, setImportOpen] = useState(false);
+
+  const saveDefaults = useMutation({
+    mutationFn: (patch: Partial<AppSettings>) => api.updateAppSettings(patch),
+    onMutate: (patch) => {
+      queryClient.setQueryData<{ settings: AppSettings }>(
+        ['app-settings'],
+        (current) => ({
+          settings: {
+            ...(current?.settings ?? DEFAULT_COLLECTION_DEFAULTS),
+            ...patch,
+          },
+        }),
+      );
+    },
+    onError: (error) => {
+      queryClient.invalidateQueries({ queryKey: ['app-settings'] });
+      toast(
+        error instanceof ApiError ? error.message : 'Could not save library defaults',
+        'error',
+      );
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(['app-settings'], data);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['app-settings'] });
+    },
+  });
+
+  const resetPreferences = useMutation({
+    mutationFn: () => api.updateAppSettings(DEFAULT_COLLECTION_DEFAULTS),
+    onSuccess: (data) => {
+      resetSettings();
+      queryClient.setQueryData(['app-settings'], data);
+      toast('Preferences reset', 'info');
+    },
+    onError: (error) => {
+      toast(
+        error instanceof ApiError ? error.message : 'Could not reset preferences',
+        'error',
+      );
+    },
+  });
 
   const { data: stats } = useQuery({
     queryKey: ['stats'],
@@ -140,26 +187,6 @@ export function SettingsPage() {
     },
   });
 
-  const createBackup = useMutation({
-    mutationFn: api.createBackup,
-    onSuccess: ({ backup }) => {
-      const anchor = document.createElement('a');
-      anchor.href = api.backupUrl(backup.name);
-      anchor.download = backup.name;
-      anchor.rel = 'noopener';
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      toast('Database backup created and downloaded', 'success');
-    },
-    onError: (error) => {
-      toast(
-        error instanceof ApiError ? error.message : 'Could not create a backup',
-        'error',
-      );
-    },
-  });
-
   const clearLibrary = useMutation({
     mutationFn: () => api.clearLibrary(deleteText),
     onSuccess: ({ deleted }) => {
@@ -176,68 +203,20 @@ export function SettingsPage() {
     },
   });
 
-  function downloadExport(format: 'json' | 'csv') {
+  function downloadBackup() {
     const anchor = document.createElement('a');
-    anchor.href = api.exportLibraryUrl(format);
+    anchor.href = api.exportBackupUrl();
     anchor.download = '';
     anchor.rel = 'noopener';
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
-    toast(`Preparing ${format.toUpperCase()} export`, 'info');
-  }
-
-  async function handleImportFile(file: File) {
-    setImporting(true);
-    try {
-      const parsed = JSON.parse(await file.text()) as unknown;
-      const result = await api.importData(parsed);
-      queryClient.invalidateQueries();
-      queryClient.removeQueries({ queryKey: ['release'] });
-      if (
-        result.importedReleases +
-          result.importedWishlist +
-          result.importedSaved +
-          result.importedFollows ===
-        0
-      ) {
-        toast('Backup read: nothing new to import.', 'info');
-      } else {
-        toast(
-          `Imported ${pluralize(result.importedReleases, 'release')}, ${pluralize(result.importedWishlist, 'wishlist item')}, ${pluralize(result.importedSaved, 'saved suggestion')} and ${pluralize(result.importedFollows, 'followed artist')}.`,
-          'success',
-        );
-      }
-      if (
-        result.invalidReleases +
-          result.invalidWishlist +
-          result.invalidSaved +
-          result.invalidFollows >
-        0
-      ) {
-        toast(
-          `${pluralize(result.invalidReleases + result.invalidWishlist + result.invalidSaved + result.invalidFollows, 'item')} could not be read.`,
-          'error',
-        );
-      }
-    } catch (error) {
-      toast(
-        error instanceof SyntaxError
-          ? 'That file is not valid JSON.'
-          : error instanceof Error
-            ? error.message
-            : 'Could not import the backup.',
-        'error',
-      );
-    } finally {
-      setImporting(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
+    toast('Preparing backup download', 'info');
   }
 
   return (
     <div className="pb-24">
-      <header className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <header className="mt-8">
         <div>
           <p className="eyebrow">Preferences</p>
           <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-cream md:text-5xl">
@@ -248,10 +227,6 @@ export function SettingsPage() {
             data.
           </p>
         </div>
-        <span className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[10px] font-medium text-muted sm:self-auto">
-          <Check size={12} className="text-accent" />
-          Saved in this browser
-        </span>
       </header>
 
       <div className="mt-8 space-y-8">
@@ -293,7 +268,7 @@ export function SettingsPage() {
               </div>
             </SettingRow>
 
-            <div className="flex flex-col gap-3 border-b border-white/[0.04] py-4 first:pt-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+            <div className="flex flex-col gap-3 border-b border-white/[0.04] py-4 first:pt-0 last:border-b-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-cream">Accent color</p>
                 <p className="mt-0.5 text-xs leading-relaxed text-muted">
@@ -328,72 +303,11 @@ export function SettingsPage() {
                 })}
               </div>
             </div>
-
-            <div className="flex items-center gap-3 pt-4">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-cream">Accent preview</p>
-                <p className="mt-0.5 text-[10px] text-muted">
-                  A quick look at the active color.
-                </p>
-              </div>
-              <button
-                type="button"
-                className="btn btn-primary pointer-events-none py-2 text-xs"
-                tabIndex={-1}
-              >
-                Add release
-              </button>
-            </div>
           </div>
         </Section>
 
-        <Section title="Library defaults">
+        <Section title="Library view">
           <div>
-            <SettingRow label="Format" description="Used for manual releases.">
-              <select
-                value={settings.defaultFormat}
-                onChange={(event) =>
-                  updateSettings({ defaultFormat: event.target.value })
-                }
-                className="input w-full sm:w-48"
-                aria-label="Default format"
-              >
-                {FORMAT_OPTIONS.map((format) => (
-                  <option key={format}>{format}</option>
-                ))}
-              </select>
-            </SettingRow>
-
-            <SettingRow label="Condition" description="Default grading on new entries.">
-              <select
-                value={settings.defaultCondition}
-                onChange={(event) =>
-                  updateSettings({ defaultCondition: event.target.value })
-                }
-                className="input w-full sm:w-48"
-                aria-label="Default condition"
-              >
-                {CONDITIONS.map((condition) => (
-                  <option key={condition}>{condition}</option>
-                ))}
-              </select>
-            </SettingRow>
-
-            <SettingRow label="Currency" description="Used for purchase prices.">
-              <select
-                value={settings.defaultCurrency}
-                onChange={(event) =>
-                  updateSettings({ defaultCurrency: event.target.value })
-                }
-                className="input w-full sm:w-48"
-                aria-label="Default currency"
-              >
-                {CURRENCIES.map((currency) => (
-                  <option key={currency}>{currency}</option>
-                ))}
-              </select>
-            </SettingRow>
-
             <SettingRow label="View" description="Grid or list for the library.">
               <div className="grid w-full grid-cols-2 gap-1 rounded-xl border border-white/10 bg-ink-900/60 p-1 sm:w-48">
                 <button
@@ -446,90 +360,98 @@ export function SettingsPage() {
               </select>
             </SettingRow>
           </div>
-
-          <p className="mt-4 text-[10px] leading-relaxed text-muted/60">
-            MusicBrainz editions keep their own format. Your condition, view and sort
-            defaults apply across the app.
-          </p>
         </Section>
 
-        <Section title="Data & backups">
+        <Section title="Library defaults">
           <div>
-            <button
-              type="button"
-              onClick={() => downloadExport('json')}
-              className={dataRowClass}
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-cream">Export JSON</span>
-                <span className="mt-0.5 block text-[11px] text-muted">
-                  Releases, tracks and wishlist
-                </span>
-              </span>
-            </button>
+            <SettingRow label="Format" description="Used for manual releases.">
+              <select
+                value={settings.defaultFormat}
+                onChange={(event) =>
+                  saveDefaults.mutate({ defaultFormat: event.target.value })
+                }
+                className="input w-full sm:w-48"
+                aria-label="Default format"
+              >
+                {FORMAT_OPTIONS.map((format) => (
+                  <option key={format}>{format}</option>
+                ))}
+              </select>
+            </SettingRow>
 
-            <button
-              type="button"
-              onClick={() => downloadExport('csv')}
-              className={dataRowClass}
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-cream">Export CSV</span>
-                <span className="mt-0.5 block text-[11px] text-muted">
-                  One row per track, spreadsheet ready
-                </span>
-              </span>
-            </button>
+            <SettingRow label="Condition" description="Default grading on new entries.">
+              <select
+                value={settings.defaultCondition}
+                onChange={(event) =>
+                  saveDefaults.mutate({ defaultCondition: event.target.value })
+                }
+                className="input w-full sm:w-48"
+                aria-label="Default condition"
+              >
+                {CONDITIONS.map((condition) => (
+                  <option key={condition}>{condition}</option>
+                ))}
+              </select>
+            </SettingRow>
 
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={importing}
-              className={dataRowClass}
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-cream">Import JSON</span>
-                <span className="mt-0.5 block text-[11px] text-muted">
-                  Merge backup; duplicates skipped
-                </span>
+            <SettingRow label="Currency" description="Used for purchase prices.">
+              <select
+                value={settings.defaultCurrency}
+                onChange={(event) =>
+                  saveDefaults.mutate({ defaultCurrency: event.target.value })
+                }
+                className="input w-full sm:w-48"
+                aria-label="Default currency"
+              >
+                {CURRENCIES.map((currency) => (
+                  <option key={currency}>{currency}</option>
+                ))}
+              </select>
+            </SettingRow>
+          </div>
+        </Section>
+
+        <Section title="Backup & restore">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-accent/10 text-accent">
+                <Download size={18} />
               </span>
-              {importing && (
-                <Loader2 size={15} className="shrink-0 animate-spin text-muted" />
-              )}
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/json,.json"
-              className="hidden"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) void handleImportFile(file);
-              }}
-            />
+              <p className="mt-3 text-sm font-semibold text-cream">Save a backup</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted">
+                One file with your releases, wishlist, saved items, followed artists and
+                defaults.
+              </p>
+              <button
+                type="button"
+                onClick={downloadBackup}
+                className="btn btn-primary mt-4 w-full sm:w-auto"
+              >
+                Download backup
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-accent/10 text-accent">
+                <Upload size={18} />
+              </span>
+              <p className="mt-3 text-sm font-semibold text-cream">Restore a backup</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted">
+                Open a backup file and review what it contains before changing anything.
+              </p>
+              <button
+                type="button"
+                onClick={() => setImportOpen(true)}
+                className="btn btn-secondary mt-4"
+              >
+                Choose backup file
+              </button>
+            </div>
           </div>
 
           <div className="mt-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[11px] text-muted">
             {pluralize(stats?.total ?? 0, 'release')} ·{' '}
             {pluralize(stats?.totalTracks ?? 0, 'track')} stored locally
-          </div>
-
-          <div className="mt-3 flex flex-col gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-medium text-cream">Database backup</p>
-              <p className="mt-0.5 text-[10px] text-muted">
-                Save a SQLite snapshot to the backups folder and download it.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => createBackup.mutate()}
-              disabled={createBackup.isPending}
-              className="btn btn-secondary self-start py-2 text-xs sm:self-auto"
-            >
-              {createBackup.isPending && <Loader2 size={13} className="animate-spin" />}
-              Create backup
-            </button>
           </div>
         </Section>
 
@@ -577,10 +499,6 @@ export function SettingsPage() {
               </button>
             </SettingRow>
           </div>
-
-          <p className="mt-4 text-[10px] leading-relaxed text-muted/60">
-            Refresh individual releases from their release page.
-          </p>
         </Section>
 
         <Section title="About Sleeve">
@@ -619,16 +537,17 @@ export function SettingsPage() {
           <div>
             <SettingRow
               label="Reset preferences"
-              description="Restore the amber theme and default library settings."
+              description="Restore the amber theme, library view and database defaults."
             >
               <button
                 type="button"
-                onClick={() => {
-                  resetSettings();
-                  toast('Preferences reset', 'info');
-                }}
+                onClick={() => resetPreferences.mutate()}
+                disabled={resetPreferences.isPending}
                 className="btn btn-secondary py-2 text-xs"
               >
+                {resetPreferences.isPending && (
+                  <Loader2 size={12} className="animate-spin" />
+                )}
                 Reset defaults
               </button>
             </SettingRow>
@@ -655,6 +574,7 @@ export function SettingsPage() {
           </div>
         </Section>
       </div>
+      <ImportBackupDialog open={importOpen} onClose={() => setImportOpen(false)} />
     </div>
   );
 }

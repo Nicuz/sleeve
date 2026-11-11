@@ -300,6 +300,7 @@ The weekly feed is deliberately stable for a physical-first collection.
 - Release update, delete, enrich, match and refresh do not rebuild the feed.
 - Removing a saved suggestion still records a `remove-save` event for the next refresh.
 - Opening a suggestion records an `open` event; it never invalidates the feed.
+- A JSON **replace** restore clears `DiscoveryFeed`, `DiscoverySeen` and `DiscoveryEvent`, because the collection changed wholesale.
 
 This preserves what the user is currently browsing instead of reshuffling on every interaction.
 
@@ -329,7 +330,7 @@ Restarting the server alone does **not** clear the cached feed.
 - Opening a card silently records a `DiscoveryEvent`.
 - Listen on ListenBrainz sits under the recommendation reason.
 - Dialog actions: Add to wishlist, Save for later, I already own it — Add to library.
-- `Following` lists followed artists with artist-page links and unfollow controls. It is the visible management surface for the explicit taste signal.
+- `Following` lists followed artists with artist-page links and unfollow controls. It also has direct artist search, so a fresh install with no library, wishlist or Discover results can still follow anyone. It is the visible management surface for the explicit taste signal.
 - `I already own it — Add to library` opens the edition picker prefilled with `rgid:<releaseGroupId>`.
 - No manual refresh button. Shows `Updated … · next refresh in …`.
 

@@ -11,12 +11,12 @@ import { exportRoutes } from './routes/export';
 import { wishlistRoutes } from './routes/wishlist';
 import { savedRoutes } from './routes/saved';
 import { followRoutes } from './routes/follows';
+import { settingsRoutes } from './routes/settings';
 import { discoverRoutes } from './routes/discover';
 import { importRoutes } from './routes/import';
 import { maintenanceRoutes } from './routes/maintenance';
 import { coverRoutes, pruneCoverCache } from './routes/covers';
 import { ensureMigrations } from './migrate';
-import { backupRoutes } from './routes/backups';
 
 const SECURITY_HEADERS = {
   'x-content-type-options': 'nosniff',
@@ -64,11 +64,11 @@ const app = new Elysia()
   .use(wishlistRoutes)
   .use(savedRoutes)
   .use(followRoutes)
+  .use(settingsRoutes)
   .use(discoverRoutes)
   .use(importRoutes)
   .use(maintenanceRoutes)
-  .use(coverRoutes)
-  .use(backupRoutes);
+  .use(coverRoutes);
 
 function isAuthorized(request: Request): boolean {
   if (!env.auth) return true;

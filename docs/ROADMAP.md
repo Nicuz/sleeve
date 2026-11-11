@@ -25,8 +25,7 @@
 
 ### Collection data
 
-- [x] JSON export/import (releases, tracks, wishlist)
-- [x] CSV release export
+- [x] JSON export/import (releases, tracks, wishlist, saved, follows, settings)
 - [x] Discogs CSV import with auto-detection, visual mapping and live preview
 - [x] Duplicate-safe merge import
 - [x] Cover proxy with disk cache

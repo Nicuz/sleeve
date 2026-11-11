@@ -318,6 +318,34 @@ Moves a saved suggestion into Wishlist as a wanted item and removes the saved ro
 
 ### `DELETE /api/saved/:id`
 
+## Settings
+
+Only library defaults live in SQLite. Theme, accent, default view and sort stay in browser `localStorage`.
+
+### `GET /api/settings`
+
+```json
+{
+  "settings": {
+    "defaultFormat": "CD",
+    "defaultCondition": "Near Mint",
+    "defaultCurrency": "EUR"
+  }
+}
+```
+
+Returns defaults when no row exists.
+
+### `PATCH /api/settings`
+
+Partial update. Invalid enum values return `400`.
+
+```json
+{ "defaultCurrency": "USD" }
+```
+
+Response: `{ "settings": { … } }`.
+
 ## Artist follows
 
 Follow is an explicit taste signal for an artist, not a wishlist or saved item. It never excludes the artist from Discover.
@@ -360,7 +388,7 @@ Candidates are expanded with ListenBrainz similar artists and ranked with librar
 
 ```json
 {
-  "version": 3,
+  "version": 4,
   "basedOn": ["Jazz", "Rock", "Electronic"],
   "featured": { /* release-group item */ },
   "sections": [
@@ -396,7 +424,7 @@ Records an implicit Discover interaction. Used by the UI when a suggestion is op
 
 ## Export / import
 
-### `GET /api/export?format=json`
+### `GET /api/export`
 
 Full JSON backup:
 
@@ -408,43 +436,63 @@ Full JSON backup:
   "releases": [ /* releases with tracks */ ],
   "wishlist": [ /* wishlist items */ ],
   "saved": [ /* saved suggestions */ ],
-  "follows": [ /* followed artists */ ]
+  "follows": [ /* followed artists */ ],
+  "settings": { "defaultFormat": "CD", "defaultCondition": "Near Mint", "defaultCurrency": "EUR" }
 }
 ```
 
-`Content-Disposition: attachment`.
+`Content-Disposition: attachment`. This is the only export format; there is no CSV collection export.
 
-### `GET /api/export?format=csv`
+### `POST /api/import/preview`
 
-Release/track CSV export: one row per track, release fields repeated. Releases without tracks still produce one row. `Content-Disposition: attachment`.
-
-### `POST /api/import`
-
-Merge-safe JSON import. Accepts:
+Validates a backup and returns what would change without writing. Query: `?mode=merge|replace` (default `merge`).
 
 ```json
 {
-  "releases": [ /* release objects, tracks optional */ ],
-  "wishlist": [ /* wishlist objects */ ],
-  "saved": [ /* saved suggestion objects */ ],
-  "follows": [ /* followed artist objects */ ]
+  "mode": "merge",
+  "source": { "app": "sleeve", "version": 1, "exportedAt": "2026-…" },
+  "canReplace": true,
+  "incoming": { "releases": 2, "tracks": 21, "wishlist": 1, "saved": 0, "follows": 2, "hasSettings": true },
+  "importable": { "releases": 2, "wishlist": 1, "saved": 0, "follows": 2, "hasSettings": true },
+  "duplicates": { "releases": 0, "wishlist": 0, "saved": 0, "follows": 0 },
+  "invalid": { "releases": 0, "wishlist": 0, "saved": 0, "follows": 0, "settings": 0 },
+  "current": { "releases": 10, "tracks": 124, "wishlist": 3, "saved": 1, "follows": 4 },
+  "warnings": []
 }
 ```
 
-or a bare releases array. Unknown IDs are regenerated.
+`canReplace` requires a full Sleeve object with `app: "sleeve"` and `version: 1`. Bare arrays can only merge.
 
-Dedupe:
+### `POST /api/import?mode=merge|replace`
+
+Default `merge`.
+
+Merge accepts a full backup object or a bare releases array. Unknown IDs are regenerated. Dedupe:
 
 - releases with MBID → by `musicbrainzId`
 - manual releases → normalized `title|artist|format`
 - wishlist → same rules
 - saved suggestions → by `releaseGroupId`
 - followed artists → by `artistId`
+- settings → patch current library defaults when present
+
+`replace` requires a full Sleeve JSON object. In one transaction it:
+
+1. Deletes releases/tracks, wishlist, saved suggestions and follows.
+2. Clears `DiscoveryFeed`, `DiscoverySeen` and `DiscoveryEvent`.
+3. Restores the backup.
+4. Restores library defaults, or resets them when the backup has no `settings`.
+
+`createdAt` is preserved for releases, wishlist items, saved suggestions and follows. Metadata cache and cover cache are not touched. Exact `.db` restore stays CLI-only.
+
+Every merge or replace creates a `pre-import-*.db` snapshot before writing. If the snapshot fails, the import aborts.
 
 Response:
 
 ```json
 {
+  "mode": "merge",
+  "backup": { "name": "pre-import-2026-….db", "bytes": 172032, "createdAt": "2026-…" },
   "importedReleases": 2,
   "skippedReleases": 1,
   "invalidReleases": 0,
@@ -456,11 +504,23 @@ Response:
   "invalidSaved": 0,
   "importedFollows": 1,
   "skippedFollows": 0,
-  "invalidFollows": 0
+  "invalidFollows": 0,
+  "importedSettings": 1,
+  "invalidSettings": 0
 }
 ```
 
-The Discogs CSV UI maps a CSV client-side and sends the mapped releases to this same endpoint.
+The Discogs CSV UI maps a CSV client-side and sends the mapped releases to this same endpoint in merge mode.
+
+## Backups
+
+The JSON export/import endpoints are the user-facing backup API. Automatic `pre-import-*.db` safety snapshots are written to `$BACKUP_DIR` but are not exposed as an API surface. Exact snapshot restore stays CLI-only:
+
+```bash
+bun run restore -- <backup-name>
+```
+
+Stop the server first.
 
 ## Metadata cache
 

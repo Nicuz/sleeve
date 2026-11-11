@@ -1,10 +1,13 @@
 import type {
+  AppSettings,
   ArtistDetail,
   ArtistReleaseGroupsPage,
   ArtistSearchResult,
   DiscoverResponse,
   EnrichResult,
   FollowedArtist,
+  ImportMode,
+  ImportPreview,
   ImportResult,
   MetadataCacheInfo,
   MbRelease,
@@ -71,8 +74,15 @@ export const api = {
     );
   },
 
-  importData(payload: unknown) {
-    return request<ImportResult>('/api/import', {
+  importData(payload: unknown, mode: ImportMode = 'merge') {
+    return request<ImportResult>(`/api/import?mode=${mode}`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  previewImport(payload: unknown, mode: ImportMode = 'merge') {
+    return request<ImportPreview>(`/api/import/preview?mode=${mode}`, {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -140,6 +150,17 @@ export const api = {
     });
   },
 
+  getAppSettings() {
+    return request<{ settings: AppSettings }>('/api/settings');
+  },
+
+  updateAppSettings(patch: Partial<AppSettings>) {
+    return request<{ settings: AppSettings }>('/api/settings', {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    });
+  },
+
   listFollowedArtists() {
     return request<{ items: FollowedArtist[]; count: number }>('/api/artists/follows');
   },
@@ -200,17 +221,6 @@ export const api = {
     });
   },
 
-  createBackup() {
-    return request<{ backup: { name: string; bytes: number; createdAt: string } }>(
-      '/api/backups',
-      { method: 'POST' },
-    );
-  },
-
-  backupUrl(name: string) {
-    return `/api/backups/${encodeURIComponent(name)}`;
-  },
-
   randomRelease() {
     return request<{ release: Release | null }>('/api/releases/random');
   },
@@ -252,8 +262,8 @@ export const api = {
     );
   },
 
-  exportLibraryUrl(format: 'json' | 'csv') {
-    return `/api/export?format=${format}`;
+  exportBackupUrl() {
+    return '/api/export';
   },
 
   searchMusicbrainz(query: string, limit = 20, signal?: AbortSignal) {

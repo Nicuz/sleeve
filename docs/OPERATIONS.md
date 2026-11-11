@@ -86,26 +86,30 @@ The clear-library action in Settings requires typing `DELETE`; it removes releas
 
 Preferred:
 
-- Settings → Library data → **Export JSON** (releases, tracks, wishlist)
-- Settings → **Export CSV** for spreadsheet use
+- Settings → **Backup & restore** → **Download backup** (releases, tracks, wishlist, saved suggestions, followed artists, library defaults)
 
-Disk-level:
+Automatic snapshots:
+
+- Every JSON import creates a `pre-import-*.db` snapshot first.
+- Snapshot failure aborts the import.
+- Snapshots live in `data/backups` (or `BACKUP_DIR`), are internal, and keep the last 5.
+- They are a rollback safety net, not the primary backup.
+
+Restore from JSON:
+
+- Settings → **Restore a backup** → preview → **Add to my library** or **Replace my library**.
+- Add skips duplicates and is safe for partial restores.
+- Replace clears the current collection and restores the backup exactly, including follows and defaults.
+
+Restore exact SQLite snapshot:
 
 ```bash
 # stop the server first
-cp prisma/dev.db /path/to/backups/sleeve-$(date +%F).db
-cp -a data/covers /path/to/backups/covers-$(date +%F)
+bun run restore -- pre-import-YYYY-MM-DD.db
+# start the server again
 ```
 
-Restore:
-
-```bash
-# stop server
-cp /path/to/backups/sleeve-YYYY-MM-DD.db prisma/dev.db
-# start server
-```
-
-JSON import is merge-safe and skips duplicates, so it is generally safer than replacing the DB for partial restores.
+`bun run restore` creates a `pre-restore-*.db` safety copy before copying. Snapshots are not exposed in Settings. Covers are cache and are not part of snapshots; they re-download automatically.
 
 ## Caches
 

@@ -154,7 +154,63 @@ export type MetadataCacheInfo = {
   newest: string | null;
 };
 
+export type BackupFile = {
+  name: string;
+  bytes: number;
+  createdAt: string;
+};
+
+export type ImportMode = 'merge' | 'replace';
+
+export type ImportPreview = {
+  mode: ImportMode;
+  source: {
+    app: string | null;
+    version: number | null;
+    exportedAt: string | null;
+  };
+  canReplace: boolean;
+  incoming: {
+    releases: number;
+    tracks: number;
+    wishlist: number;
+    saved: number;
+    follows: number;
+    hasSettings: boolean;
+  };
+  importable: {
+    releases: number;
+    wishlist: number;
+    saved: number;
+    follows: number;
+    hasSettings: boolean;
+  };
+  duplicates: {
+    releases: number;
+    wishlist: number;
+    saved: number;
+    follows: number;
+  };
+  invalid: {
+    releases: number;
+    wishlist: number;
+    saved: number;
+    follows: number;
+    settings: number;
+  };
+  current: {
+    releases: number;
+    tracks: number;
+    wishlist: number;
+    saved: number;
+    follows: number;
+  };
+  warnings: string[];
+};
+
 export type ImportResult = {
+  mode: ImportMode;
+  backup: BackupFile;
   importedReleases: number;
   skippedReleases: number;
   invalidReleases: number;
@@ -167,6 +223,14 @@ export type ImportResult = {
   importedFollows: number;
   skippedFollows: number;
   invalidFollows: number;
+  importedSettings: number;
+  invalidSettings: number;
+};
+
+export type AppSettings = {
+  defaultFormat: string;
+  defaultCondition: string;
+  defaultCurrency: string;
 };
 
 export type WishlistItem = {

@@ -117,11 +117,23 @@ Saved suggestions are a pre-decision queue (“listen and decide later”), not 
 
 Clicking a Discover card opens a suggestion dialog, not the Add release dialog. The recommendation reason is followed by **Listen on ListenBrainz**; the action row offers **Add to wishlist**, **Save for later** and **I already own it — Add to library**. Listening links to the ListenBrainz release-group page in a new tab; it is not an embedded player and playback depends on the user's connected music service. “I already own it — Add to library” opens the existing edition picker prefilled with the release group, because a physical release still needs a specific edition, format and condition. Benefits: Discover stays focused on decisions, and collection data is only created through the explicit edition flow.
 
+## ADR-022 — JSON replace restore, CLI exact snapshots
+
+**Status:** accepted
+
+In-app restore uses a full JSON backup inside one transaction, not a live SQLite file swap. Replace mode clears releases, wishlist, saved, follows, library defaults and discovery state, then restores the backup, preserving `createdAt`. Every import creates a `pre-import-*.db` snapshot first and aborts if that snapshot fails; the last 5 are kept. Snapshots are internal rollback files, not a user-facing feature. JSON is the only visible backup/restore path, which also works cleanly in Docker because browser download/upload crosses the container boundary. Exact database restoration remains a CLI command (`bun run restore`, or `docker compose run` in Docker) because swapping the SQLite file under an active Prisma connection is unsafe. Benefits: safe one-click restore, no binary snapshot management in Settings, and no risk of corrupting a live database.
+
+## ADR-021 — Hybrid settings storage
+
+**Status:** accepted
+
+Theme, accent, default view and sort stay in browser `localStorage`; default format, condition and currency move to SQLite `AppSettings`. The first group is device-specific and must apply before first paint, so synchronous local storage avoids a theme flash and keeps UI preferences personal to each browser. The second group is collection-level data: it should survive browser storage loss, apply across devices and be included in JSON backups. The app merges both sources in `SettingsProvider`. Benefits: fast, flicker-free UI boot plus portable data-entry defaults, without turning every visual preference into a server round trip.
+
 ## ADR-020 — Artist follow separates taste from acquisition
 
 **Status:** accepted
 
-Discover needs explicit artist taste without forcing users to save an album they do not want or add a fake wishlist item. `ArtistFollow` stores one row per MusicBrainz artist and contributes a strong positive affinity signal; followed artists are prioritised as similar-artist and Release Radar seeds. It does not exclude the artist from Discover, create a saved item or imply buy intent. Follow is available on artist pages, release pages, wishlist search/edit dialogs and in the Discover suggestion dialog. The Discover `Following` tab makes the list visible and manageable without adding a new navigation destination. Benefits: a cleaner saved shelf, more accurate discovery input, and one clear meaning per action: rate owned records, want albums, save release groups, follow artists.
+Discover needs explicit artist taste without forcing users to save an album they do not want or add a fake wishlist item. `ArtistFollow` stores one row per MusicBrainz artist and contributes a strong positive affinity signal; followed artists are prioritised as similar-artist and Release Radar seeds. It does not exclude the artist from Discover, create a saved item or imply buy intent. Follow is available on artist pages, release pages, wishlist search/edit dialogs and in the Discover suggestion dialog. The Discover `Following` tab makes the list visible and manageable without adding a new navigation destination, and includes direct MusicBrainz artist search so following works on a fresh install with an empty library. Benefits: a cleaner saved shelf, more accurate discovery input, and one clear meaning per action: rate owned records, want albums, save release groups, follow artists.
 
 ## ADR-019 — Weekly, stable Discover cadence for a physical collection
 

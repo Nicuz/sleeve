@@ -1,4 +1,4 @@
-import { readdir, mkdir, stat } from 'node:fs/promises';
+import { readdir, mkdir, stat, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { env } from './config';
 import { prisma } from './db';
@@ -17,31 +17,43 @@ function safeName(name: string): string {
   return normalized;
 }
 
-export async function listBackups(): Promise<BackupFile[]> {
-  await mkdir(env.backupDir, { recursive: true });
-  const entries = (await readdir(env.backupDir)).filter((name) => name.endsWith('.db'));
+async function pruneSnapshots(prefix: string, keep: number): Promise<void> {
+  const entries = (await readdir(env.backupDir)).filter(
+    (name) => name.startsWith(`${prefix}-`) && name.endsWith('.db'),
+  );
   const files = await Promise.all(
     entries.map(async (name) => {
       try {
         const info = await stat(join(env.backupDir, name));
-        return { name, bytes: info.size, createdAt: info.mtime.toISOString() };
+        return { name, createdAt: info.mtimeMs };
       } catch {
         return null;
       }
     }),
   );
-  return files
-    .filter((file): file is BackupFile => Boolean(file))
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const stale = files
+    .filter((file): file is { name: string; createdAt: number } => Boolean(file))
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(keep);
+
+  await Promise.all(
+    stale.map((file) => unlink(join(env.backupDir, file.name)).catch(() => undefined)),
+  );
 }
 
-export async function createBackup(): Promise<BackupFile> {
+export async function createBackup(prefix = 'sleeve'): Promise<BackupFile> {
   await mkdir(env.backupDir, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const name = `sleeve-${stamp}.db`;
+  const cleanPrefix = prefix.replace(/[^a-zA-Z0-9_-]/g, '') || 'sleeve';
+  const name = `${cleanPrefix}-${stamp}.db`;
   const target = join(env.backupDir, name).replace(/'/g, "''");
   await prisma.$executeRawUnsafe(`VACUUM INTO '${target}'`);
   const info = await stat(join(env.backupDir, name));
+
+  if (cleanPrefix === 'pre-import') {
+    await pruneSnapshots(cleanPrefix, 5).catch(() => undefined);
+  }
+
   return { name, bytes: info.size, createdAt: info.mtime.toISOString() };
 }
 

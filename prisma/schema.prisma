@@ -90,6 +90,14 @@ model ArtistFollow {
   @@index([name])
 }
 
+model AppSettings {
+  id               String   @id @default("default")
+  defaultFormat    String   @default("CD")
+  defaultCondition String   @default("Near Mint")
+  defaultCurrency  String   @default("EUR")
+  updatedAt        DateTime @updatedAt
+}
+
 model MetadataCache {
   key       String   @id
   payload   String

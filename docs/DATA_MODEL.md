@@ -98,6 +98,20 @@ Explicit “show me more from this artist” signal. It is not a wishlist or sav
 
 Index: `name`. Follows feed Discover affinity and similar-artist seeds. Unfollowing only removes the signal; it creates no negative event. Followed artists are never excluded from Discover.
 
+## AppSettings
+
+Single-row table for library defaults that must survive browser storage loss and be included in backups.
+
+| Field | Notes |
+| --- | --- |
+| `id` | Always `default` |
+| `defaultFormat` | Default format for manual releases |
+| `defaultCondition` | Default condition on new entries |
+| `defaultCurrency` | Default purchase currency |
+| `updatedAt` | Last update |
+
+Missing row means built-in defaults; the API returns defaults without creating a row.
+
 ## MetadataCache
 
 Persistent MusicBrainz payload cache.
@@ -170,20 +184,29 @@ Not in SQLite. Cover Art Archive images are cached on disk:
 
 ## Settings
 
+Hybrid storage:
+
 Browser `localStorage`, key `sleeve:settings:v1`:
 
+- theme
 - accent palette
-- default format, condition, currency
 - default view (`grid` / `list`)
 - default sort
 
-Settings never leave the browser. Export/import does not include them.
+SQLite `AppSettings`:
+
+- default format
+- default condition
+- default currency
+
+UI preferences stay device-local and load synchronously before paint. Library defaults are part of app data, survive browser storage loss and are included in JSON export/import.
 
 ## Invariants
 
 - Owned data lives in `Release`/`Track`; remote MusicBrainz payloads only in `MetadataCache`.
 - Discover state lives in `DiscoveryFeed`/`DiscoverySeen`/`DiscoveryEvent`; clearing it must not affect the collection.
 - `ArtistFollow` is a taste signal, not an acquisition state. It must not create wishlist or saved rows.
+- `AppSettings` stores library defaults only. Theme, accent, view and sort stay in browser storage.
 - `format` is always a normalized category. Keep the raw string in `formatDetail`.
 - `genres` is comma-separated; ingestion dedupes case-insensitively.
 - MB IDs are unique, but multiple null values are allowed.
@@ -194,7 +217,7 @@ Settings never leave the browser. Export/import does not include them.
 
 ## Export format
 
-`GET /api/export?format=json`:
+`GET /api/export`:
 
 ```json
 {
@@ -219,26 +242,48 @@ Settings never leave the browser. Export/import does not include them.
   ],
   "follows": [
     { "artistId": "…", "name": "…", "createdAt": "…" }
-  ]
+  ],
+  "settings": {
+    "defaultFormat": "CD",
+    "defaultCondition": "Near Mint",
+    "defaultCurrency": "EUR"
+  }
 }
 ```
 
-CSV export is release/track rows: one row per track, release fields repeated; releases with no tracks still produce one row. CSV export does not include wishlist, saved suggestions or followed artists.
+JSON is the only collection export format. Discogs CSV is import-only.
+
+## Database snapshots
+
+Not database tables. `VACUUM INTO` snapshots in `data/backups` (or `BACKUP_DIR`):
+
+- automatic before import: `pre-import-<timestamp>.db`
+- last 5 pre-import snapshots are kept
+- not exposed in the Settings UI
+- exact restore: `bun run restore -- <name>` with the server stopped
+
+Snapshots include the whole SQLite database, including follows and library defaults. Cover images are cache and are not included. JSON remains the user-facing backup format.
 
 ## Import rules
 
-`POST /api/import` accepts JSON exports or a bare releases array.
+`POST /api/import?mode=merge` accepts JSON exports or a bare releases array. `mode=replace` requires a full Sleeve JSON object.
 
 - IDs from the payload are ignored; new CUIDs are generated.
+- `createdAt` is preserved for releases, wishlist items, saved suggestions and follows.
 - If `musicbrainzId` exists, dedupe by MBID only. This permits separate editions.
 - If `musicbrainzId` is null, dedupe by normalized `title|artist|format`.
 - Wishlist uses the same rules.
 - Saved suggestions dedupe by `releaseGroupId`.
 - Followed artists dedupe by `artistId`.
+- Settings patch current library defaults when present.
 - Invalid rows are counted and skipped; the rest still import.
 - Tracks are created with the release in the same transaction.
 - `genres` accepts string or array.
 - Date strings are stored as provided; CSV mapping normalizes to date-only.
+
+Replace mode also clears `DiscoveryFeed`, `DiscoverySeen` and `DiscoveryEvent` so the next Discover build reflects the restored collection. Metadata and cover caches are kept. If the backup has no settings, library defaults reset to built-in values.
+
+Every import creates a `pre-import-*.db` snapshot first. If snapshot creation fails, nothing is written.
 
 ## Discogs CSV mapping
 

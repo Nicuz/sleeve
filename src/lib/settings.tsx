@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import {
   createContext,
   useContext,
@@ -7,7 +8,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { CONDITIONS, CURRENCIES, FORMAT_OPTIONS } from './utils';
+import { api } from './api';
+import type { AppSettings } from './types';
 
 export const ACCENTS = {
   amber: {
@@ -61,85 +63,85 @@ export const SORT_OPTIONS = [
 export type SortKey = (typeof SORT_OPTIONS)[number]['value'];
 export type ViewKey = 'grid' | 'list';
 
-export type Settings = {
+export type LocalSettings = {
   theme: ThemeKey;
   accent: AccentKey;
-  defaultFormat: string;
-  defaultCondition: string;
-  defaultCurrency: string;
   defaultView: ViewKey;
   defaultSort: SortKey;
 };
 
-export const DEFAULT_SETTINGS: Settings = {
+export type Settings = LocalSettings & AppSettings;
+
+export const DEFAULT_LOCAL_SETTINGS: LocalSettings = {
   theme: 'dark',
   accent: 'amber',
-  defaultFormat: 'CD',
-  defaultCondition: 'Near Mint',
-  defaultCurrency: 'EUR',
   defaultView: 'grid',
   defaultSort: 'recent',
 };
 
+export const DEFAULT_COLLECTION_DEFAULTS: AppSettings = {
+  defaultFormat: 'CD',
+  defaultCondition: 'Near Mint',
+  defaultCurrency: 'EUR',
+};
+
+export const DEFAULT_SETTINGS: Settings = {
+  ...DEFAULT_LOCAL_SETTINGS,
+  ...DEFAULT_COLLECTION_DEFAULTS,
+};
+
 export const SETTINGS_STORAGE_KEY = 'sleeve:settings:v1';
 
-function loadSettings(): Settings {
-  if (typeof window === 'undefined') return DEFAULT_SETTINGS;
+function loadLocalSettings(): LocalSettings {
+  if (typeof window === 'undefined') return DEFAULT_LOCAL_SETTINGS;
   try {
     const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
-    if (!raw) return DEFAULT_SETTINGS;
-    const parsed = JSON.parse(raw) as Partial<Settings>;
+    if (!raw) return DEFAULT_LOCAL_SETTINGS;
+    const parsed = JSON.parse(raw) as Partial<LocalSettings>;
     const accent =
       parsed.accent && parsed.accent in ACCENTS
         ? (parsed.accent as AccentKey)
-        : DEFAULT_SETTINGS.accent;
-    const theme: ThemeKey = parsed.theme === 'light' ? 'light' : DEFAULT_SETTINGS.theme;
-    const defaultFormat =
-      parsed.defaultFormat && FORMAT_OPTIONS.includes(parsed.defaultFormat)
-        ? parsed.defaultFormat
-        : DEFAULT_SETTINGS.defaultFormat;
-    const defaultCondition =
-      parsed.defaultCondition && CONDITIONS.includes(parsed.defaultCondition)
-        ? parsed.defaultCondition
-        : DEFAULT_SETTINGS.defaultCondition;
-    const defaultCurrency =
-      parsed.defaultCurrency &&
-      (CURRENCIES as readonly string[]).includes(parsed.defaultCurrency)
-        ? parsed.defaultCurrency
-        : DEFAULT_SETTINGS.defaultCurrency;
+        : DEFAULT_LOCAL_SETTINGS.accent;
+    const theme: ThemeKey =
+      parsed.theme === 'light' ? 'light' : DEFAULT_LOCAL_SETTINGS.theme;
     const defaultView =
       parsed.defaultView === 'grid' || parsed.defaultView === 'list'
         ? parsed.defaultView
-        : DEFAULT_SETTINGS.defaultView;
+        : DEFAULT_LOCAL_SETTINGS.defaultView;
     const defaultSort =
       parsed.defaultSort &&
       SORT_OPTIONS.some((option) => option.value === parsed.defaultSort)
         ? (parsed.defaultSort as SortKey)
-        : DEFAULT_SETTINGS.defaultSort;
-    return {
-      theme,
-      accent,
-      defaultFormat,
-      defaultCondition,
-      defaultCurrency,
-      defaultView,
-      defaultSort,
-    };
+        : DEFAULT_LOCAL_SETTINGS.defaultSort;
+    return { theme, accent, defaultView, defaultSort };
   } catch {
-    return DEFAULT_SETTINGS;
+    return DEFAULT_LOCAL_SETTINGS;
   }
 }
 
 type SettingsContextValue = {
   settings: Settings;
-  updateSettings: (patch: Partial<Settings>) => void;
+  updateSettings: (patch: Partial<LocalSettings>) => void;
   resetSettings: () => void;
 };
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<Settings>(loadSettings);
+  const [localSettings, setLocalSettings] = useState<LocalSettings>(loadLocalSettings);
+  const appSettingsQuery = useQuery({
+    queryKey: ['app-settings'],
+    queryFn: api.getAppSettings,
+    staleTime: 5 * 60_000,
+  });
+
+  const settings = useMemo<Settings>(
+    () => ({
+      ...localSettings,
+      ...(appSettingsQuery.data?.settings ?? DEFAULT_COLLECTION_DEFAULTS),
+    }),
+    [localSettings, appSettingsQuery.data],
+  );
 
   useLayoutEffect(() => {
     const accent = ACCENTS[settings.accent] ?? ACCENTS.amber;
@@ -157,17 +159,18 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+      window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(localSettings));
     } catch {
       // Storage can be unavailable in private mode; keep in-memory settings.
     }
-  }, [settings]);
+  }, [localSettings]);
 
   const value = useMemo<SettingsContextValue>(
     () => ({
       settings,
-      updateSettings: (patch) => setSettings((current) => ({ ...current, ...patch })),
-      resetSettings: () => setSettings(DEFAULT_SETTINGS),
+      updateSettings: (patch) =>
+        setLocalSettings((current) => ({ ...current, ...patch })),
+      resetSettings: () => setLocalSettings(DEFAULT_LOCAL_SETTINGS),
     }),
     [settings],
   );

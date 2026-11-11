@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
@@ -9,19 +9,26 @@ import {
   ExternalLink,
   Headphones,
   Heart,
+  Search,
   Sparkles,
   UserMinus,
   Users,
   X,
 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
-import type { DiscoveryItem, FollowedArtist, SavedSuggestion } from '@/lib/types';
+import type {
+  ArtistSearchResult,
+  DiscoveryItem,
+  FollowedArtist,
+  SavedSuggestion,
+} from '@/lib/types';
 import { formatDate, pluralize } from '@/lib/utils';
 import { useApp } from '@/components/app-context';
 import { ArtistAvatar } from '@/components/artist-avatar';
 import { CardHalo } from '@/components/card-halo';
 import { CoverArt } from '@/components/cover-art';
 import { EmptyState } from '@/components/empty-state';
+import { FollowArtistButton } from '@/components/follow-artist-button';
 import { SuggestionDialog } from '@/components/suggestion-dialog';
 import { useToast } from '@/components/toast';
 
@@ -179,6 +186,131 @@ function FollowingRow({
         <UserMinus size={11} />
         Unfollow
       </button>
+    </div>
+  );
+}
+
+function artistMeta(artist: ArtistSearchResult): string {
+  return (
+    [
+      artist.disambiguation,
+      artist.type,
+      artist.country ?? artist.area,
+      artist.beginYear
+        ? `${artist.beginYear}${artist.endYear ? `–${artist.endYear}` : ''}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(' · ') || 'Artist'
+  );
+}
+
+function FollowingSearch() {
+  const [query, setQuery] = useState('');
+  const [debounced, setDebounced] = useState('');
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebounced(query.trim()), 400);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
+  const searchQuery = useQuery({
+    queryKey: ['artist-follow-search', debounced],
+    queryFn: ({ signal }) => api.searchArtists(debounced, 8, signal),
+    enabled: debounced.length >= 2,
+    retry: false,
+    staleTime: 5 * 60_000,
+  });
+
+  const results = searchQuery.data?.results ?? [];
+  const searching = debounced.length >= 2;
+
+  return (
+    <div className="mt-6">
+      <div className="relative">
+        <Search
+          size={15}
+          className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted/70"
+        />
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search an artist to follow…"
+          className="input py-2.5 pr-3 pl-9 text-[13px]"
+          aria-label="Search an artist to follow"
+        />
+      </div>
+      <p className="mt-2 text-[11px] text-muted/60">
+        No record or wishlist item needed. Search MusicBrainz, then follow.
+      </p>
+
+      {searching && (
+        <div className="mt-3">
+          {searchQuery.isLoading ? (
+            <div className="space-y-1">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-2.5"
+                >
+                  <div className="skeleton h-10 w-10 rounded-full" />
+                  <div className="flex-1">
+                    <div className="skeleton h-3 w-1/2" />
+                    <div className="skeleton mt-2 h-2.5 w-2/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : searchQuery.isError ? (
+            <div className="rounded-xl border border-red-400/20 bg-red-500/[0.06] px-3 py-2.5">
+              <p className="text-xs text-red-200">
+                {searchQuery.error instanceof Error
+                  ? searchQuery.error.message
+                  : 'Could not search artists.'}
+              </p>
+              <button
+                type="button"
+                onClick={() => searchQuery.refetch()}
+                className="mt-2 text-[11px] font-medium text-accent transition hover:text-accent-soft"
+              >
+                Try again
+              </button>
+            </div>
+          ) : results.length === 0 ? (
+            <p className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-3 text-xs text-muted">
+              No artists found for “{debounced}”.
+            </p>
+          ) : (
+            <div className="space-y-1">
+              <p className="px-1 text-[9px] font-semibold tracking-[0.18em] text-muted/50 uppercase">
+                Artists
+              </p>
+              {results.map((artist) => (
+                <div
+                  key={artist.id}
+                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-2.5 transition hover:border-white/10"
+                >
+                  <Link
+                    to={`/artists/${artist.id}`}
+                    className="group flex min-w-0 flex-1 items-center gap-3"
+                  >
+                    <ArtistAvatar name={artist.name} className="h-10 w-10 text-sm" />
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold text-cream transition group-hover:text-accent">
+                        {artist.name}
+                      </span>
+                      <span className="mt-0.5 block truncate text-[11px] text-muted">
+                        {artistMeta(artist)}
+                      </span>
+                    </span>
+                  </Link>
+                  <FollowArtistButton artistId={artist.id} name={artist.name} compact />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -670,68 +802,69 @@ export function DiscoverPage() {
           </section>
         )
       ) : view === 'following' ? (
-        followsQuery.isLoading ? (
-          <div className="mt-8 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="skeleton h-16 rounded-2xl" />
-            ))}
-          </div>
-        ) : followsQuery.isError ? (
-          <div className="panel mt-8 flex flex-col items-center px-6 py-16 text-center">
-            <Users size={26} className="text-coral" />
-            <p className="mt-3 text-sm font-medium text-cream">
-              Could not load followed artists
-            </p>
-            <button
-              type="button"
-              onClick={() => followsQuery.refetch()}
-              className="btn btn-secondary mt-4"
-            >
-              Try again
-            </button>
-          </div>
-        ) : followedArtists.length === 0 ? (
-          <div className="panel mt-8">
-            <EmptyState
-              icon={<Users size={20} />}
-              title="No followed artists yet"
-              description="Follow an artist from any artist page or discovery suggestion. They will appear here and shape future recommendations."
-              actionLabel="Browse suggestions"
-              onAction={() => setView('for-you')}
-            />
-          </div>
-        ) : (
-          <section className="mt-8">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2 className="font-display text-2xl font-semibold text-cream">
-                  Artists you follow
-                </h2>
-                <p className="mt-1 max-w-lg text-xs text-muted">
-                  A direct taste signal for future picks. Following never saves or
-                  wishlists an album.
-                </p>
-              </div>
-              <p className="text-[11px] text-muted">
-                {pluralize(followedArtists.length, 'artist')}
-                {followedInLibrary > 0 ? ` · ${followedInLibrary} in your library` : ''}
-              </p>
-            </div>
-            <div className="mt-5 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
-              {followedArtists.map((artist) => (
-                <FollowingRow
-                  key={artist.artistId}
-                  artist={artist}
-                  onUnfollow={(item) => unfollowArtist.mutate(item)}
-                  busy={
-                    unfollowArtist.isPending &&
-                    unfollowArtist.variables?.artistId === artist.artistId
-                  }
-                />
+        <>
+          <FollowingSearch />
+          {followsQuery.isLoading ? (
+            <div className="mt-8 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="skeleton h-16 rounded-2xl" />
               ))}
             </div>
-          </section>
-        )
+          ) : followsQuery.isError ? (
+            <div className="panel mt-8 flex flex-col items-center px-6 py-16 text-center">
+              <Users size={26} className="text-coral" />
+              <p className="mt-3 text-sm font-medium text-cream">
+                Could not load followed artists
+              </p>
+              <button
+                type="button"
+                onClick={() => followsQuery.refetch()}
+                className="btn btn-secondary mt-4"
+              >
+                Try again
+              </button>
+            </div>
+          ) : followedArtists.length === 0 ? (
+            <div className="panel mt-8">
+              <EmptyState
+                icon={<Users size={20} />}
+                title="No followed artists yet"
+                description="Use the search above to follow any artist. No record or wishlist item needed."
+              />
+            </div>
+          ) : (
+            <section className="mt-8">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h2 className="font-display text-2xl font-semibold text-cream">
+                    Artists you follow
+                  </h2>
+                  <p className="mt-1 max-w-lg text-xs text-muted">
+                    A direct taste signal for future picks. Following never saves or
+                    wishlists an album.
+                  </p>
+                </div>
+                <p className="text-[11px] text-muted">
+                  {pluralize(followedArtists.length, 'artist')}
+                  {followedInLibrary > 0 ? ` · ${followedInLibrary} in your library` : ''}
+                </p>
+              </div>
+              <div className="mt-5 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+                {followedArtists.map((artist) => (
+                  <FollowingRow
+                    key={artist.artistId}
+                    artist={artist}
+                    onUnfollow={(item) => unfollowArtist.mutate(item)}
+                    busy={
+                      unfollowArtist.isPending &&
+                      unfollowArtist.variables?.artistId === artist.artistId
+                    }
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
       ) : empty && data.basedOn.length === 0 ? (
         <div className="panel mt-8">
           <EmptyState

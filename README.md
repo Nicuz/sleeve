@@ -11,7 +11,7 @@ A private, single-user CD and vinyl library with a warm, Spotify-inspired interf
 - Discover new artists and studio albums from the genres in your collection.
 - Enrich manual records automatically or pick a MusicBrainz edition manually.
 - Import Discogs collection CSVs with automatic column detection, visual mapping and live preview.
-- Export/import a JSON backup of releases, tracks and wishlist.
+- Export/import a full JSON backup of releases, wishlist, saved items, follows and defaults.
 - Work offline in a production build through the PWA service worker.
 
 ## Stack
@@ -118,11 +118,10 @@ docs/                      architecture, API, data, operations, roadmap, decisio
 
 The SQLite database is the source of truth for the owned collection. MusicBrainz responses are cached separately in `MetadataCache`; covers are cached on disk in `data/covers/`.
 
-- JSON export: Settings → Library data, or `GET /api/export?format=json`
-- CSV release export: `GET /api/export?format=csv`
-- JSON restore: Settings → Import JSON (merge-safe, skips duplicates)
+- JSON export: Settings → Backup & restore, or `GET /api/export`
+- JSON restore: Settings → Restore a backup (preview, add or replace)
 - Discogs CSV import: Settings or Library → Import CSV
-- Manual DB backup: copy `prisma/dev.db` while the server is stopped
+- Automatic pre-import SQLite snapshots live in `data/backups`; exact restore uses `bun run restore`
 
 Never run `bun run seed -- --reset` on a real library.
 

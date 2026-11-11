@@ -91,9 +91,10 @@ Metadata application and matching:
 | `musicbrainz.ts` | Release search, barcode search, artist search/detail, group pages, release detail |
 | `wishlist.ts` | Wishlist CRUD |
 | `follows.ts` | Followed artists list, follow/unfollow |
+| `settings.ts` | Library defaults read/update |
 | `discover.ts` | Genre-based suggestions |
 | `import.ts` | Merge-safe JSON import (releases, wishlist, saved, follows) |
-| `export.ts` | JSON (releases, tracks, wishlist, saved, follows) and CSV (release/track rows) |
+| `export.ts` | Full JSON backup (releases, tracks, wishlist, saved, follows, settings) |
 | `stats.ts` | Collection stats, spending stats, missing-metadata count |
 | `meta.ts` | Format/genre/decade filter options |
 | `maintenance.ts` | Metadata cache stats + clear |
@@ -150,14 +151,20 @@ Non-CAA manual image URLs are rendered directly.
 
 #### JSON import/restore
 
-- Settings sends a parsed JSON file to `POST /api/import`.
-- Payload may contain `releases` and optional `wishlist`.
+- Settings sends a parsed JSON file to `POST /api/import/preview` first; no data is written.
+- Preview returns incoming, importable, duplicate, invalid and current counts plus warnings.
+- `POST /api/import?mode=merge` is the default. `mode=replace` requires a full `app: "sleeve"` JSON object.
+- Replace clears the collection, saved/follows, library defaults and discovery state in one transaction, then restores the backup.
 - Dedupe:
   - releases with MBID → MBID
   - manual releases → normalized title + artist + format
   - wishlist uses the same rules
+  - saved by release-group ID, follows by artist ID
 - Duplicate/invalid rows are counted and skipped.
+- `createdAt` is preserved for releases, wishlist, saved and follows.
 - Creates release tracks in one transaction with the release rows.
+- Every import creates a `pre-import-*.db` snapshot before writing. Snapshot failure aborts the import.
+- Exact `.db` restore remains CLI-only; live SQLite file swapping is intentionally avoided.
 
 #### Discogs CSV import
 
@@ -231,7 +238,8 @@ Feed rules:
 
 - TanStack Query owns server state and abort signals.
 - `AppProvider` owns Add dialog state and its optional preset (`rgid:` / artist query).
-- Settings use `localStorage` key `sleeve:settings:v1`.
+- UI settings (theme, accent, view, sort) use `localStorage` key `sleeve:settings:v1`.
+- Library defaults (format, condition, currency) live in SQLite `AppSettings` and are cached by TanStack Query.
 - Wishlist add/edit dialogs and metadata dialogs are local component state.
 - Toasts have a small custom provider.
 
@@ -240,7 +248,7 @@ Visual language and component patterns are documented in [DESIGN_SYSTEM.md](DESI
 ### Filtering and defaults
 
 - Library filters live in URL search params (`q`, `format`, `genre`, `decade`, `sort`, `view`).
-- Default view/sort/format/condition/currency come from settings.
+- Default view/sort come from browser settings; format/condition/currency come from `AppSettings`.
 - Settings accent changes CSS variables at runtime.
 
 ## Source of truth
@@ -250,9 +258,10 @@ Visual language and component patterns are documented in [DESIGN_SYSTEM.md](DESI
 | Owned releases/tracks | SQLite `Release`/`Track` |
 | Wishlist | SQLite `WishlistItem` |
 | Followed artists | SQLite `ArtistFollow` |
+| Library defaults | SQLite `AppSettings` |
+| UI preferences | Browser `localStorage` |
 | MusicBrainz payload cache | SQLite `MetadataCache` |
 | Cover images | `data/covers` disk cache |
-| User preferences | Browser `localStorage` |
 | Filter state | URL params |
 
 ## Key extension points

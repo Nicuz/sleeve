@@ -196,6 +196,8 @@ Docker smoke test, optional:
 
 ```bash
 bun run test:docker
+# or run the test stage inside Docker
+docker build --target test .
 ```
 
 Then manually verify the touched flow. For destructive testing, use temporary records and delete them, or copy the DB:

@@ -28,7 +28,7 @@ wait_for_health() {
 }
 
 echo "Building Docker image…"
-docker build -t "${image}" . >/dev/null
+docker build --target release -t "${image}" . >/dev/null
 
 echo "Starting isolated container…"
 docker run -d \

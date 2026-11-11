@@ -9,3 +9,7 @@ prisma/dev.db-shm
 .git
 .github
 *.log
+docs
+README.md
+CONTRIBUTING.md
+AGENTS.md

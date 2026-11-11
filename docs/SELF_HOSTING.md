@@ -54,6 +54,13 @@ bun run start
 
 Set both auth variables together to enable Basic auth. Leave both empty for a LAN/local install.
 
+Container checks:
+
+```bash
+bun run test:docker          # build release image + runtime smoke test
+docker build --target test . # run the full test suite inside Docker
+```
+
 ## Backups
 
 Use **Settings → Backup & restore → Download backup** in the browser. The JSON file lands on the host, outside the container and outside the Docker volume. This is the primary backup.

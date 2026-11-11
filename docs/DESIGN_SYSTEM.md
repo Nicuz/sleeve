@@ -42,13 +42,13 @@ Common transparent treatments:
 
 Applied at runtime by setting `--color-accent` and `--color-accent-soft` on `document.documentElement`.
 
-| Key | Label | Accent | Soft |
-| --- | --- | --- | --- |
-| `amber` | Amber | `#f4b860` | `#ffd9a0` |
-| `coral` | Coral | `#ef7d5b` | `#ffb8a3` |
-| `moss` | Moss | `#b9d97c` | `#daf0ac` |
-| `sky` | Sky | `#7fb8f5` | `#b9d9fb` |
-| `lilac` | Lilac | `#c6a5ff` | `#e2d1ff` |
+| Key | Label | Accent | Soft | Light | Light soft |
+| --- | --- | --- | --- | --- | --- |
+| `amber` | Amber | `#f4b860` | `#ffd9a0` | `#c2410c` | `#9a3412` |
+| `coral` | Coral | `#ef7d5b` | `#ffb8a3` | `#b0472b` | `#973b22` |
+| `moss` | Moss | `#b9d97c` | `#daf0ac` | `#5c761f` | `#4f6718` |
+| `sky` | Sky | `#7fb8f5` | `#b9d9fb` | `#2e6cae` | `#245d99` |
+| `lilac` | Lilac | `#c6a5ff` | `#e2d1ff` | `#7343c4` | `#6236ad` |
 
 Accent glows:
 
@@ -109,7 +109,7 @@ Typical scale:
 | Section title | `font-display text-2xl font-semibold` |
 | Panel title | `font-display text-base font-semibold` |
 | Body | `text-sm` |
-| Metadata | `text-[10px]`/`text-[11px]`, `text-muted/60` |
+| Metadata | `text-[10px]`/`text-[11px]`, `text-muted`; use size/weight, not opacity, for hierarchy |
 | Eyebrow | `.eyebrow` — 10px, uppercase, `tracking-[0.24em]`, accent/80 |
 | Field label | `.field-label` — 10px, uppercase, `tracking-[0.16em]`, muted |
 
@@ -181,8 +181,9 @@ Rules:
 ### Discovery workflow
 
 - Discover cards open a suggestion dialog. They do not open the Add release form.
-- Dialog actions: **Add to wishlist**, **Save for later**, **I already own it**.
-- “I already own it” opens the edition picker; never create a Release directly from Discover.
+- Listen on ListenBrainz sits under the recommendation reason as an underlined link.
+- Dialog actions: **Add to wishlist**, **Save for later**, **I already own it — Add to library**.
+- “I already own it — Add to library” opens the edition picker; never create a Release directly from Discover.
 - Saved suggestions live in Discover, not Wishlist. Wishlist remains buy intent.
 - Do not expose a manual Discover refresh button. Show `Updated …` and refresh automatically; use album-oriented weekly/monthly sections.
 
@@ -248,6 +249,8 @@ These classes live in `src/index.css`.
 - List rows: 48px cover, title/artist, year, format badge, rating, added date, chevron.
 - Cards click through to `/releases/:id`; do not nest links inside card buttons.
 - Artist/wishlist/discover cards reuse the same square-cover rhythm.
+- Discover cards keep Album/EP type in the text block beside the year, not over the cover.
+- Discover card hover highlights the full card surface; the cover does not zoom or lift.
 
 ### Dialogs
 

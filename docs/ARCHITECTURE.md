@@ -197,7 +197,7 @@ Feed rules:
 - `?refresh=1` is a dev/internal override. Wishlist/saved changes shape the next weekly refresh; owning a record prunes only that item from the current feed.
 - Returned release-group IDs are stored in `DiscoverySeen` for 30 days and deprioritised on later generations.
 - Opening a suggestion and removing saved/wishlist items are recorded in `DiscoveryEvent`; no extra user action or prompt is introduced.
-- Card opens a suggestion dialog with **Add to wishlist**, **Save for later**, **Listen on ListenBrainz** and **I already own it**. Listening opens the release-group page in a new tab; playback depends on the user's ListenBrainz music service. Owning opens the edition picker; Discover never creates a release directly. Artist link opens `/artists/:mbid`.
+- Card opens a suggestion dialog with **Listen on ListenBrainz** under the recommendation reason, then **Add to wishlist**, **Save for later** and **I already own it — Add to library**. Listening opens the release-group page in a new tab; playback depends on the user's ListenBrainz music service. Adding to the library opens the edition picker; Discover never creates a release directly. Artist link opens `/artists/:mbid`.
 
 ### PWA/offline
 

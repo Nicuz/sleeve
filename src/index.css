@@ -196,6 +196,63 @@ html[data-theme='light'] .skeleton::after {
   background: linear-gradient(90deg, transparent, rgba(20, 22, 28, 0.06), transparent);
 }
 
+html[data-theme='light'] .btn-secondary {
+  border-color: rgba(20, 22, 28, 0.14);
+  background-color: rgba(20, 22, 28, 0.035);
+}
+
+html[data-theme='light'] .btn-secondary:hover {
+  border-color: rgba(20, 22, 28, 0.22);
+  background-color: rgba(20, 22, 28, 0.07);
+}
+
+html[data-theme='light'] .btn-ghost {
+  color: var(--color-muted);
+}
+
+html[data-theme='light'] .btn-ghost:hover {
+  background-color: rgba(20, 22, 28, 0.05);
+  color: var(--color-cream);
+}
+
+html[data-theme='light'] .icon-btn {
+  border-color: rgba(20, 22, 28, 0.14);
+  background-color: rgba(20, 22, 28, 0.035);
+}
+
+html[data-theme='light'] .icon-btn:hover {
+  border-color: rgba(20, 22, 28, 0.22);
+  color: var(--color-cream);
+}
+
+html[data-theme='light'] .chip {
+  border-color: rgba(20, 22, 28, 0.12);
+  background-color: rgba(20, 22, 28, 0.02);
+}
+
+html[data-theme='light'] .chip:hover {
+  border-color: rgba(20, 22, 28, 0.22);
+  color: var(--color-cream);
+}
+
+html[data-theme='light'] .panel {
+  border-color: rgba(20, 22, 28, 0.12);
+}
+
+html[data-theme='light'] .divider {
+  background-color: rgba(20, 22, 28, 0.08);
+}
+
+html[data-theme='light'] .input,
+html[data-theme='light'] .select {
+  border-color: rgba(20, 22, 28, 0.14);
+}
+
+html[data-theme='light'] .input:hover,
+html[data-theme='light'] .select:hover {
+  border-color: rgba(20, 22, 28, 0.22);
+}
+
 html[data-theme='light'] ::selection {
   color: #fff;
 }

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, ExternalLink, Headphones, Heart, X } from 'lucide-react';
+import { Bookmark, Disc3, ExternalLink, Headphones, Heart, X } from 'lucide-react';
 import type { DiscoveryItem } from '@/lib/types';
 import { formatDate } from '@/lib/utils';
 import { CoverArt } from './cover-art';
@@ -75,9 +75,7 @@ export function SuggestionDialog({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <FormatBadge format={item.primaryType} />
-                {item.year && (
-                  <span className="text-[10px] text-muted/60">{item.year}</span>
-                )}
+                {item.year && <span className="text-[11px] text-muted">{item.year}</span>}
               </div>
               <h3 className="mt-2 font-display text-2xl font-semibold tracking-tight text-cream">
                 {item.title}
@@ -95,7 +93,7 @@ export function SuggestionDialog({
                   item.artist
                 )}
               </p>
-              <p className="mt-1 text-xs text-muted/60">
+              <p className="mt-1 text-xs text-muted">
                 {[
                   item.firstReleaseDate ? formatDate(item.firstReleaseDate) : null,
                   item.releaseCount
@@ -105,30 +103,30 @@ export function SuggestionDialog({
                   .filter(Boolean)
                   .join(' · ')}
               </p>
-              <p className="mt-3 text-xs text-muted/70">{item.reason}</p>
+              <p className="mt-3 text-xs text-muted">{item.reason}</p>
+              <a
+                href={`https://listenbrainz.org/release-group/${item.id}/`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-cream transition hover:border-accent/50 hover:bg-accent/15"
+              >
+                <Headphones size={14} className="text-accent" />
+                Listen on ListenBrainz
+                <ExternalLink size={11} className="text-muted" />
+              </a>
             </div>
           </div>
 
           <div className="divider my-5" />
 
           <div className="flex flex-wrap items-center gap-2">
-            <a
-              href={`https://listenbrainz.org/release-group/${item.id}/`}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-primary"
-            >
-              <Headphones size={15} />
-              Listen on ListenBrainz
-              <ExternalLink size={12} />
-            </a>
             <button
               type="button"
               onClick={() => onWishlist(item)}
               disabled={wishlisted}
-              className="btn btn-secondary"
+              className="btn btn-primary"
             >
-              <Heart size={14} />
+              <Heart size={15} />
               {wishlisted ? 'In wishlist' : 'Add to wishlist'}
             </button>
             <button
@@ -140,19 +138,14 @@ export function SuggestionDialog({
               <Bookmark size={14} />
               {saved ? 'Saved' : 'Save for later'}
             </button>
-          </div>
-
-          <p className="mt-3 text-[11px] leading-relaxed text-muted/60">
-            Already own it?{' '}
             <button
               type="button"
               onClick={() => onOwn(item)}
-              className="font-medium text-accent underline-offset-4 transition hover:text-accent-soft hover:underline"
+              className="btn btn-secondary"
             >
-              Choose the exact pressing
+              <Disc3 size={14} />I already own it — Add to library
             </button>
-            .
-          </p>
+          </div>
         </div>
       </div>
     </div>

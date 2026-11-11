@@ -325,8 +325,9 @@ Restarting the server alone does **not** clear the cached feed.
 - `For you` shows lead pick + sections.
 - Cards open `SuggestionDialog`, not the Add release form.
 - Opening a card silently records a `DiscoveryEvent`.
-- Dialog actions: Add to wishlist, Save for later, Listen on ListenBrainz, I already own it.
-- `I already own it` opens the edition picker prefilled with `rgid:<releaseGroupId>`.
+- Listen on ListenBrainz sits under the recommendation reason.
+- Dialog actions: Add to wishlist, Save for later, I already own it — Add to library.
+- `I already own it — Add to library` opens the edition picker prefilled with `rgid:<releaseGroupId>`.
 - No manual refresh button. Shows `Updated … · next refresh in …`.
 
 ## Current limitations

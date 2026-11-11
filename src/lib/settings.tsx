@@ -14,8 +14,8 @@ export const ACCENTS = {
     label: 'Amber',
     accent: '#f4b860',
     soft: '#ffd9a0',
-    light: '#9c5a05',
-    lightSoft: '#7d4703',
+    light: '#c2410c',
+    lightSoft: '#9a3412',
   },
   coral: {
     label: 'Coral',

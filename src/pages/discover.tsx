@@ -6,6 +6,7 @@ import {
   Clock,
   Compass,
   Disc3,
+  ExternalLink,
   Headphones,
   Heart,
   Sparkles,
@@ -64,33 +65,21 @@ function DiscoverCard({
     <button
       type="button"
       onClick={() => onOpen(item)}
-      className="group w-full text-left outline-none"
+      className="group relative w-full rounded-2xl text-left outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
       aria-label={`Open ${item.title} by ${item.artist}`}
     >
-      <div className="relative aspect-square overflow-hidden rounded-xl transition duration-300 group-hover:-translate-y-1 group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
-        <CoverArt
-          src={item.coverUrl}
-          title={item.title}
-          className="h-full w-full transition duration-500 group-hover:scale-[1.05]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
-        <span className="absolute top-2 left-2 rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 text-[9px] font-semibold tracking-[0.1em] text-accent uppercase backdrop-blur-md">
-          {item.primaryType}
-        </span>
-        <span className="absolute right-2.5 bottom-2.5 rounded-full bg-accent px-2.5 py-1 text-[9px] font-semibold text-ink-950 opacity-0 transition duration-300 group-hover:opacity-100">
-          View
-        </span>
+      <span className="pointer-events-none absolute -inset-2.5 rounded-2xl bg-white/[0.08] opacity-0 transition duration-200 group-hover:opacity-100 group-focus-visible:opacity-100" />
+      <div className="relative aspect-square overflow-hidden rounded-xl">
+        <CoverArt src={item.coverUrl} title={item.title} className="h-full w-full" />
       </div>
       <p className="mt-3 truncate text-sm font-semibold text-cream" title={item.title}>
         {item.title}
       </p>
-      <div className="mt-0.5 flex items-center justify-between gap-2">
-        <span className="min-w-0 truncate text-xs text-muted">{item.artist}</span>
-        {item.year && (
-          <span className="shrink-0 text-[10px] text-muted/60">{item.year}</span>
-        )}
-      </div>
-      <p className="mt-1 line-clamp-1 text-[10px] text-muted/50">{item.reason}</p>
+      <p className="mt-0.5 truncate text-xs text-muted">{item.artist}</p>
+      <p className="mt-0.5 text-[11px] text-muted">
+        {[item.year, item.primaryType].filter(Boolean).join(' · ')}
+      </p>
+      <p className="mt-1 line-clamp-1 text-[11px] text-muted">{item.reason}</p>
     </button>
   );
 }
@@ -119,10 +108,10 @@ function SavedCard({
       <div className="mt-0.5 flex items-center justify-between gap-2">
         <span className="min-w-0 truncate text-xs text-muted">{item.artist}</span>
         {item.year && (
-          <span className="shrink-0 text-[10px] text-muted/60">{item.year}</span>
+          <span className="shrink-0 text-[11px] text-muted">{item.year}</span>
         )}
       </div>
-      <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-muted/50">
+      <p className="mt-1 text-[11px] uppercase tracking-[0.12em] text-muted">
         {item.type}
       </p>
       <div className="mt-2 flex items-center gap-3 text-[10px]">
@@ -167,33 +156,44 @@ function FeaturedPick({
   onSave: (item: DiscoveryItem) => void;
 }) {
   return (
-    <section className="panel mt-6 p-5 sm:p-6">
-      <p className="eyebrow flex items-center gap-2">
+    <section className="panel relative mt-6 overflow-hidden border-accent/20 bg-accent/[0.04] p-5 sm:p-6">
+      <div className="pointer-events-none absolute -top-24 -right-16 h-64 w-64 rounded-full bg-accent/10 blur-3xl" />
+      <p className="eyebrow relative flex items-center gap-2">
         <Sparkles size={12} />
         Lead pick
       </p>
-      <div className="mt-3 flex flex-col gap-5 sm:flex-row sm:items-start">
+      <div className="relative mt-3 flex flex-col gap-5 sm:flex-row sm:items-start">
         <button
           type="button"
           onClick={() => onOpen(item)}
-          className="group shrink-0 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+          className="shrink-0 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
           aria-label={`Open ${item.title} by ${item.artist}`}
         >
           <CoverArt
             src={item.coverUrl}
             title={item.title}
-            className="h-40 w-40 rounded-2xl transition duration-500 group-hover:scale-[1.02]"
+            className="h-44 w-44 rounded-2xl sm:h-48 sm:w-48"
             iconSize={32}
           />
         </button>
         <div className="min-w-0 flex-1">
-          <h2 className="font-display text-2xl font-semibold tracking-tight text-cream">
+          <h2 className="font-display text-2xl font-semibold tracking-tight text-cream sm:text-3xl">
             {item.title}
           </h2>
           <p className="mt-1 text-sm text-muted">
             {[item.artist, item.year, item.primaryType].filter(Boolean).join(' · ')}
           </p>
-          <p className="mt-2 text-xs text-muted/70">{item.reason}</p>
+          <p className="mt-2 text-sm text-muted">{item.reason}</p>
+          <a
+            href={`https://listenbrainz.org/release-group/${item.id}/`}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-cream transition hover:border-accent/50 hover:bg-accent/15"
+          >
+            <Headphones size={14} className="text-accent" />
+            Listen on ListenBrainz
+            <ExternalLink size={11} className="text-muted" />
+          </a>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -211,23 +211,14 @@ function FeaturedPick({
               className="btn btn-secondary"
             >
               <Bookmark size={14} />
-              {saved ? 'Saved' : 'Save'}
+              {saved ? 'Saved' : 'Save for later'}
             </button>
-            <a
-              href={`https://listenbrainz.org/release-group/${item.id}/`}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-secondary"
-            >
-              <Headphones size={14} />
-              Listen on ListenBrainz
-            </a>
             <button
               type="button"
               onClick={() => onAdd(item)}
               className="btn btn-secondary"
             >
-              <Disc3 size={14} />I own it
+              <Disc3 size={14} />I already own it — Add to library
             </button>
           </div>
         </div>
@@ -450,26 +441,26 @@ export function DiscoverPage() {
           New artists and albums from the genres you collect — filtered to leave out the
           artists already on your shelves.
         </p>
-        <div className="mt-5 flex flex-col gap-3 rounded-xl border border-accent/20 bg-accent/[0.05] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-5 flex flex-col gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
               <Clock size={17} />
             </span>
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.16em] text-muted/70 uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.16em] text-muted uppercase">
                 Next shelf refresh
               </p>
               <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className="font-display text-base font-semibold text-cream">
                   {nextRefreshLabel(data.nextRefreshAt)}
                 </span>
-                <span className="text-[11px] text-muted/60">
+                <span className="text-[11px] text-muted">
                   {nextRefreshDate(data.nextRefreshAt)}
                 </span>
               </p>
             </div>
           </div>
-          <p className="text-[11px] text-muted/60 sm:text-right">
+          <p className="text-[11px] text-muted sm:text-right">
             {updatedLabel(data.generatedAt)}
           </p>
         </div>
@@ -491,19 +482,28 @@ export function DiscoverPage() {
             onClick={() => setView('saved')}
             className={
               view === 'saved'
-                ? 'rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-cream'
-                : 'rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted transition hover:text-cream'
+                ? 'inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-cream'
+                : 'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted transition hover:text-cream'
             }
             aria-pressed={view === 'saved'}
           >
-            Saved {savedItems.length}
+            Saved
+            <span
+              className={
+                view === 'saved'
+                  ? 'rounded-full bg-white/15 px-1.5 py-0.5 text-[10px] tabular-nums text-cream/80'
+                  : 'rounded-full bg-white/[0.06] px-1.5 py-0.5 text-[10px] tabular-nums text-muted'
+              }
+            >
+              {savedItems.length}
+            </span>
           </button>
         </div>
       </header>
 
       {view === 'for-you' && data.basedOn.length > 0 && (
         <div className="mt-6 flex flex-wrap items-center gap-2">
-          <span className="text-[10px] tracking-[0.14em] text-muted/50 uppercase">
+          <span className="text-[10px] tracking-[0.14em] text-muted uppercase">
             Based on
           </span>
           {data.basedOn.map((genre) => (
@@ -560,7 +560,7 @@ export function DiscoverPage() {
                   Listen and decide before adding to your wishlist.
                 </p>
               </div>
-              <p className="text-[11px] text-muted/60">
+              <p className="text-[11px] text-muted">
                 {pluralize(savedItems.length, 'save')}
               </p>
             </div>
@@ -620,7 +620,7 @@ export function DiscoverPage() {
                 </h2>
                 <p className="mt-1 text-xs text-muted">{section.subtitle}</p>
               </div>
-              <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {section.items.map((item) => (
                   <DiscoverCard key={item.id} item={item} onOpen={openItem} />
                 ))}

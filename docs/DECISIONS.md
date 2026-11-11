@@ -115,7 +115,7 @@ Saved suggestions are a pre-decision queue (“listen and decide later”), not 
 
 **Status:** accepted
 
-Clicking a Discover card opens a suggestion dialog, not the Add release dialog. The dialog offers **Add to wishlist**, **Save for later**, **Listen on ListenBrainz** and **I already own it**. Listening links to the ListenBrainz release-group page in a new tab; it is not an embedded player and playback depends on the user's connected music service. “Own it” opens the existing edition picker prefilled with the release group, because a physical release still needs a specific edition, format and condition. Benefits: Discover stays focused on decisions, and collection data is only created through the explicit edition flow.
+Clicking a Discover card opens a suggestion dialog, not the Add release dialog. The recommendation reason is followed by **Listen on ListenBrainz**; the action row offers **Add to wishlist**, **Save for later** and **I already own it — Add to library**. Listening links to the ListenBrainz release-group page in a new tab; it is not an embedded player and playback depends on the user's connected music service. “I already own it — Add to library” opens the existing edition picker prefilled with the release group, because a physical release still needs a specific edition, format and condition. Benefits: Discover stays focused on decisions, and collection data is only created through the explicit edition flow.
 
 ## ADR-019 — Weekly, stable Discover cadence for a physical collection
 

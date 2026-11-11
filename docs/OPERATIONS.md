@@ -5,7 +5,7 @@
 ```bash
 bun install
 cp .env.example .env
-bun run db:push
+bun run db:deploy
 bun run dev
 ```
 
@@ -34,7 +34,7 @@ bun run start
 Recommended deploy steps:
 
 1. `bun install --frozen-lockfile` (or `bun install`)
-2. `bun run db:push`
+2. `bun run db:deploy` (also runs automatically on start unless `AUTO_MIGRATE=false`)
 3. `bun run build`
 4. Start `bun run start` under a process manager (systemd, pm2, container).
 5. Persist `prisma/dev.db` and `data/covers/` on a volume.
@@ -54,14 +54,18 @@ Do not commit `.env`.
 
 ## Database changes
 
-The project uses `prisma db push`, not migrations:
+Schema changes live in `prisma/migrations`:
 
 ```bash
 # edit prisma/schema.prisma
-bun run db:push
+bun run db:migrate
 bun run db:generate
 # restart bun run dev so Bun reloads @prisma/client
 ```
+
+`bun run db:push` is still useful for quick local schema iteration, but it skips migrations. Skipping the `search_fts` migration leaves the FTS table absent; search then uses the slower `contains` fallback.
+
+Production applies pending migrations on start unless `AUTO_MIGRATE=false`. Apply them manually with `bun run db:deploy`.
 
 Symptoms of a stale Prisma client:
 

@@ -18,5 +18,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "server", "prisma/seed.ts", "vite.config.ts"]
+  "include": ["src", "server", "shared", "prisma/seed.ts", "vite.config.ts"]
 }

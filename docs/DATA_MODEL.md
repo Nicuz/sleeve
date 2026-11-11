@@ -2,7 +2,7 @@
 
 SQLite database: `prisma/dev.db`. Prisma schema: `prisma/schema.prisma`.
 
-This project uses `prisma db push` (no migration history). That is fine for the local prototype; switch to migrations before deploying multi-instance or applying production schema changes.
+This project keeps Prisma migrations in `prisma/migrations`. Production applies them automatically on start when `AUTO_MIGRATE` is not `false`; local development can apply them with `bun run db:deploy` or continue using `bun run db:push` for schema-only changes.
 
 ## Release
 
@@ -50,6 +50,18 @@ Child of `Release`.
 | `artist` | Track artist if different from release artist |
 
 Display/order rule: `disc`, then `number`, then `position`. On refresh/enrichment, tracks are deleted and recreated in one transaction.
+
+## ReleaseSearch (FTS5)
+
+SQLite FTS5 virtual table maintained by triggers, not Prisma models. Not part of exports.
+
+| Column | Notes |
+| --- | --- |
+| `release_id` | `UNINDEXED`; matches `Release.id` |
+| `title`, `artist`, `label`, `catalog`, `genres` | Mirrored release fields |
+| `tracks` | Space-joined track titles |
+
+Migration: `prisma/migrations/20261111190000_search_fts`. Triggers rebuild the row on release and track insert/update/delete. If the table is missing (dev DB not migrated), `/api/search` falls back to Prisma `contains` queries.
 
 ## WishlistItem
 

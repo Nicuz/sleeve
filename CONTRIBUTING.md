@@ -7,7 +7,7 @@ Sleeve is a personal Bun + React music collection app. Keep changes small, typed
 ```bash
 bun install
 cp .env.example .env   # if .env is missing
-bun run db:push
+bun run db:deploy
 bun run seed           # optional demo library
 bun run dev
 ```
@@ -109,7 +109,7 @@ refactor(api): extract release payload validation
 - New UI has loading, empty and error states.
 - Desktop + mobile checked.
 - Screenshots included for visible UI changes.
-- Prisma schema changes include `bun run db:push` and seed/DB verification.
+- Prisma schema changes include a migration or `bun run db:push` plus seed/DB verification. Run `bun run db:deploy` when a migration is involved (for example the FTS search index).
 - No secrets, local database files or build output committed.
 
 ## Code conventions

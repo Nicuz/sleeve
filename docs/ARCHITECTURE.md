@@ -88,7 +88,9 @@ Metadata application and matching:
 | Module | Responsibility |
 | --- | --- |
 | `releases.ts` | CRUD, list filters, owned lookup, refresh/enrich/manual match, clear library |
-| `search.ts` | Global header search across releases, artists and wishlist |
+| `search.ts` | Global header search across releases, artists and wishlist, with scopes and operators |
+| `search-query.ts` | Converts parsed operators into Prisma filters |
+| `search-index.ts` | SQLite FTS5 lookup with `contains` fallback |
 | `musicbrainz.ts` | Release search, barcode search, artist search/detail, group pages, release detail |
 | `wishlist.ts` | Wishlist CRUD |
 | `follows.ts` | Followed artists list, follow/unfollow |
@@ -250,6 +252,8 @@ Visual language and component patterns are documented in [DESIGN_SYSTEM.md](DESI
 
 - Library filters live in URL search params (`q`, `format`, `genre`, `decade`, `sort`, `view`).
 - The global header search debounces input, previews library/artist/wishlist hits and only writes `q` to the URL on the Library page. Submitting or choosing “View all” opens `/` with `q`.
+- Global search supports scopes (`all`, `library`, `wishlist`, `artists`), recent searches in `localStorage`, match highlighting and `key:value` operators. Operator queries also work on the Library page.
+- Release search uses the `ReleaseSearch` FTS5 index when present. The route falls back to Prisma `contains` if the index or migration is missing.
 - Default view/sort come from browser settings; format/condition/currency come from `AppSettings`.
 - Settings accent changes CSS variables at runtime.
 
@@ -270,5 +274,5 @@ Visual language and component patterns are documented in [DESIGN_SYSTEM.md](DESI
 
 - Add a new MB endpoint only in `server/musicbrainz.ts` and wrap it with `withCache`.
 - Add a new page under `src/pages/` and register in `src/App.tsx`; lazy-load heavy tools.
-- Add a new DB field: update Prisma schema, `db:push`, server schemas, response types, export/import mapping, UI and docs.
+- Add a new DB field: update Prisma schema, add a migration, run `db:deploy`, update server schemas, response types, export/import mapping, UI and docs.
 - For destructive operations, require explicit confirmation and never run them automatically.

@@ -22,13 +22,14 @@ bun run check        # tsc --noEmit + production build
 bun run build        # dist/
 bun run start        # production server, serves dist + API on PORT (.env: 3001)
 bun run db:push      # apply Prisma schema to SQLite (no migrations)
+bun run db:deploy    # apply prisma/migrations (required for FTS search index)
 bun run db:generate  # regenerate Prisma client
 bun run db:studio    # Prisma Studio
 bun run seed         # add demo records if missing; skips existing
 bun run seed -- --reset  # DESTRUCTIVE: wipe library, then seed
 ```
 
-After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so Bun reloads `@prisma/client`.
+After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so Bun reloads `@prisma/client`. Use `bun run db:deploy` when a change ships a migration (for example the FTS search index).
 
 ## Architecture map
 
@@ -45,7 +46,9 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
   - `applyReleaseDetail` (preserves user fields)
   - `enrichReleaseById` (barcode → artist/title → title fallback, score threshold 75)
   - `applyReleaseMatch` (manual MusicBrainz ID)
-- `server/routes/` — releases, wishlist, discovery, import, export, stats, metadata cache, covers, meta, MusicBrainz proxies.
+- `server/routes/` — releases, global search, wishlist, discovery, import, export, stats, metadata cache, covers, meta, MusicBrainz proxies.
+- `server/search-query.ts` — parses `artist:`, `label:`, `year:`, `format:`, `track:`, `title:`, `genre:` operators into Prisma filters.
+- `server/search-index.ts` — SQLite FTS5 lookup with `contains` fallback; `prisma/migrations/20261111190000_search_fts` creates the table and triggers.
 - `prisma/schema.prisma` — `Release`, `Track`, `WishlistItem`, `SavedSuggestion`, `MetadataCache`, `DiscoveryFeed`, `DiscoverySeen`, `DiscoveryEvent`.
 - `server/discovery.ts` — builds the cached Discover feed (Release Radar, New this week, New this month, Lost in the Stacks), expands candidates with similar artists, ranks with library affinity + ListenBrainz popularity and refreshes automatically.
 - `server/listenbrainz.ts` — batched release-group and artist popularity plus similar-artist lookup, with in-memory caches and 1s request spacing.

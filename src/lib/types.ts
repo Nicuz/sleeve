@@ -1,3 +1,5 @@
+import type { ParsedSearchQuery } from './search-query';
+
 export type Track = {
   id: string;
   releaseId: string;
@@ -63,10 +65,23 @@ export type GlobalSearchWishlist = {
   year: number | null;
   format: string;
   coverUrl: string | null;
+  musicbrainzId: string | null;
+  releaseGroupId: string | null;
+  releaseDate: string | null;
+  country: string | null;
+  label: string | null;
+  catalogNumber: string | null;
+  barcode: string | null;
+  formatDetail: string | null;
+  notes: string | null;
 };
+
+export type GlobalSearchScope = 'all' | 'library' | 'wishlist' | 'artists';
 
 export type GlobalSearchResponse = {
   query: string;
+  scope: GlobalSearchScope;
+  parsed: ParsedSearchQuery;
   releases: { items: GlobalSearchRelease[]; total: number };
   artists: { items: GlobalSearchArtist[]; total: number };
   wishlist: { items: GlobalSearchWishlist[]; total: number };

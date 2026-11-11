@@ -26,6 +26,7 @@ FROM base AS release
 COPY --from=install /temp/prod/node_modules node_modules
 COPY --from=prerelease /app/dist ./dist
 COPY --from=prerelease /app/server ./server
+COPY --from=prerelease /app/shared ./shared
 COPY --from=prerelease /app/scripts/backup.ts ./scripts/backup.ts
 COPY --from=prerelease /app/scripts/restore.ts ./scripts/restore.ts
 COPY --from=prerelease /app/prisma/schema.prisma ./prisma/schema.prisma

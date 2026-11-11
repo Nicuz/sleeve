@@ -4,6 +4,7 @@
     "includes": [
       "src/**/*.{ts,tsx}",
       "server/**/*.ts",
+      "shared/**/*.ts",
       "prisma/seed.ts",
       "vite.config.ts",
       "scripts/**/*.ts"

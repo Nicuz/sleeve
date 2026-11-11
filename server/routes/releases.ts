@@ -1,9 +1,11 @@
 import { Elysia } from 'elysia';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
+import { parseSearchQuery } from '../../src/lib/search-query';
 import { prisma } from '../db';
 import { removeOwnedReleaseFromDiscoveryFeed } from '../discovery';
 import { refreshRelease } from '../musicbrainz';
+import { releaseWhereFromQuery } from '../search-query';
 import {
   applyReleaseDetail,
   applyReleaseMatch,
@@ -97,15 +99,10 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
     const sort = typeof query.sort === 'string' ? query.sort : 'recent';
 
     const where: Prisma.ReleaseWhereInput = {};
+    const andClauses: Prisma.ReleaseWhereInput[] = [];
     if (q) {
-      where.OR = [
-        { title: { contains: q } },
-        { artist: { contains: q } },
-        { label: { contains: q } },
-        { catalogNumber: { contains: q } },
-        { genres: { contains: q } },
-        { tracks: { some: { title: { contains: q } } } },
-      ];
+      const searchWhere = releaseWhereFromQuery(parseSearchQuery(q));
+      if (searchWhere) andClauses.push(searchWhere);
     }
     if (format && format !== 'All') where.format = format;
     if (genre && genre !== 'All') where.genres = { contains: genre };
@@ -116,16 +113,15 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
       }
     }
     if (missing === 'genre') {
-      where.AND = [{ OR: [{ genres: null }, { genres: '' }] }];
+      andClauses.push({ OR: [{ genres: null }, { genres: '' }] });
     } else if (missing === 'purchase') {
-      where.AND = [{ OR: [{ purchasePrice: null }, { purchaseDate: null }] }];
+      andClauses.push({ OR: [{ purchasePrice: null }, { purchaseDate: null }] });
     } else if (missing === 'metadata') {
-      where.AND = [
-        {
-          OR: [{ musicbrainzId: null }, { coverUrl: null }, { trackCount: null }],
-        },
-      ];
+      andClauses.push({
+        OR: [{ musicbrainzId: null }, { coverUrl: null }, { trackCount: null }],
+      });
     }
+    if (andClauses.length > 0) where.AND = andClauses;
 
     const orderBy: Prisma.ReleaseOrderByWithRelationInput[] =
       sort === 'title'

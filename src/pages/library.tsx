@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   ArrowUpRight,
   ChevronDown,
@@ -94,6 +94,7 @@ export function LibraryPage() {
   const releasesQuery = useQuery({
     queryKey: ['releases', filters],
     queryFn: () => api.listReleases(filters),
+    placeholderData: keepPreviousData,
   });
   const statsQuery = useQuery({
     queryKey: ['stats'],
@@ -326,7 +327,9 @@ export function LibraryPage() {
           <p className="text-xs text-muted">
             {releasesQuery.isLoading
               ? 'Loading the shelves…'
-              : `${pluralize(releasesQuery.data?.count ?? 0, 'release')}${q ? ` for “${q}”` : ''}`}
+              : releasesQuery.isFetching
+                ? 'Updating the shelves…'
+                : `${pluralize(releasesQuery.data?.count ?? 0, 'release')}${q ? ` for “${q}”` : ''}`}
           </p>
           {hasFilters && (
             <button
@@ -340,7 +343,12 @@ export function LibraryPage() {
           )}
         </div>
 
-        <div className="mt-4">
+        <div
+          className={cn(
+            'mt-4 transition-opacity duration-200',
+            releasesQuery.isFetching && !releasesQuery.isLoading && 'opacity-60',
+          )}
+        >
           {releasesQuery.isLoading ? (
             <LibrarySkeleton />
           ) : releasesQuery.isError ? (

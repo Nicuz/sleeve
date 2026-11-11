@@ -23,7 +23,7 @@ Common status codes:
 
 Query params (all optional):
 
-- `q` — title, artist, label or catalog number substring
+- `q` — title, artist, label, catalog number, genre or track title substring
 - `format` — normalized format; omit or `All`
 - `genre` — genre substring; omit or `All`
 - `decade` — start year, e.g. `1970`; omit or `All`
@@ -144,6 +144,42 @@ Applies a user-selected MusicBrainz release.
 ```
 
 Same response shape as `/enrich`, with `status: matched | duplicate`.
+
+## Search
+
+### `GET /api/search?q=…&limit=6`
+
+Aggregate search used by the global header bar. Matches library releases, artists and wishlist items. `limit` 1–12 (default 6).
+
+- Releases match title, artist, label, catalog number, genre or track title. Track-only matches include `track`.
+- Artists are distinct library artists with a release count.
+- Wishlist matches title, artist, label or catalog number.
+
+```json
+{
+  "query": "green day",
+  "releases": {
+    "items": [
+      {
+        "id": "local-id",
+        "title": "American Idiot",
+        "artist": "Green Day",
+        "artistId": "uuid",
+        "year": 2004,
+        "format": "CD",
+        "coverUrl": "https://coverartarchive.org/...",
+        "track": null
+      }
+    ],
+    "total": 2
+  },
+  "artists": {
+    "items": [{ "name": "Green Day", "artistId": "uuid", "count": 2 }],
+    "total": 1
+  },
+  "wishlist": { "items": [], "total": 0 }
+}
+```
 
 ## MusicBrainz
 

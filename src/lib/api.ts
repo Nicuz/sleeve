@@ -6,6 +6,7 @@ import type {
   DiscoverResponse,
   EnrichResult,
   FollowedArtist,
+  GlobalSearchResponse,
   ImportMode,
   ImportPreview,
   ImportResult,
@@ -72,6 +73,11 @@ export const api = {
     return request<{ releases: Release[]; count: number }>(
       `/api/releases${suffix ? `?${suffix}` : ''}`,
     );
+  },
+
+  globalSearch(query: string, limit = 6, signal?: AbortSignal) {
+    const params = new URLSearchParams({ q: query, limit: String(limit) });
+    return request<GlobalSearchResponse>(`/api/search?${params}`, { signal });
   },
 
   importData(payload: unknown, mode: ImportMode = 'merge') {

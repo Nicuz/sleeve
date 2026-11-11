@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeAll, expect, mock, test } from 'bun:test';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import type { ImportMode, ImportPreview, ImportResult } from '@/lib/types';
 
-GlobalRegistrator.register();
+if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
 
 const previewImport = mock(async (_payload: unknown, mode: ImportMode) => preview(mode));
 const importData = mock(async (_payload: unknown, mode: ImportMode) => result(mode));

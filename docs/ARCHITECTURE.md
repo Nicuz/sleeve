@@ -88,6 +88,7 @@ Metadata application and matching:
 | Module | Responsibility |
 | --- | --- |
 | `releases.ts` | CRUD, list filters, owned lookup, refresh/enrich/manual match, clear library |
+| `search.ts` | Global header search across releases, artists and wishlist |
 | `musicbrainz.ts` | Release search, barcode search, artist search/detail, group pages, release detail |
 | `wishlist.ts` | Wishlist CRUD |
 | `follows.ts` | Followed artists list, follow/unfollow |
@@ -248,6 +249,7 @@ Visual language and component patterns are documented in [DESIGN_SYSTEM.md](DESI
 ### Filtering and defaults
 
 - Library filters live in URL search params (`q`, `format`, `genre`, `decade`, `sort`, `view`).
+- The global header search debounces input, previews library/artist/wishlist hits and only writes `q` to the URL on the Library page. Submitting or choosing “View all” opens `/` with `q`.
 - Default view/sort come from browser settings; format/condition/currency come from `AppSettings`.
 - Settings accent changes CSS variables at runtime.
 

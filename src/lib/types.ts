@@ -38,6 +38,40 @@ export type Release = {
   tracks?: Track[];
 };
 
+export type GlobalSearchRelease = {
+  id: string;
+  title: string;
+  artist: string;
+  artistId: string | null;
+  year: number | null;
+  format: string;
+  coverUrl: string | null;
+  track: string | null;
+};
+
+export type GlobalSearchArtist = {
+  name: string;
+  artistId: string | null;
+  count: number;
+};
+
+export type GlobalSearchWishlist = {
+  id: string;
+  title: string;
+  artist: string;
+  artistId: string | null;
+  year: number | null;
+  format: string;
+  coverUrl: string | null;
+};
+
+export type GlobalSearchResponse = {
+  query: string;
+  releases: { items: GlobalSearchRelease[]; total: number };
+  artists: { items: GlobalSearchArtist[]; total: number };
+  wishlist: { items: GlobalSearchWishlist[]; total: number };
+};
+
 export type SearchResult = {
   musicbrainzId: string;
   title: string;

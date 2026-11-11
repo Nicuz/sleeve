@@ -4,6 +4,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { configureDatabase, prisma } from './db';
 import { env } from './config';
 import { releaseRoutes } from './routes/releases';
+import { searchRoutes } from './routes/search';
 import { musicbrainzRoutes } from './routes/musicbrainz';
 import { statsRoutes } from './routes/stats';
 import { metaRoutes } from './routes/meta';
@@ -57,6 +58,7 @@ const app = new Elysia()
     return { ready: true };
   })
   .use(releaseRoutes)
+  .use(searchRoutes)
   .use(musicbrainzRoutes)
   .use(statsRoutes)
   .use(metaRoutes)

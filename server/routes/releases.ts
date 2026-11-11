@@ -103,6 +103,8 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
         { artist: { contains: q } },
         { label: { contains: q } },
         { catalogNumber: { contains: q } },
+        { genres: { contains: q } },
+        { tracks: { some: { title: { contains: q } } } },
       ];
     }
     if (format && format !== 'All') where.format = format;

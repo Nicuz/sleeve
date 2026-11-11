@@ -228,6 +228,15 @@ These classes live in `src/index.css`.
 - Validation errors are inline red/coral text; server errors surface via toast.
 - No placeholder-only labels.
 
+### Global search
+
+- The header search is a combobox: live results grouped into library releases, artists and wishlist.
+- Debounce input; keep previous results visible while the next request runs.
+- Keyboard: `Ctrl/⌘ K` focuses, arrows move, Enter opens the active hit, Escape closes.
+- On the Library page the query is written to `q` after debounce; elsewhere typing never navigates until the user submits or picks a result.
+- Show cover art, title, artist and year; track-only matches label the matched track.
+- Every result list has loading, empty and error states. Empty searches offer **Search MusicBrainz**.
+
 ### Chips and filters
 
 - Inactive: quiet border, muted text.

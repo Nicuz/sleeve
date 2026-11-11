@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, ChevronRight, Grid2x2, Heart, List, Plus } from 'lucide-react';
@@ -140,6 +140,8 @@ export function WishlistPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<WishlistItem | null>(null);
   const [sort, setSort] = useState<'recent' | 'artist' | 'price'>('recent');
+  const focusId = params.get('item');
+  const openedFocusRef = useRef<string | null>(null);
   const viewParam = params.get('view');
   const view =
     viewParam === 'list' || viewParam === 'grid' ? viewParam : settings.defaultView;
@@ -158,6 +160,17 @@ export function WishlistPage() {
   });
 
   const items = data?.items ?? [];
+  useEffect(() => {
+    if (!focusId || !data) return;
+    if (openedFocusRef.current === focusId) return;
+    const item = data.items.find((entry) => entry.id === focusId);
+    if (!item) return;
+    openedFocusRef.current = focusId;
+    setEditing(item);
+    const next = new URLSearchParams(params);
+    next.delete('item');
+    setParams(next, { replace: true });
+  }, [data, focusId, params, setParams]);
   const targetTotals = new Map<string, number>();
   for (const item of items) {
     if (item.targetPrice === null) continue;

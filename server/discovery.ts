@@ -163,7 +163,7 @@ type ScoredItem = {
 
 type ArtistSource = 'owned' | 'wishlist' | 'saved' | 'followed';
 
-type CollectionSnapshot = {
+export type CollectionSnapshot = {
   topGenres: string[];
   genreAffinity: Map<string, number>;
   artistAffinity: Map<string, number>;
@@ -177,7 +177,7 @@ type CollectionSnapshot = {
   ownedArtistNames: Set<string>;
 };
 
-async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
+export async function getCollectionSnapshot(): Promise<CollectionSnapshot> {
   const eventCutoff = new Date(Date.now() - EVENT_WINDOW_DAYS * DAY_MS);
   const [releases, wishlist, saved, follows, events] = await Promise.all([
     prisma.release.findMany({

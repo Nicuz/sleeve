@@ -92,11 +92,9 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export const SETTINGS_STORAGE_KEY = 'sleeve:settings:v1';
 
-function loadLocalSettings(): LocalSettings {
-  if (typeof window === 'undefined') return DEFAULT_LOCAL_SETTINGS;
+export function parseLocalSettings(raw: string | null): LocalSettings {
+  if (!raw) return DEFAULT_LOCAL_SETTINGS;
   try {
-    const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
-    if (!raw) return DEFAULT_LOCAL_SETTINGS;
     const parsed = JSON.parse(raw) as Partial<LocalSettings>;
     const accent =
       parsed.accent && parsed.accent in ACCENTS
@@ -117,6 +115,11 @@ function loadLocalSettings(): LocalSettings {
   } catch {
     return DEFAULT_LOCAL_SETTINGS;
   }
+}
+
+function loadLocalSettings(): LocalSettings {
+  if (typeof window === 'undefined') return DEFAULT_LOCAL_SETTINGS;
+  return parseLocalSettings(window.localStorage.getItem(SETTINGS_STORAGE_KEY));
 }
 
 type SettingsContextValue = {

@@ -190,6 +190,14 @@ Settings or Library → **Import CSV**.
 bun run check
 ```
 
+`bun test` includes an isolated import/export/backup integration suite. It creates a temp database, runs migrations, exercises API routes and removes the temp data.
+
+Docker smoke test, optional:
+
+```bash
+bun run test:docker
+```
+
 Then manually verify the touched flow. For destructive testing, use temporary records and delete them, or copy the DB:
 
 ```bash

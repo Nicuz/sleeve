@@ -7,6 +7,7 @@ import type {
   EnrichResult,
   FollowedArtist,
   GlobalSearchResponse,
+  GlobalSearchScope,
   ImportMode,
   ImportPreview,
   ImportResult,
@@ -75,8 +76,14 @@ export const api = {
     );
   },
 
-  globalSearch(query: string, limit = 6, signal?: AbortSignal) {
-    const params = new URLSearchParams({ q: query, limit: String(limit) });
+  globalSearch(
+    query: string,
+    options: { limit?: number; scope?: GlobalSearchScope } = {},
+    signal?: AbortSignal,
+  ) {
+    const params = new URLSearchParams({ q: query });
+    if (options.limit) params.set('limit', String(options.limit));
+    if (options.scope && options.scope !== 'all') params.set('scope', options.scope);
     return request<GlobalSearchResponse>(`/api/search?${params}`, { signal });
   },
 

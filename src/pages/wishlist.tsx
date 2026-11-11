@@ -1,8 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronRight, Grid2x2, Heart, List, Plus } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronRight,
+  Grid2x2,
+  Heart,
+  List,
+  Plus,
+  SearchX,
+  X,
+} from 'lucide-react';
 import { api } from '@/lib/api';
+import { parseSearchQuery } from '@/lib/search-query';
 import type { WishlistItem } from '@/lib/types';
 import { useSettings } from '@/lib/settings';
 import { cn, formatPrice } from '@/lib/utils';
@@ -160,6 +170,51 @@ export function WishlistPage() {
   });
 
   const items = data?.items ?? [];
+  const rawQuery = (params.get('q') ?? '').trim();
+  const parsedQuery = parseSearchQuery(rawQuery);
+  const queryText = parsedQuery.text.toLowerCase();
+  const filteredItems = items.filter((item) => {
+    if (parsedQuery.filters.track || parsedQuery.filters.genre) return false;
+    if (
+      parsedQuery.filters.title &&
+      !item.title.toLowerCase().includes(parsedQuery.filters.title.toLowerCase())
+    ) {
+      return false;
+    }
+    if (
+      parsedQuery.filters.artist &&
+      !item.artist.toLowerCase().includes(parsedQuery.filters.artist.toLowerCase())
+    ) {
+      return false;
+    }
+    if (
+      parsedQuery.filters.label &&
+      !(item.label ?? '').toLowerCase().includes(parsedQuery.filters.label.toLowerCase())
+    ) {
+      return false;
+    }
+    if (parsedQuery.filters.format) {
+      const format = parsedQuery.filters.format.toLowerCase();
+      const haystack = `${item.format} ${item.formatDetail ?? ''}`.toLowerCase();
+      if (!haystack.includes(format)) return false;
+    }
+    if (parsedQuery.filters.year) {
+      const year = Number.parseInt(parsedQuery.filters.year, 10);
+      if (Number.isFinite(year)) {
+        const yearText = item.releaseDate?.slice(0, 4) ?? String(item.year ?? '');
+        if (yearText !== String(year)) return false;
+      }
+    }
+    if (!queryText) return true;
+    return [item.title, item.artist, item.label, item.catalogNumber].some((value) =>
+      (value ?? '').toLowerCase().includes(queryText),
+    );
+  });
+  function clearWishlistSearch() {
+    const next = new URLSearchParams(params);
+    next.delete('q');
+    setParams(next, { replace: true });
+  }
   useEffect(() => {
     if (!focusId || !data) return;
     if (openedFocusRef.current === focusId) return;
@@ -184,7 +239,7 @@ export function WishlistPage() {
       : targetEntries.length > 1
         ? `${targetEntries.length} currencies`
         : null;
-  const sortedItems = [...items].sort((a, b) => {
+  const sortedItems = [...filteredItems].sort((a, b) => {
     if (sort === 'artist') {
       return a.artist.localeCompare(b.artist) || a.title.localeCompare(b.title);
     }
@@ -272,10 +327,34 @@ export function WishlistPage() {
             onAction={() => setAddOpen(true)}
           />
         </div>
+      ) : filteredItems.length === 0 && rawQuery ? (
+        <div className="panel mt-8">
+          <EmptyState
+            icon={<SearchX size={20} />}
+            title="Nothing matches"
+            description={`No wishlist items match “${rawQuery}”. Try a broader search or clear it.`}
+            actionLabel="Clear search"
+            onAction={clearWishlistSearch}
+          />
+        </div>
       ) : (
         <>
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
+              {rawQuery && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/[0.08] px-2.5 py-1 text-[11px] text-accent">
+                  <SearchX size={12} />
+                  <span className="max-w-40 truncate">{rawQuery}</span>
+                  <button
+                    type="button"
+                    onClick={clearWishlistSearch}
+                    className="text-accent/70 transition hover:text-accent"
+                    aria-label="Clear wishlist search"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
               <div className="relative">
                 <select
                   value={sort}

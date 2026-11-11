@@ -10,6 +10,14 @@
 - [x] Purchase date/location/price/currency
 - [x] Collection statistics and spending insights
 
+### Search
+
+- [x] Global header search across releases, artists and wishlist
+- [x] Scoped results, recent searches, match highlighting and keyboard navigation
+- [x] Operators (`artist:`, `label:`, `year:`, `format:`, `track:`, `title:`, `genre:`)
+- [x] Inline wishlist → library action
+- [x] SQLite FTS5 index with `contains` fallback
+
 ### MusicBrainz
 
 - [x] Release search, barcode search, release detail

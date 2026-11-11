@@ -235,6 +235,12 @@ These classes live in `src/index.css`.
 - Keyboard: `Ctrl/⌘ K` focuses, arrows move, Enter opens the active hit, Escape closes.
 - On the Library page the query is written to `q` after debounce; elsewhere typing never navigates until the user submits or picks a result.
 - Show cover art, title, artist and year; track-only matches label the matched track.
+- Scope chips filter the dropdown: All, Library, Wishlist, Artists. Persist the chosen scope in `localStorage`.
+- Recent searches appear when the empty input is focused; max 5, with a clear action.
+- Highlight matched text with `<mark>` using the accent token.
+- Operator hints: `artist:`, `label:`, `year:`, `format:`, `track:`, `title:`, `genre:`. Show active operators as chips.
+- Wishlist hits expose an inline **Add to library** action; release hits expose **Open artist**. Rows stay single buttons; secondary actions are sibling controls.
+- Mobile (`< sm`) expands into a full-height sheet below the header with a close action.
 - Every result list has loading, empty and error states. Empty searches offer **Search MusicBrainz**.
 
 ### Chips and filters

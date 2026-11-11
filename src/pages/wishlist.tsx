@@ -193,6 +193,14 @@ export function WishlistPage() {
     ) {
       return false;
     }
+    if (
+      parsedQuery.filters.catalog &&
+      !(item.catalogNumber ?? '')
+        .toLowerCase()
+        .includes(parsedQuery.filters.catalog.toLowerCase())
+    ) {
+      return false;
+    }
     if (parsedQuery.filters.format) {
       const format = parsedQuery.filters.format.toLowerCase();
       const haystack = `${item.format} ${item.formatDetail ?? ''}`.toLowerCase();
@@ -206,8 +214,8 @@ export function WishlistPage() {
       }
     }
     if (!queryText) return true;
-    return [item.title, item.artist, item.label, item.catalogNumber].some((value) =>
-      (value ?? '').toLowerCase().includes(queryText),
+    return [item.title, item.artist].some((value) =>
+      value.toLowerCase().includes(queryText),
     );
   });
   function clearWishlistSearch() {

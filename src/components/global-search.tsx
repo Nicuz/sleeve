@@ -61,26 +61,54 @@ function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function normalizeWithMap(text: string) {
+  let normalized = '';
+  const map: Array<{ start: number; end: number }> = [];
+  let offset = 0;
+  for (const char of text) {
+    const length = char.length;
+    const stripped = char.normalize('NFD').replace(/\p{M}/gu, '');
+    for (const unit of stripped) {
+      normalized += unit;
+      map.push({ start: offset, end: offset + length });
+    }
+    offset += length;
+  }
+  return { normalized, map };
+}
+
 function Highlight({ text, terms }: { text: string; terms: string[] }) {
-  if (terms.length === 0) return <>{text}</>;
-  const pattern = new RegExp(`(${terms.map(escapeRegExp).join('|')})`, 'gi');
-  const lookup = new Set(terms.map((term) => term.toLowerCase()));
-  return (
-    <>
-      {text.split(pattern).map((part, index) =>
-        lookup.has(part.toLowerCase()) ? (
-          <mark
-            key={`${part}-${index}`}
-            className="rounded bg-accent/15 px-0.5 text-accent"
-          >
-            {part}
-          </mark>
-        ) : (
-          part
-        ),
-      )}
-    </>
-  );
+  const normalizedTerms = [
+    ...new Set(
+      terms
+        .map((term) => term.normalize('NFD').replace(/\p{M}/gu, ''))
+        .filter((term) => term.length >= 1),
+    ),
+  ];
+  if (normalizedTerms.length === 0) return <>{text}</>;
+
+  const pattern = new RegExp(`(${normalizedTerms.map(escapeRegExp).join('|')})`, 'gi');
+  const { normalized, map } = normalizeWithMap(text);
+  const parts: ReactNode[] = [];
+  let cursor = 0;
+
+  for (const match of normalized.matchAll(pattern)) {
+    const index = match.index ?? 0;
+    const start = map[index]?.start;
+    const end = map[index + match[0].length - 1]?.end;
+    if (start === undefined || end === undefined || start < cursor) continue;
+    if (start > cursor) parts.push(text.slice(cursor, start));
+    parts.push(
+      <mark key={`${start}-${end}`} className="rounded bg-accent/15 px-0.5 text-accent">
+        {text.slice(start, end)}
+      </mark>,
+    );
+    cursor = end;
+  }
+
+  if (parts.length === 0) return <>{text}</>;
+  if (cursor < text.length) parts.push(text.slice(cursor));
+  return <>{parts}</>;
 }
 
 function SearchRow({
@@ -671,8 +699,8 @@ export function GlobalSearch() {
                   </button>
                 ))}
                 <p className="px-2.5 py-2 text-[11px] text-muted/50">
-                  Tip: narrow with artist:, label:, year:, format: or track:. Quote
-                  multi-word values.
+                  Tip: search title or artist. Use label:, catalog:, genre:, track:, year:
+                  or format: for deeper cuts. Quote multi-word values.
                 </p>
               </>
             ) : searchQuery.isLoading && !data ? (
@@ -699,7 +727,8 @@ export function GlobalSearch() {
                   No matches for “{debounced}”
                 </p>
                 <p className="mt-1 text-xs text-muted">
-                  Try a title, artist, label or track name.
+                  Try a title or artist. Use an operator for label, catalog, genre or
+                  track.
                 </p>
                 <button
                   type="button"
@@ -761,14 +790,22 @@ export function GlobalSearch() {
                           </span>
                           <span className="mt-0.5 block truncate text-[11px] text-muted">
                             <Highlight text={release.artist} terms={terms} />
-                            {release.year ? ` · ${release.year}` : ''}
+                            {release.year ? (
+                              <>
+                                {' · '}
+                                <Highlight text={String(release.year)} terms={terms} />
+                              </>
+                            ) : null}
                             {release.track ? (
                               <>
                                 {' · Track: '}
                                 <Highlight text={release.track} terms={terms} />
                               </>
                             ) : release.format ? (
-                              ` · ${release.format}`
+                              <>
+                                {' · '}
+                                <Highlight text={release.format} terms={terms} />
+                              </>
                             ) : null}
                           </span>
                         </span>
@@ -853,7 +890,12 @@ export function GlobalSearch() {
                             </span>
                             <span className="mt-0.5 block truncate text-[11px] text-muted">
                               <Highlight text={item.artist} terms={terms} />
-                              {item.year ? ` · ${item.year}` : ''}
+                              {item.year ? (
+                                <>
+                                  {' · '}
+                                  <Highlight text={String(item.year)} terms={terms} />
+                                </>
+                              ) : null}
                             </span>
                           </span>
                           <Heart size={14} className="shrink-0 text-muted/40" />

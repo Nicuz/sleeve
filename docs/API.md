@@ -23,7 +23,7 @@ Common status codes:
 
 Query params (all optional):
 
-- `q` — free text across title, artist, label, catalog number, genre or track title, plus operators (`artist:`, `label:`, `year:`, `format:`, `track:`, `title:`, `genre:`)
+- `q` — free text across title and artist, plus operators (`artist:`, `label:`, `catalog:`, `year:`, `format:`, `track:`, `title:`, `genre:`)
 - `format` — normalized format; omit or `All`
 - `genre` — genre substring; omit or `All`
 - `decade` — start year, e.g. `1970`; omit or `All`
@@ -151,11 +151,12 @@ Same response shape as `/enrich`, with `status: matched | duplicate`.
 
 Aggregate search used by the global header bar. Matches library releases, artists and wishlist items. `limit` 1–12 (default 6). `scope` is `all` (default), `library`, `wishlist` or `artists`.
 
-- Releases match title, artist, label, catalog number, genre or track title. Track-only matches include `track`.
+- Free text matches title and artist only, so every hit has a visible match.
+- Hidden metadata is opt-in: `label:`, `catalog:`, `genre:` and `track:`. Track matches include `track`.
 - Artists are distinct library artists with a release count.
-- Wishlist matches title, artist, label or catalog number.
+- Wishlist free text matches title and artist; operators add label, catalog, format and year.
 - Free text uses the SQLite FTS5 index when available, then falls back to `contains`.
-- Operators narrow the query: `artist:"green day"`, `label:reprise`, `year:2004`, `format:vinyl`, `track:boulevard`, `title:idiot`, `genre:jazz`. Quote multi-word values.
+- Operators narrow the query: `artist:"green day"`, `label:reprise`, `catalog:9362`, `year:2004`, `format:vinyl`, `track:boulevard`, `title:idiot`, `genre:jazz`. Quote multi-word values.
 
 ```json
 {

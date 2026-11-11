@@ -15,6 +15,13 @@ test('parses operators and quoted values', () => {
   });
 });
 
+test('parses hidden-metadata operators', () => {
+  expect(parseSearchQuery('catalog:9362 track:boulevard genre:jazz')).toEqual({
+    text: '',
+    filters: { catalog: '9362', track: 'boulevard', genre: 'jazz' },
+  });
+});
+
 test('keeps unknown operators and quoted phrases as text', () => {
   expect(parseSearchQuery('foo:bar "blue note" track:boulevard')).toEqual({
     text: 'foo:bar blue note',

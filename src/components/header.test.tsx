@@ -26,6 +26,7 @@ const { Header } = await import('./header');
 
 function response(query: string): GlobalSearchResponse {
   const wishlistMatch = /rum/i.test(query);
+  const accentMatch = /bjork/i.test(query);
   return {
     query,
     scope: 'all',
@@ -39,8 +40,8 @@ function response(query: string): GlobalSearchResponse {
           items: [
             {
               id: 'release-1',
-              title: 'American Idiot',
-              artist: 'Green Day',
+              title: accentMatch ? 'Björk' : 'American Idiot',
+              artist: accentMatch ? 'Björk' : 'Green Day',
               artistId: 'artist-1',
               year: 2004,
               format: 'CD',
@@ -50,12 +51,13 @@ function response(query: string): GlobalSearchResponse {
           ],
           total: 1,
         },
-    artists: wishlistMatch
-      ? { items: [], total: 0 }
-      : {
-          items: [{ name: 'Green Day', artistId: 'artist-1', count: 1 }],
-          total: 1,
-        },
+    artists:
+      wishlistMatch || accentMatch
+        ? { items: [], total: 0 }
+        : {
+            items: [{ name: 'Green Day', artistId: 'artist-1', count: 1 }],
+            total: 1,
+          },
     wishlist: wishlistMatch
       ? {
           items: [
@@ -200,6 +202,16 @@ test('parses operators and highlights matching text', async () => {
     expect.anything(),
   );
   expect(document.querySelectorAll('mark').length).toBeGreaterThan(0);
+});
+
+test('highlights accented text from an unaccented query', async () => {
+  renderHeader();
+  const input = screen.getByRole('combobox', { name: /search your collection/i });
+
+  fireEvent.change(input, { target: { value: 'bjork' } });
+  const option = await screen.findByRole('option', { name: /Björk/ });
+
+  expect(option.querySelector('mark')?.textContent).toBe('Björk');
 });
 
 test('adds a wishlist hit to the library from the result row', async () => {

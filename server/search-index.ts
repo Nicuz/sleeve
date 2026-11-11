@@ -8,7 +8,8 @@ function toMatchQuery(text: string) {
     .map((token) => token.trim())
     .filter((token) => token.length >= 2);
   if (tokens.length === 0) return null;
-  return tokens.map((token) => `"${token}"*`).join(' AND ');
+  const expression = tokens.map((token) => `"${token}"*`).join(' AND ');
+  return `{title artist} : (${expression})`;
 }
 
 export async function searchReleaseIds(

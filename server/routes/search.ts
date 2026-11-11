@@ -42,31 +42,9 @@ function score(value: string | null | undefined, query: string) {
   return 0;
 }
 
-function releaseScore(
-  release: {
-    title: string;
-    artist: string;
-    label: string | null;
-    catalogNumber: string | null;
-    genres: string | null;
-    tracks: { title: string }[];
-  },
-  query: string,
-) {
+function releaseScore(release: { title: string; artist: string }, query: string) {
   if (!query) return 0;
-  return Math.max(
-    score(release.title, query) + 10,
-    score(release.artist, query),
-    score(release.label, query),
-    score(release.catalogNumber, query),
-    score(release.genres, query),
-    release.tracks.length > 0 ? 30 : 0,
-  );
-}
-
-function matchesDirectly(release: { title: string; artist: string }, query: string) {
-  if (!query) return false;
-  return score(release.title, query) > 0 || score(release.artist, query) > 0;
+  return Math.max(score(release.title, query) + 10, score(release.artist, query));
 }
 
 function releaseSelect(trackTerm: string | null) {
@@ -122,7 +100,7 @@ export const searchRoutes = new Elysia({ prefix: '/api/search' }).get(
     const includeArtists = scope === 'all' || scope === 'artists';
     const includeWishlist = scope === 'all' || scope === 'wishlist';
     const normalised = parsed.text.toLowerCase();
-    const trackTerm = parsed.filters.track ?? parsed.text;
+    const trackTerm = parsed.filters.track ?? null;
 
     let releases: SearchRelease[] = [];
     let releaseTotal = 0;
@@ -194,20 +172,14 @@ export const searchRoutes = new Elysia({ prefix: '/api/search' }).get(
           format: release.format,
           coverUrl: release.coverUrl,
           track:
-            trackTerm &&
-            (parsed.filters.track || !matchesDirectly(release, normalised)) &&
-            release.tracks.length > 0
+            parsed.filters.track && release.tracks.length > 0
               ? release.tracks[0].title
               : null,
         }));
     }
 
     if (includeArtists) {
-      const artistTerm =
-        parsed.filters.artist ??
-        parsed.filters.title ??
-        parsed.filters.track ??
-        parsed.text;
+      const artistTerm = parsed.filters.artist ?? parsed.text;
       if (artistTerm) {
         const artistRows = await prisma.release.findMany({
           where: { artist: { contains: artistTerm } },
@@ -264,18 +236,9 @@ export const searchRoutes = new Elysia({ prefix: '/api/search' }).get(
       wishlist = wishlistRows
         .sort(
           (a, b) =>
-            Math.max(
-              score(b.title, normalised) + 10,
-              score(b.artist, normalised),
-              score(b.label, normalised),
-              score(b.catalogNumber, normalised),
-            ) -
-              Math.max(
-                score(a.title, normalised) + 10,
-                score(a.artist, normalised),
-                score(a.label, normalised),
-                score(a.catalogNumber, normalised),
-              ) || a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }),
+            Math.max(score(b.title, normalised) + 10, score(b.artist, normalised)) -
+              Math.max(score(a.title, normalised) + 10, score(a.artist, normalised)) ||
+            a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }),
         )
         .slice(0, limit);
     }

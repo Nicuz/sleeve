@@ -1,6 +1,7 @@
 export const SEARCH_OPERATORS = [
   'artist',
   'label',
+  'catalog',
   'year',
   'format',
   'track',
@@ -48,6 +49,7 @@ export function highlightTerms(parsed: ParsedSearchQuery): string[] {
     parsed.text,
     parsed.filters.artist,
     parsed.filters.label,
+    parsed.filters.catalog,
     parsed.filters.year,
     parsed.filters.format,
     parsed.filters.track,

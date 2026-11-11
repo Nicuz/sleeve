@@ -3,14 +3,7 @@ import type { ParsedSearchQuery, SearchOperator } from '../shared/search-query';
 
 function textMatch(text: string): Prisma.ReleaseWhereInput {
   return {
-    OR: [
-      { title: { contains: text } },
-      { artist: { contains: text } },
-      { label: { contains: text } },
-      { catalogNumber: { contains: text } },
-      { genres: { contains: text } },
-      { tracks: { some: { title: { contains: text } } } },
-    ],
+    OR: [{ title: { contains: text } }, { artist: { contains: text } }],
   };
 }
 
@@ -33,6 +26,8 @@ function filterClause(
       return { artist: { contains: value } };
     case 'label':
       return { label: { contains: value } };
+    case 'catalog':
+      return { catalogNumber: { contains: value } };
     case 'genre':
       return { genres: { contains: value } };
     case 'track':
@@ -81,19 +76,15 @@ export function wishlistWhereFromQuery(
 
   if (includeText && parsed.text) {
     clauses.push({
-      OR: [
-        { title: { contains: parsed.text } },
-        { artist: { contains: parsed.text } },
-        { label: { contains: parsed.text } },
-        { catalogNumber: { contains: parsed.text } },
-      ],
+      OR: [{ title: { contains: parsed.text } }, { artist: { contains: parsed.text } }],
     });
   }
 
-  const { title, artist, label, format, year } = parsed.filters;
+  const { title, artist, label, catalog, format, year } = parsed.filters;
   if (title) clauses.push({ title: { contains: title } });
   if (artist) clauses.push({ artist: { contains: artist } });
   if (label) clauses.push({ label: { contains: label } });
+  if (catalog) clauses.push({ catalogNumber: { contains: catalog } });
   if (format) {
     clauses.push({
       OR: [{ format: { contains: format } }, { formatDetail: { contains: format } }],

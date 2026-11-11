@@ -238,7 +238,8 @@ These classes live in `src/index.css`.
 - Scope chips filter the dropdown: All, Library, Wishlist, Artists. Persist the chosen scope in `localStorage`.
 - Recent searches appear when the empty input is focused; max 5, with a clear action.
 - Highlight matched text with `<mark>` using the accent token.
-- Operator hints: `artist:`, `label:`, `year:`, `format:`, `track:`, `title:`, `genre:`. Show active operators as chips.
+- Free text searches title and artist only. Hidden metadata is operator-only: `artist:`, `label:`, `catalog:`, `year:`, `format:`, `track:`, `title:`, `genre:`. Show active operators as chips.
+- Highlight matching is diacritic-insensitive (`bjork` marks `Björk`).
 - Wishlist hits expose an inline **Add to library** action; release hits expose **Open artist**. Rows stay single buttons; secondary actions are sibling controls.
 - Mobile (`< sm`) expands into a full-height sheet below the header with a close action.
 - Every result list has loading, empty and error states. Empty searches offer **Search MusicBrainz**.

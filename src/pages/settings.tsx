@@ -1,6 +1,18 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, Download, Grid2x2, List, Loader2, Moon, Sun, Upload } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Check,
+  Download,
+  Grid2x2,
+  List,
+  Loader2,
+  Moon,
+  RotateCcw,
+  Sun,
+  Upload,
+  X,
+} from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import {
   ACCENTS,
@@ -12,7 +24,10 @@ import {
 import type { AppSettings } from '@/lib/types';
 import { CONDITIONS, CURRENCIES, cn, FORMAT_OPTIONS, pluralize } from '@/lib/utils';
 import { ImportBackupDialog } from '@/components/import-backup-dialog';
+import { LogoMark } from '@/components/logo';
+import { SegmentedControl } from '@/components/segmented-control';
 import { useToast } from '@/components/toast';
+import packageJson from '../../package.json';
 
 function Section({
   title,
@@ -69,20 +84,95 @@ function SettingRow({
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-4 border-b border-white/[0.04] py-3 first:pt-0 last:border-b-0 last:pb-0">
-      <dt className="text-xs text-muted">{label}</dt>
-      <dd className="text-right text-xs text-cream/80">{value}</dd>
-    </div>
-  );
-}
-
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   const kb = bytes / 1024;
   if (kb < 1024) return `${Math.round(kb)} KB`;
   return `${(kb / 1024).toFixed(1)} MB`;
+}
+
+function ResetPreferencesDialog({
+  open,
+  pending,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  pending: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') onClose();
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = original;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="animate-fade-in fixed inset-0 z-[60] flex items-end justify-center bg-black/75 backdrop-blur-sm sm:items-center sm:p-6"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="animate-scale-in w-full max-w-md rounded-t-3xl border border-white/10 bg-ink-900 p-5 sm:rounded-3xl sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reset-preferences-title"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="eyebrow">Preferences</p>
+            <h2
+              id="reset-preferences-title"
+              className="mt-1 font-display text-lg font-semibold text-cream"
+            >
+              Reset preferences?
+            </h2>
+          </div>
+          <button type="button" onClick={onClose} className="icon-btn" aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
+
+        <p className="mt-4 text-sm leading-relaxed text-muted">
+          Restores the amber accent, dark theme, grid view, recently added sorting and the
+          default CD / Near Mint / EUR values. Releases, wishlist and saved items are not
+          touched.
+        </p>
+
+        <div className="mt-6 flex justify-end gap-2">
+          <button type="button" onClick={onClose} className="btn btn-secondary">
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={pending}
+            className="btn btn-primary"
+          >
+            {pending ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <RotateCcw size={14} />
+            )}
+            Reset preferences
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function SettingsPage() {
@@ -91,8 +181,10 @@ export function SettingsPage() {
   const queryClient = useQueryClient();
   const [deleteText, setDeleteText] = useState('');
   const [importOpen, setImportOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
 
   const saveDefaults = useMutation({
+    scope: { id: 'app-settings' },
     mutationFn: (patch: Partial<AppSettings>) => api.updateAppSettings(patch),
     onMutate: (patch) => {
       queryClient.setQueryData<{ settings: AppSettings }>(
@@ -113,7 +205,15 @@ export function SettingsPage() {
       );
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['app-settings'], data);
+      queryClient.setQueryData<{ settings: AppSettings }>(
+        ['app-settings'],
+        (current) => ({
+          settings: {
+            ...(current?.settings ?? DEFAULT_COLLECTION_DEFAULTS),
+            ...data.settings,
+          },
+        }),
+      );
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['app-settings'] });
@@ -121,10 +221,12 @@ export function SettingsPage() {
   });
 
   const resetPreferences = useMutation({
+    scope: { id: 'app-settings' },
     mutationFn: () => api.updateAppSettings(DEFAULT_COLLECTION_DEFAULTS),
     onSuccess: (data) => {
       resetSettings();
       queryClient.setQueryData(['app-settings'], data);
+      setResetOpen(false);
       toast('Preferences reset', 'info');
     },
     onError: (error) => {
@@ -236,36 +338,15 @@ export function SettingsPage() {
               label="Theme"
               description="Switch between the dark lounge and a light reading view."
             >
-              <div className="grid w-full grid-cols-2 gap-1 rounded-xl border border-white/10 bg-ink-900/60 p-1 sm:w-48">
-                <button
-                  type="button"
-                  onClick={() => updateSettings({ theme: 'dark' })}
-                  aria-pressed={settings.theme === 'dark'}
-                  className={cn(
-                    'flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition',
-                    settings.theme === 'dark'
-                      ? 'bg-white/10 text-cream'
-                      : 'text-muted hover:text-cream',
-                  )}
-                >
-                  <Moon size={13} />
-                  Dark
-                </button>
-                <button
-                  type="button"
-                  onClick={() => updateSettings({ theme: 'light' })}
-                  aria-pressed={settings.theme === 'light'}
-                  className={cn(
-                    'flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition',
-                    settings.theme === 'light'
-                      ? 'bg-white/10 text-cream'
-                      : 'text-muted hover:text-cream',
-                  )}
-                >
-                  <Sun size={13} />
-                  Light
-                </button>
-              </div>
+              <SegmentedControl
+                label="Theme"
+                value={settings.theme}
+                onChange={(theme) => updateSettings({ theme })}
+                options={[
+                  { value: 'dark', label: 'Dark', icon: Moon },
+                  { value: 'light', label: 'Light', icon: Sun },
+                ]}
+              />
             </SettingRow>
 
             <div className="flex flex-col gap-3 border-b border-white/[0.04] py-4 first:pt-0 last:border-b-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
@@ -309,36 +390,15 @@ export function SettingsPage() {
         <Section title="Library view">
           <div>
             <SettingRow label="View" description="Grid or list for the library.">
-              <div className="grid w-full grid-cols-2 gap-1 rounded-xl border border-white/10 bg-ink-900/60 p-1 sm:w-48">
-                <button
-                  type="button"
-                  onClick={() => updateSettings({ defaultView: 'grid' })}
-                  aria-pressed={settings.defaultView === 'grid'}
-                  className={cn(
-                    'flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition',
-                    settings.defaultView === 'grid'
-                      ? 'bg-white/10 text-cream'
-                      : 'text-muted hover:text-cream',
-                  )}
-                >
-                  <Grid2x2 size={13} />
-                  Grid
-                </button>
-                <button
-                  type="button"
-                  onClick={() => updateSettings({ defaultView: 'list' })}
-                  aria-pressed={settings.defaultView === 'list'}
-                  className={cn(
-                    'flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition',
-                    settings.defaultView === 'list'
-                      ? 'bg-white/10 text-cream'
-                      : 'text-muted hover:text-cream',
-                  )}
-                >
-                  <List size={13} />
-                  List
-                </button>
-              </div>
+              <SegmentedControl
+                label="Default view"
+                value={settings.defaultView}
+                onChange={(defaultView) => updateSettings({ defaultView })}
+                options={[
+                  { value: 'grid', label: 'Grid', icon: Grid2x2 },
+                  { value: 'list', label: 'List', icon: List },
+                ]}
+              />
             </SettingRow>
 
             <SettingRow label="Sort order" description="Initial ordering in the library.">
@@ -458,12 +518,12 @@ export function SettingsPage() {
         <Section title="Metadata & cache">
           <div>
             <SettingRow
-              label={
+              label="Metadata cache"
+              description={
                 cacheInfo
-                  ? pluralize(cacheInfo.count, 'cached entry', 'cached entries')
-                  : 'Cached entries'
+                  ? `${pluralize(cacheInfo.count, 'cached entry', 'cached entries')} · searches 30 min, details 7 days`
+                  : 'MusicBrainz searches and release details'
               }
-              description="Searches 30 min · details 7 days"
             >
               <button
                 type="button"
@@ -474,7 +534,7 @@ export function SettingsPage() {
                 {clearMetadataCache.isPending && (
                   <Loader2 size={13} className="animate-spin" />
                 )}
-                Clear cache
+                Clear metadata
               </button>
             </SettingRow>
 
@@ -501,47 +561,15 @@ export function SettingsPage() {
           </div>
         </Section>
 
-        <Section title="About Sleeve">
-          <dl>
-            <InfoRow label="Version" value="0.1.0" />
-            <InfoRow label="Storage" value="SQLite · local" />
-            <InfoRow label="Metadata" value="MusicBrainz + Cover Art Archive" />
-            <InfoRow label="Runtime" value="Bun + React" />
-            <InfoRow
-              label="Collection"
-              value={`${pluralize(stats?.total ?? 0, 'release')} · ${pluralize(stats?.totalTracks ?? 0, 'track')}`}
-            />
-          </dl>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <a
-              href="https://musicbrainz.org"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 text-[10px] text-muted transition hover:border-white/20 hover:text-cream"
-            >
-              MusicBrainz
-            </a>
-            <a
-              href="https://coverartarchive.org"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 text-[10px] text-muted transition hover:border-white/20 hover:text-cream"
-            >
-              Cover Art Archive
-            </a>
-          </div>
-        </Section>
-
-        <Section title="Preferences">
+        <Section title="Reset">
           <div>
             <SettingRow
               label="Reset preferences"
-              description="Restore the amber theme, library view and database defaults."
+              description="Restore appearance, library view and new-release defaults."
             >
               <button
                 type="button"
-                onClick={() => resetPreferences.mutate()}
+                onClick={() => setResetOpen(true)}
                 disabled={resetPreferences.isPending}
                 className="btn btn-secondary py-2 text-xs"
               >
@@ -555,26 +583,114 @@ export function SettingsPage() {
         </Section>
 
         <Section title="Danger zone" danger>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <input
-              value={deleteText}
-              onChange={(event) => setDeleteText(event.target.value)}
-              placeholder="Type DELETE to confirm"
-              className="input flex-1"
-              aria-label="Type DELETE to confirm"
-            />
+          <div className="space-y-3">
+            <p className="text-xs leading-relaxed text-muted">
+              Removes every release and track from this library. Wishlist, saved finds,
+              followed artists, preferences and caches are kept.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input
+                value={deleteText}
+                onChange={(event) => setDeleteText(event.target.value)}
+                placeholder="Type DELETE to confirm"
+                className="input flex-1"
+                aria-label="Type DELETE to confirm"
+              />
+              <button
+                type="button"
+                onClick={() => clearLibrary.mutate()}
+                disabled={deleteText !== 'DELETE' || clearLibrary.isPending}
+                className="btn btn-danger shrink-0"
+              >
+                {clearLibrary.isPending ? 'Clearing…' : 'Clear library'}
+              </button>
+            </div>
             <button
               type="button"
-              onClick={() => clearLibrary.mutate()}
-              disabled={deleteText !== 'DELETE' || clearLibrary.isPending}
-              className="btn btn-danger shrink-0"
+              onClick={downloadBackup}
+              className="text-xs font-medium text-accent transition hover:text-accent-soft"
             >
-              {clearLibrary.isPending ? 'Clearing…' : 'Clear library'}
+              Download a backup first
             </button>
           </div>
         </Section>
+
+        <Section title="About">
+          <div className="flex items-start gap-4">
+            <LogoMark className="h-11 w-11 shrink-0 text-cream" />
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-display text-lg font-semibold text-cream">Sleeve</p>
+                <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[10px] font-medium tabular-nums text-muted">
+                  v{packageJson.version}
+                </span>
+              </div>
+              <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted">
+                A local-first catalog for your physical music collection. No account, no
+                analytics; backups are portable JSON files.
+              </p>
+            </div>
+          </div>
+
+          <dl className="mt-5 grid gap-4 border-t border-white/[0.06] pt-5 sm:grid-cols-3 lg:gap-8">
+            <div>
+              <dt className="text-[10px] font-semibold tracking-[0.16em] text-muted/60 uppercase">
+                Storage
+              </dt>
+              <dd className="mt-1 text-xs text-cream/80">Local SQLite database</dd>
+            </div>
+            <div>
+              <dt className="text-[10px] font-semibold tracking-[0.16em] text-muted/60 uppercase">
+                Metadata
+              </dt>
+              <dd className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-cream/80">
+                <a
+                  href="https://musicbrainz.org"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-accent transition hover:text-accent-soft"
+                >
+                  MusicBrainz
+                  <ArrowUpRight size={11} />
+                </a>
+                <span className="text-muted/50">+</span>
+                <a
+                  href="https://coverartarchive.org"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-accent transition hover:text-accent-soft"
+                >
+                  Cover Art Archive
+                  <ArrowUpRight size={11} />
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] font-semibold tracking-[0.16em] text-muted/60 uppercase">
+                Discovery
+              </dt>
+              <dd className="mt-1 text-xs text-cream/80">
+                <a
+                  href="https://listenbrainz.org"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-accent transition hover:text-accent-soft"
+                >
+                  ListenBrainz
+                  <ArrowUpRight size={11} />
+                </a>
+              </dd>
+            </div>
+          </dl>
+        </Section>
       </div>
       <ImportBackupDialog open={importOpen} onClose={() => setImportOpen(false)} />
+      <ResetPreferencesDialog
+        open={resetOpen}
+        pending={resetPreferences.isPending}
+        onClose={() => setResetOpen(false)}
+        onConfirm={() => resetPreferences.mutate()}
+      />
     </div>
   );
 }

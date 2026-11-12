@@ -148,7 +148,7 @@ export function ImportCsvPage() {
           Import · Discogs
         </p>
         <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-cream md:text-5xl">
-          Bring your shelf over.
+          Import from Discogs.
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
           Export your Discogs collection as a CSV, drop it here and Sleeve maps the

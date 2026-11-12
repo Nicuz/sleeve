@@ -61,13 +61,13 @@ export function ImportCsvPage() {
       setResult(data);
       queryClient.invalidateQueries();
       toast(
-        `Imported ${pluralize(data.importedReleases, 'release')} from CSV`,
+        `Imported ${pluralize(data.importedReleases, 'release')} from Discogs`,
         data.importedReleases > 0 ? 'success' : 'info',
       );
     },
     onError: (error) => {
       toast(
-        error instanceof ApiError ? error.message : 'Could not import the CSV',
+        error instanceof ApiError ? error.message : 'Could not import from Discogs',
         'error',
       );
     },
@@ -151,8 +151,8 @@ export function ImportCsvPage() {
           Bring your shelf over.
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
-          Choose a Discogs collection CSV, check the detected columns and map them to
-          Sleeve. You can review the first rows before importing.
+          Export your Discogs collection as a CSV, drop it here and Sleeve maps the
+          columns for you. Review the rows before importing.
         </p>
       </header>
 

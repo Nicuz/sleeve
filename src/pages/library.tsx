@@ -167,7 +167,7 @@ export function LibraryPage() {
             className="btn btn-secondary"
           >
             <Table2 size={15} />
-            Import CSV
+            Import from Discogs
           </Link>
           <Link to="/stats" className="btn btn-secondary">
             View insights

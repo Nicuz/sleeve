@@ -3,40 +3,42 @@
   Sleeve
 </h1>
 
-<p align="center"><strong>Every record you own, on one dust-free shelf.</strong></p>
+<p align="center"><strong>A shelf for the records you chose, and a slower way to decide what to play next.</strong></p>
+
+I started collecting CDs because I wanted to taste music again. I wanted to decide what to listen to based on how I feel, instead of letting shuffle decide for me. I also wanted to own what I really like.
+
+Sleeve is not a replacement for streaming. I still use streaming. This is another way to enjoy music, built around the records I chose.
+
+Sleeve keeps three things in one place: the records you own, the records you are looking for, and a small set of records worth checking next.
 
 <p align="center">
-  <a href="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml"><img src="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/Nicuz/sleeve/actions/workflows/pages.yml"><img src="https://github.com/Nicuz/sleeve/actions/workflows/pages.yml/badge.svg" alt="Docs" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
+  <img src="docs/public/screenshot.webp" width="660" alt="Sleeve library on desktop with album covers, formats and collection totals" />
+  <img src="docs/public/screenshot-mobile.webp" width="210" alt="Sleeve library on a phone with a two-column collection grid" />
 </p>
 
-Sleeve is a digital shelf for your CDs, vinyl and cassettes. Archive what you own, know exactly what is in the collection, and discover the next record through recommendations shaped by your purchases, wishlist and the artists you follow.
+## The shelf
 
-<p align="center"><strong><a href="https://nicuz.github.io/sleeve/">Read the docs →</a></strong></p>
+Every CD, record and cassette you own, with pressing, condition, rating, notes, purchase date, shop and price. Covers, labels, years and tracklists come from MusicBrainz. If your collection already lives on Discogs, import the CSV.
 
-<p align="center">
-  <img src="docs/public/screenshot.webp" width="660" alt="Sleeve library on desktop: collection grid with album covers, formats and listening stats" />
-  <img src="docs/public/screenshot-mobile.webp" width="210" alt="Sleeve library on a phone: two-column collection grid with format badges" />
-</p>
+## The wishlist
 
-## Features
+Your want list. Records you are looking for, with target prices and notes. Kept separate from the shelf and from Discover saves, so a record you want never counts as one you own.
 
-- **Bring your collection over** — import a Discogs CSV or add the first CD, record or cassette.
-- **Archive what you own** — pressing, condition, rating, notes and purchase history.
-- **Keep a wishlist** — target prices, separate from the shelf and from saved finds.
-- **Find the next record** — Discover picks shaped by what you own, rate, wishlist and follow.
-- **Read the collection** — formats, eras, genres, spending and records that need attention.
-- **Keep it yours** — local SQLite, portable JSON backups and an offline-capable app.
+## Discover
 
-## Look inside
+New releases from artists you follow, records by similar artists, and older albums that passed you by. Every card tells you why it appeared. Add it to your wishlist, save it for later, or add it to the shelf. Nothing moves until you choose.
 
-<p align="center">
-  <img src="docs/public/shelf-wishlist.webp" width="49%" alt="Sleeve wishlist with target prices and format badges" />
-  <img src="docs/public/shelf-insights.webp" width="49%" alt="Sleeve insights with collection stats, formats, eras and genres" />
-</p>
+## What it does not do
 
-## Quick start
+- It does not play music or replace streaming.
+- It does not show marketplace prices or estimate collection value.
+- It does not guarantee cover art for every pressing.
+- It does not have user accounts. One instance holds one collection.
+- It does not add records to your shelf or wishlist on its own.
+
+## Run it
+
+The fastest route is Docker:
 
 ```bash
 git clone https://github.com/Nicuz/sleeve.git
@@ -44,7 +46,7 @@ cd sleeve
 docker compose up -d --build
 ```
 
-Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume; back it up from **Settings → Backup & restore**. Update later with `git pull && docker compose up -d --build`.
+Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume. Back it up from **Settings → Backup & restore**. Update later with `git pull && docker compose up -d --build`.
 
 For login, ports, data layout and upgrades, see [Run on a server](https://nicuz.github.io/sleeve/guide/getting-started#run-it-on-a-server).
 
@@ -60,7 +62,13 @@ bun run db:deploy
 bun run dev        # http://localhost:5173
 ```
 
-Want demo data? Run `bun run sample`, then `DATABASE_URL="file:./sample.db" bun run dev`.
+Want demo data without touching your own database? Run `bun run sample`, then start against the sample database:
+
+```bash
+DATABASE_URL="file:./sample.db" bun run dev
+```
+
+`bun run seed` is the other demo path. It adds demo records to your development database instead of a separate file.
 
 Set a real contact in `MUSICBRAINZ_USER_AGENT` before heavy metadata use.
 
@@ -70,14 +78,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for checks, commit rules and conventions.
 
 ## Docs
 
-- [User guide](https://nicuz.github.io/sleeve/guide/getting-started) — install, add records, import Discogs, wishlist, Discover and backup.
-- [Run on a server](https://nicuz.github.io/sleeve/guide/getting-started#run-it-on-a-server) — Docker, optional login and upgrades.
-- [Development](https://nicuz.github.io/sleeve/development/) — architecture, API, data model, design, operations and local checks.
+- [User guide](https://nicuz.github.io/sleeve/guide/getting-started): install, add records, import Discogs, wishlist, Discover and backup.
+- [Run on a server](https://nicuz.github.io/sleeve/guide/getting-started#run-it-on-a-server): Docker, optional login and upgrades.
+- [Development](https://nicuz.github.io/sleeve/development/): architecture, API, data model, design, operations and local checks.
 - [Architecture](https://nicuz.github.io/sleeve/development/architecture) · [API](https://nicuz.github.io/sleeve/development/api)
-- [Contributing](https://nicuz.github.io/sleeve/development/contributing) — checks, commits and conventions.
+- [Contributing](https://nicuz.github.io/sleeve/development/contributing): checks, commits and conventions.
 
 Docs source lives in `docs/` and builds with VitePress. Local commands are in [Development](docs/development/index.md#docs-site).
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).

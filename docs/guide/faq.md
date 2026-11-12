@@ -5,6 +5,14 @@ description: Common questions about covers, metadata, imports, backups and the P
 
 # FAQ
 
+## Is Sleeve a streaming replacement?
+
+No. Keep streaming for convenience. Sleeve is for the records you own and choose, and for deciding what to play next on purpose.
+
+## Why does Discover suggest records if I decide what to play?
+
+Discover puts options in front of you. It does not play, add or buy anything. Widening the set of records you know about is the point. You still choose.
+
 ## Where is my data stored?
 
 - Docker: the `sleeve-data` volume, mounted at `/data`.
@@ -34,7 +42,7 @@ No. A manual release has no MusicBrainz ID to refresh. Use **Search match** to a
 
 ## Wishlist or saved find?
 
-- **Wishlist** means you intend to buy it.
+- **Wishlist** means you are looking for it and may buy it.
 - **Saved** means you bookmarked a Discover suggestion.
 
 They are separate on purpose. Saving a suggestion does not add it to the wishlist.
@@ -45,7 +53,7 @@ Expected. Discogs CSV files contain no MusicBrainz IDs or cover URLs. Import fir
 
 ## Discover looks the same for days
 
-The feed is cached and refreshed weekly. There is no manual refresh button. Adding releases, wishlist items or followed artists improves later builds but does not rebuild the current feed immediately.
+Picks are cached and refreshed weekly. There is no manual refresh button. Adding releases, wishlist items or followed artists improves later builds but does not rebuild the current picks immediately.
 
 ## The installed app shows an old version
 

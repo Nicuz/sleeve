@@ -100,7 +100,7 @@ Metadata application and matching:
 | `wishlist.ts` | Wishlist CRUD |
 | `follows.ts` | Followed artists list, follow/unfollow |
 | `settings.ts` | Library defaults read/update |
-| `discover.ts` | Genre-based suggestions |
+| `discover.ts` | Discover picks from library affinity and ListenBrainz |
 | `import.ts` | Merge-safe JSON import (releases, wishlist, saved, follows) |
 | `export.ts` | Full JSON backup (releases, tracks, wishlist, saved, follows, settings) |
 | `stats.ts` | Collection stats, spending stats, missing-metadata count |
@@ -196,7 +196,7 @@ Discover bookmarks live in `SavedSuggestion`, not Wishlist. Saving stores only r
 
 See [Discovery](discovery.md) for the full algorithm. Short version: `server/discovery.ts` composes a cached feed from four album-oriented sources:
 
-- **Release Radar** — top owned/wishlist/followed artists by weighted affinity. One MusicBrainz query batched across their artist IDs, last 30 days plus upcoming.
+- **From your artists** — top owned/wishlist/followed artists by weighted affinity. One MusicBrainz query batched across their artist IDs, last 30 days plus upcoming.
 - **New this week** — top 3 genres and similar artists, albums/EPs released in the last 7 days.
 - **New this month** — albums/EPs released 8–30 days ago.
 - **Lost in the Stacks** — all-time older albums/EPs from top genres and similar artists, rotated deterministically by month key.
@@ -208,7 +208,7 @@ Feed rules:
 - Caps: 8 per section, with artist, genre and era diversity limits.
 - Candidates are expanded with ListenBrainz similar artists seeded from top owned/wishlist artists.
 - Ranking combines library affinity (purchases, ratings, wishlist, saves, weak opens) with ListenBrainz artist and release-group listen/user counts. `releaseCount` is not used as a popularity proxy.
-- First available item becomes the lead pick and is removed from its section; similar-artist picks are preferred when Radar is empty.
+- First available item becomes the lead pick and is removed from its section; similar-artist picks are preferred when the From your artists section has no items.
 - Feed snapshots live in `DiscoveryFeed` for 7 days. Expired feeds are served stale while a background rebuild runs; there is no user-facing refresh button.
 - `?refresh=1` is a dev/internal override. Wishlist/saved changes shape the next weekly refresh; owning a record prunes only that item from the current feed.
 - Returned release-group IDs are stored in `DiscoverySeen` for 30 days and deprioritised on later generations.
@@ -237,7 +237,7 @@ Feed rules:
 | `/releases/:id` | Release detail, edit, refresh, enrich, manual match |
 | `/artists/:mbid` | Artist detail + paginated discography |
 | `/wishlist` | Wishlist |
-| `/discover` | Genre-based discovery |
+| `/discover` | Discover picks |
 | `/stats` | Collection + spending insights |
 | `/settings` | Appearance, defaults, data, metadata cache, about |
 | `/import/csv` | Lazy-loaded Discogs CSV mapping |

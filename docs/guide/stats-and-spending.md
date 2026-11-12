@@ -17,10 +17,10 @@ The overview reads the shape of the collection:
 
 - total releases, artists, tracks and genres
 - formats, eras and top genres
-- **Collection DNA** — top formats, decades and genres
+- **Collection DNA**: top formats, decades and genres
 - **By format** and **By decade** breakdowns
 - top artists and acquisition stats
-- **Needs attention** — records missing a genre, purchase data or metadata, with a link back to the filtered library
+- **Needs attention**: records missing a genre, purchase data or metadata, with a link back to the filtered library
 
 Select a format or decade row to open the matching library filter.
 

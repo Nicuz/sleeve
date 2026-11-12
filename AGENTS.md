@@ -55,7 +55,7 @@ After a Prisma schema change: create a migration with `bun run db:migrate`, appl
 - `server/search-query.ts` — turns parsed operators into Prisma filters for releases and wishlist.
 - `server/search-index.ts` — SQLite FTS5 lookup with `contains` fallback; `prisma/migrations/20261111190000_search_fts` creates the table and triggers.
 - `prisma/schema.prisma` — `Release`, `Track`, `WishlistItem`, `SavedSuggestion`, `ArtistFollow`, `AppSettings`, `MetadataCache`, `DiscoveryFeed`, `DiscoverySeen`, `DiscoveryEvent`.
-- `server/discovery.ts` — builds the cached Discover feed (Release Radar, New this week, New this month, Lost in the Stacks), expands candidates with similar artists, ranks with library affinity + ListenBrainz popularity and refreshes automatically.
+- `server/discovery.ts` — builds the cached Discover feed (From your artists, New this week, New this month, Lost in the Stacks), expands candidates with similar artists, ranks with library affinity + ListenBrainz popularity and refreshes automatically.
 - `server/listenbrainz.ts` — batched release-group and artist popularity plus similar-artist lookup, with in-memory caches and 1s request spacing.
 - `prisma/seed.ts` — demo data. Destructive only with `--reset`.
 

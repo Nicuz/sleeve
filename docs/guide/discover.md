@@ -1,21 +1,23 @@
 ---
 title: Discover
-description: Weekly recommendations built from your collection, wishlist and followed artists.
+description: Records worth checking next, built from your shelf, wishlist and followed artists.
 ---
 
 # Discover
 
-Discover suggests records worth hunting next. The feed is built from what you own, what is on your wishlist and which artists you follow.
+Discover suggests records you may not have searched for. It is there to widen what you know, keep up with artists you follow, and bring back older albums that passed you by.
 
-## Open the feed
+It is not a queue that plays itself. You decide what to open, save, wishlist or add to the shelf.
+
+## Open Discover
 
 Open **Discover** from the sidebar or the mobile nav. The page has three tabs:
 
-- **For you** — a lead pick plus sections such as Release Radar, New this week, New this month and Lost in the Stacks.
-- **Saved** — finds you bookmarked for later.
-- **Following** — artists you follow, with an artist search so you can follow someone new.
+- **Picks**: a lead pick plus sections such as From your artists, New this week, New this month and Lost in the Stacks.
+- **Saved**: finds you bookmarked for later.
+- **Following**: artists you follow, with an artist search so you can follow someone new.
 
-## Read a recommendation
+## Read a pick
 
 Each card opens a suggestion dialog with the cover, artist, year and the reason it was picked. Reasons look like:
 
@@ -24,19 +26,21 @@ Each card opens a suggestion dialog with the cover, artist, year and the reason 
 - Because … is on your wishlist
 - Similar to …
 
+The reason is there so you can judge the suggestion. Ignore anything that does not fit what you feel like listening to.
+
 ## Act on a suggestion
 
-- **Add to wishlist** — creates a buy-intent item.
-- **Save for later** — bookmarks it in Discover without touching the wishlist.
-- **I already own it — Add to library** — opens the edition picker prefilled for that release group.
+- **Add to wishlist** creates a record you are looking for.
+- **Save for later** bookmarks it in Discover without touching the wishlist.
+- **I already own it — Add to library** opens the edition picker prefilled for that release group.
 
-Opening a card silently records that you saw it. Records you already own are pruned from later feeds.
+Nothing is added to your shelf or wishlist automatically. Opening a card records that you saw it, and records you already own are removed from later picks.
 
 ## Refresh cadence
 
-The feed is cached and refreshed automatically. There is no manual refresh button. The page shows when it was updated and when the next refresh is due.
+Picks are cached and refreshed weekly. There is no manual refresh button. The page shows when it was updated and when the next refresh is due.
 
-Saving, wishlisting or following does not rebuild the current feed immediately. Owning a record removes only the matching item from the current feed.
+Saving, wishlisting or following does not rebuild the current picks immediately. Owning a record removes only that record from the current picks.
 
 ## Make it better
 
@@ -46,7 +50,7 @@ Discovery has more to work with when you:
 - keep a wishlist
 - follow artists you care about
 
-A fresh install can still follow artists from the **Following** tab and get genre-based picks.
+A fresh install can still follow artists from the **Following** tab and get picks from those artists.
 
 ## Following artists
 

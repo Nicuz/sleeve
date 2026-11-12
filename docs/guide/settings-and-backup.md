@@ -9,8 +9,8 @@ Open **Settings** from the header.
 
 ## Appearance
 
-- **Theme** — dark lounge or light reading view.
-- **Accent color** — amber, coral, moss, sky or lilac.
+- **Theme**: dark lounge or light reading view.
+- **Accent color**: amber, coral, moss, sky or lilac.
 
 Both apply instantly and are stored locally in the browser.
 
@@ -19,7 +19,7 @@ Both apply instantly and are stored locally in the browser.
 - default grid or list
 - default sort order
 
-These are starting values; changing filters on the library page overrides them for that view.
+These are starting values. Changing filters on the library page overrides them for that view.
 
 ## Library defaults
 
@@ -43,8 +43,8 @@ Manual entries and the add-release dialog use them.
 
 **Choose backup file** previews the contents before writing anything. Two modes:
 
-- **Add to my library** — merges, skips duplicates and keeps your current collection.
-- **Replace my library** — deletes the current releases, wishlist, saved finds and follows, then restores the file. Type `RESTORE` to confirm.
+- **Add to my library**: merges, skips duplicates and keeps your current collection.
+- **Replace my library**: deletes the current releases, wishlist, saved finds and follows, then restores the file. Type `RESTORE` to confirm.
 
 Every import writes a `pre-import-*.db` snapshot first. Exact database snapshots are restored from the CLI; see [Operations](../development/operations.md#backups).
 

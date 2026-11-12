@@ -38,6 +38,10 @@ The library shows a **records missing metadata** banner when a record has no Mus
 
 Metadata updates change covers, labels, IDs and tracklists. Your condition, rating, notes and purchase fields are preserved.
 
+## How long a metadata download takes
+
+MusicBrainz allows about one request every 1.2 seconds. A batch of 200 records takes at least four minutes, and longer when a record needs both a search and a detail lookup. Leave the page open while it runs.
+
 ## Remove or clear
 
 - Delete one release from its detail page.

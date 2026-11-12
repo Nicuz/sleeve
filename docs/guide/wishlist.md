@@ -5,9 +5,9 @@ description: Track the pressings you want, set target prices and move items into
 
 # Wishlist
 
-The wishlist is for records you want to buy. It is separate from the library and from Discover saves.
+The wishlist is your want list: records you are looking for and may buy. It is separate from the library and from Discover saves.
 
-## Add a want
+## Add a record
 
 1. Select **Add to wishlist**.
 2. Search by artist, album or barcode.
@@ -36,8 +36,8 @@ Leave the price empty when you have no target. The header shows the combined tar
 
 | Surface | Meaning |
 | --- | --- |
-| Wishlist | Buy intent. You plan to hunt this down. |
-| Saved finds | Discover bookmarks. You want to keep the suggestion around. |
+| Wishlist | A record you are looking for. You plan to hunt it down. |
+| Saved finds | A Discover suggestion you want to keep around. |
 
 Saving a Discover card does not add it to the wishlist. Use **Add to wishlist** in the suggestion dialog for that, or promote a saved find later.
 

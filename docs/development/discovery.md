@@ -12,7 +12,7 @@ Canonical reference for how Discover builds its feed. Read this before changing 
 - Source data: owned releases (including rating), wishlist, saved suggestions, followed artists, `DiscoverySeen`, `DiscoveryEvent`.
 - Metadata: MusicBrainz release groups and release-group tags.
 - Personalisation: library-weighted artist/genre affinity, ListenBrainz similar artists, ListenBrainz artist and release-group popularity.
-- Sections: Release Radar, New this week, New this month, Lost in the Stacks.
+- Sections: From your artists, New this week, New this month, Lost in the Stacks.
 - Feed is cached 7 days and refreshed automatically. There is no user-facing refresh button.
 - `GET /api/discover?refresh=1` forces a rebuild (dev/internal only).
 - Saving or wishlisting does not rebuild the current feed; those signals shape the next weekly refresh.
@@ -55,7 +55,7 @@ Derived values:
 - `artistAffinity`: rating-weighted purchases + wishlist/saved/follows + event signals, clamped to `[-4, 12]`.
 - `genreAffinity`: rating-weighted genre occurrence across owned releases.
 - `topGenres`: top 3 genres by weighted affinity.
-- `seedArtistIds`: followed artist MBIDs first, then remaining top positive artists, capped at 10. Used for Radar and similar-artist expansion.
+- `seedArtistIds`: followed artist MBIDs first, then remaining top positive artists, capped at 10. Used for the From your artists section and similar-artist expansion.
 - `ownedKeys`, `wishlistKeys`, `savedGroupIds`, `ownedArtistIds`, `ownedArtistNames`.
 
 ## Similar artists
@@ -79,7 +79,7 @@ This is the main candidate-quality improvement: Discover can now surface artists
 
 All MusicBrainz calls live in `server/musicbrainz.ts`.
 
-### Release Radar
+### From your artists
 
 Seeded by owned, wishlist and followed artists:
 
@@ -177,7 +177,7 @@ There is no `releaseCount` fallback: the number of editions is not demand.
 
 ## Ranking and selection
 
-### Release Radar / New this week / New this month
+### From your artists / New this week / New this month
 
 Per section, normalise affinity, popularity and freshness across the candidate pool:
 
@@ -222,7 +222,7 @@ Monthly deterministic blend:
 Priority:
 
 ```text
-Release Radar
+From your artists
 → first similar-artist item in New this week / New this month / Lost in the Stacks
 → first available item
 ```
@@ -329,8 +329,8 @@ Restarting the server alone does **not** clear the cached feed.
 
 `src/pages/discover.tsx`:
 
-- Tabs: `For you`, `Saved N` (`?view=saved`) and `Following N` (`?view=following`).
-- `For you` shows lead pick + sections.
+- Tabs: `Picks`, `Saved N` (`?view=saved`) and `Following N` (`?view=following`).
+- `Picks` shows lead pick + sections.
 - Cards open `SuggestionDialog`, not the Add release form.
 - Opening a card silently records a `DiscoveryEvent`.
 - Listen on ListenBrainz sits under the recommendation reason.

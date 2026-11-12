@@ -100,9 +100,9 @@ The CSV import page is loaded with `React.lazy` because Papa Parse and mapping U
 
 ## ADR-015 — Composed, cached Discovery feed
 
-**Status:** superseded by ADR-018
+**Status:** superseded by ADR-018 (section now called “From your artists”)
 
-Discover is not one random genre query. `server/discovery.ts` composes album-oriented feeds: Release Radar (last 30 days from owned artists), New this week (last 7 days across top genres), New this month (8–30 days), and Lost in the Stacks (all-time older picks rotated monthly). Candidates are ranked with ListenBrainz popularity where available; MusicBrainz `releaseCount` is the fallback proxy. The feed is cached for 12 hours in `DiscoveryFeed` and refreshed automatically; stale requests return the cache immediately while a background rebuild runs. There is no user-facing refresh button. `?refresh=1` remains a dev/internal override. Release, wishlist and saved mutations invalidate the cache. Shown release groups are recorded in `DiscoverySeen` for 30 days and deprioritised, then allowed again so sparse collections still get suggestions. Benefits: streaming-like cadence, stable page reloads, and no repeated manual refresh.
+Discover is not one random genre query. `server/discovery.ts` composes album-oriented feeds: From your artists (last 30 days from owned artists), New this week (last 7 days across top genres), New this month (8–30 days), and Lost in the Stacks (all-time older picks rotated monthly). Candidates are ranked with ListenBrainz popularity where available; MusicBrainz `releaseCount` is the fallback proxy. The feed is cached for 12 hours in `DiscoveryFeed` and refreshed automatically; stale requests return the cache immediately while a background rebuild runs. There is no user-facing refresh button. `?refresh=1` remains a dev/internal override. Release, wishlist and saved mutations invalidate the cache. Shown release groups are recorded in `DiscoverySeen` for 30 days and deprioritised, then allowed again so sparse collections still get suggestions. Benefits: streaming-like cadence, stable page reloads, and no repeated manual refresh.
 
 ## ADR-016 — Saved suggestions are separate from Wishlist
 
@@ -132,7 +132,7 @@ The feed TTL is 7 days, not 12 hours. A physical collection rewards slow browsin
 
 **Status:** accepted
 
-Discover needs explicit artist taste without forcing users to save an album they do not want or add a fake wishlist item. `ArtistFollow` stores one row per MusicBrainz artist and contributes a strong positive affinity signal; followed artists are prioritised as similar-artist and Release Radar seeds. It does not exclude the artist from Discover, create a saved item or imply buy intent. Follow is available on artist pages, release pages, wishlist search/edit dialogs and in the Discover suggestion dialog. The Discover `Following` tab makes the list visible and manageable without adding a new navigation destination, and includes direct MusicBrainz artist search so following works on a fresh install with an empty library. Benefits: a cleaner saved shelf, more accurate discovery input, and one clear meaning per action: rate owned records, want albums, save release groups, follow artists.
+Discover needs explicit artist taste without forcing users to save an album they do not want or add a fake wishlist item. `ArtistFollow` stores one row per MusicBrainz artist and contributes a strong positive affinity signal; followed artists are prioritised as similar-artist seeds and as seeds for the From your artists section. It does not exclude the artist from Discover, create a saved item or imply buy intent. Follow is available on artist pages, release pages, wishlist search/edit dialogs and in the Discover suggestion dialog. The Discover `Following` tab makes the list visible and manageable without adding a new navigation destination, and includes direct MusicBrainz artist search so following works on a fresh install with an empty library. Benefits: a cleaner saved shelf, more accurate discovery input, and one clear meaning per action: rate owned records, want albums, save release groups, follow artists.
 
 ## ADR-021 — Hybrid settings storage
 

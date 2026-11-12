@@ -5,7 +5,9 @@ description: Install Sleeve, open your library and add the first record.
 
 # Getting started
 
-Sleeve is a digital shelf for your CDs, vinyl and cassettes. It runs on your machine or server, keeps the collection in one local database and has no accounts or telemetry.
+Sleeve is a catalog for a physical collection. It does not play music and it does not replace streaming. You add the records you own, Sleeve fetches covers and tracklists from MusicBrainz, and everything stays in one local SQLite database.
+
+There are no user accounts and no telemetry. One instance holds one collection.
 
 ## Run it
 
@@ -43,7 +45,7 @@ Start with the Docker command above. For a long-running server:
    Pending migrations run on startup.
 3. Download a backup from **Settings → Backup & restore** after upgrades and before risky changes.
 
-Environment variables, Docker details and hardening live in [Operations](../development/operations.md#production).
+Basic auth protects an exposed instance. It does not add user accounts or separate libraries. Environment variables, Docker details and hardening live in [Operations](../development/operations.md#production).
 
 ## Add your first record
 
@@ -67,13 +69,13 @@ Discogs rows have no MusicBrainz IDs or covers. Run the metadata download afterw
 
 See [Importing from Discogs](importing-discogs.md).
 
-## Find your way around
+## The three parts
 
-- **Library** — filters, search, grid/list view and missing-metadata review.
-- **Discover** — weekly recommendations from your collection, wishlist and followed artists.
-- **Wishlist** — records you want to buy, with optional target prices.
-- **Insights** — formats, eras, genres and spending.
-- **Settings** — theme, defaults, backups, caches and the danger zone.
+- [Library](library-and-search.md): every record you own, with filters, search and a review list for incomplete metadata.
+- [Wishlist](wishlist.md): the records you are looking for, with optional target prices.
+- [Discover](discover.md): records worth checking next, built from your shelf, your wishlist and the artists you follow.
+
+Insights, settings, imports and backups are linked from the app when you need them.
 
 ## Protect your data
 

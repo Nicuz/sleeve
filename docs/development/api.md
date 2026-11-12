@@ -424,11 +424,11 @@ Idempotent. Returns `{ "ok": true }` even if the artist was not followed.
 
 Builds a personalised feed from the user’s collection:
 
-- **Release Radar** — new albums/EPs from top owned/wishlist/followed artists, last 30 days plus upcoming.
+- **From your artists** — new albums/EPs from top owned/wishlist/followed artists, last 30 days plus upcoming.
 - **New this week** — recent or upcoming albums/EPs from top genres and similar artists.
 - **New this month** — albums/EPs released 8–30 days ago from top genres and similar artists.
 - **Lost in the Stacks** — all-time older picks from top genres and similar artists, rotated deterministically once per month.
-- **Lead pick** — first Radar item, else first similar-artist pick, else first available item.
+- **Lead pick** — first item in **From your artists**, else first similar-artist pick, else first available item.
 
 Candidates are expanded with ListenBrainz similar artists and ranked with library-weighted artist/genre affinity plus ListenBrainz popularity. The feed is cached for 7 days and refreshed automatically; `?refresh=1` is an internal/dev override.
 

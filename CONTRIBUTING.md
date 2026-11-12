@@ -17,7 +17,7 @@ bun run dev
 - API: http://localhost:3001
 - DB: `prisma/dev.db` (ignored by git)
 
-Optional demo library: `bun run seed`.
+Optional demo library: `bun run seed` adds demo records to your development database. For an isolated demo database, use `bun run sample` and start against `sample.db`.
 
 ## Verify a change
 

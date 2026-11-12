@@ -5,21 +5,21 @@ description: Filter, search, sort and review your collection.
 
 # Library and search
 
-The library is the home page. It shows collection totals, a shelf shuffle shortcut and every record you own.
+The library is the home page. It lists every record you own, with collection totals above the grid.
 
 ## Filter the shelf
 
 Use the controls above the grid:
 
-- **Format** — CD, Vinyl, Cassette, Digital or Other.
-- **Genre** — genres present in your collection.
-- **Decade** — release decade.
-- **Review** — missing genre, missing price/date or missing metadata.
-- **Sort** — recently added, title, artist, year or rating.
+- **Format**: CD, Vinyl, Cassette, Digital or Other.
+- **Genre**: genres present in your collection.
+- **Decade**: release decade.
+- **Review**: missing genre, missing price or date, or missing metadata.
+- **Sort**: recently added, title, artist, year or rating.
 
 Switch between grid and list with the view buttons. Filter, sort and view are kept in the URL, so the current shelf can be bookmarked or shared.
 
-Select **Pick a shuffle album** when you cannot decide what to play.
+Select **Pick a record** when you cannot decide what to play. Sleeve picks one record from your shelf at random. It does not autoplay and it does not learn from you. Ignore it if it does not fit your mood.
 
 ## Search everything
 
@@ -27,10 +27,10 @@ Select the search field or press <kbd>Ctrl</kbd>+<kbd>K</kbd> (<kbd>Cmd</kbd>+<k
 
 Scopes:
 
-- **All** — library, wishlist and artists.
-- **Library** — owned releases only.
-- **Wishlist** — buy-intent items only.
-- **Artists** — MusicBrainz artists.
+- **All**: library, wishlist and artists.
+- **Library**: owned releases only.
+- **Wishlist**: records you are looking for.
+- **Artists**: MusicBrainz artists.
 
 Recent searches are remembered locally. Clear them from the search panel.
 
@@ -54,5 +54,7 @@ Quote multi-word values. Multiple operators combine as AND.
 ## Missing metadata
 
 When records lack a MusicBrainz ID, cover or track count, the library shows a review banner. Use **Download metadata** for conservative automatic matching, or open a release and choose **Search match**.
+
+Automatic matching skips uncertain records rather than attaching the wrong album. A missing cover is often a Cover Art Archive gap. Try another edition before assuming the match is wrong.
 
 See [Adding releases](adding-releases.md#fix-missing-metadata).

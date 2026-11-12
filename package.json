@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/Nicuz/sleeve",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nicuz/sleeve.git"
+  },
   "scripts": {
     "dev": "concurrently -n api,web -c yellow,cyan \"bun --watch server/index.ts\" \"vite\"",
     "dev:api": "bun --watch server/index.ts",

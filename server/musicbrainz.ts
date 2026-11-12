@@ -1,10 +1,10 @@
+import { env } from './config';
 import { prisma } from './db';
 
 const MB_BASE = 'https://musicbrainz.org/ws/2';
 const CAA_BASE = 'https://coverartarchive.org/release';
 const CAA_RELEASE_GROUP_BASE = 'https://coverartarchive.org/release-group';
-const USER_AGENT =
-  process.env.MUSICBRAINZ_USER_AGENT ?? 'Sleeve/0.1 ( https://github.com/local/sleeve )';
+const USER_AGENT = env.userAgent;
 const MIN_INTERVAL_MS = 1200;
 
 type Credit = {

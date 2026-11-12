@@ -1,6 +1,7 @@
 import { join, resolve } from 'node:path';
+import pkg from '../package.json';
 
-const DEFAULT_USER_AGENT = 'Sleeve/0.1 ( https://github.com/local/sleeve )';
+const DEFAULT_USER_AGENT = `${pkg.name}/${pkg.version} ( ${pkg.homepage} )`;
 
 function readPort(value: string | undefined, fallback: number): number {
   if (!value) return fallback;
@@ -24,12 +25,7 @@ if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL is required. Copy .env.example to .env.');
 }
 
-const userAgent = process.env.MUSICBRAINZ_USER_AGENT ?? DEFAULT_USER_AGENT;
-if (userAgent === DEFAULT_USER_AGENT) {
-  console.warn(
-    '[config] MUSICBRAINZ_USER_AGENT is using the placeholder. Set a real contact before heavy use.',
-  );
-}
+const userAgent = process.env.MUSICBRAINZ_USER_AGENT?.trim() || DEFAULT_USER_AGENT;
 
 const dataDir = resolve(process.env.DATA_DIR ?? join(process.cwd(), 'data'));
 

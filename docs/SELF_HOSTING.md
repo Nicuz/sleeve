@@ -19,7 +19,8 @@ The compose file binds to localhost only and stores everything in the `sleeve-da
 /data/backups/       internal pre-import snapshots
 ```
 
-Set a real contact so MusicBrainz can reach you:
+The default user agent points to the project URL, which is enough contact for
+normal use. Add your email if you plan to fetch a lot of metadata:
 
 ```env
 MUSICBRAINZ_USER_AGENT="Sleeve self-hosted (you@example.com)"
@@ -50,7 +51,7 @@ bun run start
 | `AUTO_MIGRATE` | `true` | Run migrations on production startup |
 | `SLEEVE_AUTH_USER` | unset | Optional HTTP Basic auth user |
 | `SLEEVE_AUTH_PASSWORD` | unset | Optional HTTP Basic auth password |
-| `MUSICBRAINZ_USER_AGENT` | placeholder | Required contact for heavy use |
+| `MUSICBRAINZ_USER_AGENT` | project URL | Contact for MusicBrainz requests |
 
 Set both auth variables together to enable Basic auth. Leave both empty for a LAN/local install.
 

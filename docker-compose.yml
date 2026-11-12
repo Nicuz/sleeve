@@ -13,7 +13,7 @@ services:
       PORT: "3001"
       DATA_DIR: /data
       DATABASE_URL: file:/data/sleeve.db
-      MUSICBRAINZ_USER_AGENT: ${MUSICBRAINZ_USER_AGENT:-Sleeve/0.1 ( https://github.com/Nicuz/sleeve )}
+      MUSICBRAINZ_USER_AGENT: ${MUSICBRAINZ_USER_AGENT:-}
       SLEEVE_AUTH_USER: ${SLEEVE_AUTH_USER:-}
       SLEEVE_AUTH_PASSWORD: ${SLEEVE_AUTH_PASSWORD:-}
     volumes:

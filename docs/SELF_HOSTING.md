@@ -51,9 +51,34 @@ bun run start
 | `AUTO_MIGRATE` | `true` | Run migrations on production startup |
 | `SLEEVE_AUTH_USER` | unset | Optional HTTP Basic auth user |
 | `SLEEVE_AUTH_PASSWORD` | unset | Optional HTTP Basic auth password |
+| `SLEEVE_AUTH_USER_FILE` | unset | Read the auth user from a file |
+| `SLEEVE_AUTH_PASSWORD_FILE` | unset | Read the auth password from a file |
 | `MUSICBRAINZ_USER_AGENT` | project URL | Contact for MusicBrainz requests |
 
-Set both auth variables together to enable Basic auth. Leave both empty for a LAN/local install.
+Set both auth variables together to enable Basic auth; leave both empty for a LAN install. They are read at startup, so restart after changing them.
+
+### Auth secrets in files
+
+Plain environment variables are visible to `docker inspect` and in `/proc`. To keep credentials out, point the `_FILE` variants at files instead — they win over the plain variables:
+
+```yaml
+services:
+  sleeve:
+    secrets:
+      - sleeve_auth_user
+      - sleeve_auth_password
+    environment:
+      SLEEVE_AUTH_USER_FILE: /run/secrets/sleeve_auth_user
+      SLEEVE_AUTH_PASSWORD_FILE: /run/secrets/sleeve_auth_password
+
+secrets:
+  sleeve_auth_user:
+    file: ./secrets/auth_user
+  sleeve_auth_password:
+    file: ./secrets/auth_password
+```
+
+Keep `secrets/` out of git and readable only by you (`chmod 600`). A trailing newline is fine.
 
 Container checks:
 

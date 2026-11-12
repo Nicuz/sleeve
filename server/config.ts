@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import pkg from '../package.json';
 
@@ -29,10 +30,26 @@ const userAgent = process.env.MUSICBRAINZ_USER_AGENT?.trim() || DEFAULT_USER_AGE
 
 const dataDir = resolve(process.env.DATA_DIR ?? join(process.cwd(), 'data'));
 
-const authUser = process.env.SLEEVE_AUTH_USER;
-const authPassword = process.env.SLEEVE_AUTH_PASSWORD;
+function readSecret(name: string): string | undefined {
+  const filePath = process.env[`${name}_FILE`];
+  if (filePath) {
+    try {
+      return readFileSync(filePath, 'utf8')
+        .replace(/\r?\n$/, '')
+        .trim();
+    } catch {
+      throw new Error(`Could not read ${name}_FILE at "${filePath}".`);
+    }
+  }
+  return process.env[name]?.trim() || undefined;
+}
+
+const authUser = readSecret('SLEEVE_AUTH_USER');
+const authPassword = readSecret('SLEEVE_AUTH_PASSWORD');
 if (Boolean(authUser) !== Boolean(authPassword)) {
-  throw new Error('SLEEVE_AUTH_USER and SLEEVE_AUTH_PASSWORD must be set together.');
+  throw new Error(
+    'Set both SLEEVE_AUTH_USER and SLEEVE_AUTH_PASSWORD, or both _FILE variants.',
+  );
 }
 
 export const env = {

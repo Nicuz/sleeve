@@ -1,3 +1,8 @@
+---
+title: Architecture
+description: Runtime modes, backend modules, request flows and frontend structure.
+---
+
 # Architecture
 
 ## Overview
@@ -47,7 +52,7 @@ The only module allowed to call MusicBrainz or Cover Art Archive APIs.
 
 Responsibilities:
 
-- Fixed `User-Agent`.
+- Fixed the MusicBrainz contact header.
 - Global serialized request chain with at least 1.2s between requests.
 - Retries for transient `503`, then a 30s global cooldown.
 - Persistent cache in SQLite `MetadataCache`.
@@ -189,7 +194,7 @@ Discover bookmarks live in `SavedSuggestion`, not Wishlist. Saving stores only r
 
 ### Discovery
 
-See `docs/DISCOVERY.md` for the full algorithm. Short version: `server/discovery.ts` composes a cached feed from four album-oriented sources:
+See [Discovery](discovery.md) for the full algorithm. Short version: `server/discovery.ts` composes a cached feed from four album-oriented sources:
 
 - **Release Radar** — top owned/wishlist/followed artists by weighted affinity. One MusicBrainz query batched across their artist IDs, last 30 days plus upcoming.
 - **New this week** — top 3 genres and similar artists, albums/EPs released in the last 7 days.
@@ -246,7 +251,7 @@ Feed rules:
 - Wishlist add/edit dialogs and metadata dialogs are local component state.
 - Toasts have a small custom provider.
 
-Visual language and component patterns are documented in [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
+Visual language and component patterns are documented in [Design system](design-system.md).
 
 ### Filtering and defaults
 

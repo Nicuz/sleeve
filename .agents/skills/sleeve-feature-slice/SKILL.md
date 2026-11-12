@@ -44,10 +44,10 @@ Read `AGENTS.md` first. Classify the change, then follow the matching path in `r
 
 | Change | Update |
 | --- | --- |
-| Schema, fields, invariants | `docs/DATA_MODEL.md` |
-| Endpoint or payload | `docs/API.md` |
-| Flow or module layout | `docs/ARCHITECTURE.md` |
-| UI rule or pattern | `docs/DESIGN_SYSTEM.md` |
-| Discover behavior | `docs/DISCOVERY.md` |
-| Command, env or ops | `docs/OPERATIONS.md` |
-| Why, not what | `docs/DECISIONS.md` |
+| Schema, fields, invariants | `docs/development/data-model.md` |
+| Endpoint or payload | `docs/development/api.md` |
+| Flow or module layout | `docs/development/architecture.md` |
+| UI rule or pattern | `docs/development/design-system.md` |
+| Discover behavior | `docs/development/discovery.md` |
+| Command, env or ops | `docs/development/operations.md` |
+| Why, not what | `docs/development/decisions.md` |

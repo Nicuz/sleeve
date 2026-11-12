@@ -1,6 +1,8 @@
 # Contributing
 
-Sleeve is a personal Bun + React music collection app. Keep changes small, typed and easy to review.
+Sleeve is a personal Bun + React app. Keep changes small, typed and easy to review.
+
+> Delegating a change? Require this workflow and a short report: commands run, feature tested, and any remaining risk. You do not need to run commands yourself.
 
 ## Setup
 
@@ -8,133 +10,91 @@ Sleeve is a personal Bun + React music collection app. Keep changes small, typed
 bun install
 cp .env.example .env   # if .env is missing
 bun run db:deploy
-bun run seed           # optional demo library
 bun run dev
 ```
 
 - UI: http://localhost:5173
 - API: http://localhost:3001
-- DB: SQLite at `prisma/dev.db` (ignored by git)
+- DB: `prisma/dev.db` (ignored by git)
 
-## Before every commit
+Optional demo library: `bun run seed`.
+
+## Verify a change
+
+A change is done when the automated checks pass and the changed feature has been exercised in the app.
+
+### 1. Automated checks
 
 ```bash
-bun run check          # typecheck + lint + tests + production build
+bun run check
 ```
 
-Test the touched flow manually. Use `scripts/temp-db.sh <command>` so manual testing never writes to `prisma/dev.db`. For UI changes, check desktop and mobile widths.
+This runs typecheck, Biome, tests and the production build.
 
-## Branches
+### 2. Manual check on a disposable database
 
-Keep `main` working.
-
-```text
-feat/short-description
-fix/short-description
-refactor/short-description
-docs/short-description
-chore/short-description
+```bash
+scripts/temp-db.sh bun server/index.ts
 ```
 
-## Commits: Conventional Commits
+`temp-db.sh` creates a temporary SQLite database, points `DATA_DIR` and `BACKUP_DIR` at a temporary folder, runs the command, and deletes everything on exit.
 
-Format:
+1. Open http://localhost:3099.
+2. Click through the changed feature. Add a test record if needed.
+3. Check desktop and mobile widths for UI changes.
+4. Stop the server with `Ctrl+C`.
+5. Run `bun run docs:build` if docs changed.
+
+Never run manual tests against `prisma/dev.db`; that file is the real collection.
+
+## Commits
+
+Keep `main` working. One logical change per commit. Use Conventional Commits:
 
 ```text
 <type>(<scope>): <summary>
-
-<optional body>
-
-<optional footer>
 ```
 
-### Types
-
-| Type | Use |
-| --- | --- |
-| `feat` | new user-facing capability |
-| `fix` | bug fix |
-| `refactor` | code change without behaviour change |
-| `perf` | performance improvement |
-| `docs` | documentation only |
-| `test` | tests only |
-| `build` | dependencies, bundling, tooling |
-| `ci` | CI/CD configuration |
-| `chore` | maintenance with no product effect |
-| `style` | formatting only, no logic change |
-| `revert` | revert a previous commit |
-
-### Scopes
-
-Use a short area name: `web`, `api`, `db`, `mb`, `ui`, `stats`, `deps`, `docs`.
-
-### Rules
-
-- Imperative, lowercase summary: `add release page`, not `added release page`.
-- No trailing period. Keep the summary at or below 72 characters.
-- One logical change per commit. Do not mix refactors with features or fixes.
-- Commit a working state: `bun run check` must pass.
-- Explain **why** in the body when the change is not obvious.
-- Reference issues/PRs in the footer: `Refs #12` or `Closes #12`.
-- Mark breaking changes: `BREAKING CHANGE: ...`.
-- Never commit `.env`, `prisma/dev.db`, `node_modules`, `dist`, secrets or tokens.
-- Do not rewrite shared history or force-push.
-
-### Examples
+Common types: `feat`, `fix`, `refactor`, `perf`, `docs`, `test`, `build`, `ci`, `chore`.
 
 ```text
 feat(web): add dedicated release page
 
 Replace the release drawer with a /releases/:id route so records
-can be linked, opened in a new tab and read as a full page.
+can be linked and opened in a new tab.
 
 Closes #14
 ```
 
-```text
-fix(mb): retry rate-limited MusicBrainz requests
+Rules:
 
-Retry 503 responses twice with backoff before surfacing an error.
-```
+- Imperative, lowercase summary, no trailing period, max 72 characters.
+- Commit a working state.
+- Explain **why** in the body when it is not obvious.
+- Never commit `.env`, `prisma/dev.db`, `data/`, `dist/` or secrets.
+- Do not rewrite shared history or force-push.
 
-```text
-refactor(api): extract release payload validation
-```
-
-## Pull-request / change checklist
-
-- Scope is small and focused.
-- `bun run check` passes.
-- New API input is validated with Zod.
-- New UI has loading, empty and error states.
-- Desktop + mobile checked.
-- Screenshots included for visible UI changes.
-- Prisma schema changes include a migration (`bun run db:migrate`) and `bun run db:deploy` verification. `bun run db:push` is only for throwaway databases; it skips the FTS triggers.
-- No secrets, local database files or build output committed.
-
-## Code conventions
+## Code
 
 - TypeScript strict. Avoid `any`; justify casts.
-- Follow existing structure: pages in `src/pages`, UI in `src/components`, API routes in `server/routes`.
-- Keep server routes thin; shared logic in `server/*.ts`.
-- All MusicBrainz requests go through `server/musicbrainz.ts` (rate limit + user agent).
-- Store genres comma-separated; order tracks by disc/number.
-- Use Tailwind theme tokens from `src/index.css`; avoid new hard-coded palettes.
-- Add accessible names (`aria-label`) to icon-only controls.
-- Do not add comments unless they explain non-obvious intent.
-- Keep the MusicBrainz `musicbrainzId` unique; manual entries may omit it.
+- Pages in `src/pages`, UI in `src/components`, routes in `server/routes`.
+- Keep routes thin; shared logic in `server/*.ts`.
+- All MusicBrainz calls go through `server/musicbrainz.ts`.
+- Preserve user-owned fields on metadata updates: condition, rating, notes and purchase details.
+- Store genres comma-separated; order tracks by disc, number, position.
+- Use theme tokens from `src/index.css`; no new hard-coded palettes.
+- Add `aria-label` to icon-only controls.
+- Schema changes need a migration (`bun run db:migrate`) and `bun run db:deploy`.
+- Avoid comments unless they explain non-obvious intent.
 
-## Documentation map
+## Docs
 
-- `AGENTS.md` — instructions for all coding agents
-- `.agents/skills/` — portable procedural skills for OpenCode, Codex and Claude Code
-- `README.md` — setup, features, scripts
-- `docs/ARCHITECTURE.md` — runtime, modules, flows
-- `docs/DESIGN_SYSTEM.md` — colors, typography, components, UI rules
-- `docs/API.md` — endpoints and payloads
-- `docs/DATA_MODEL.md` — Prisma models, invariants, import/export
-- `docs/OPERATIONS.md` — backups, caches, troubleshooting
-- `docs/ROADMAP.md` — done, next, deferred
-- `docs/DECISIONS.md` — architectural decisions
+| File | Purpose |
+| --- | --- |
+| `AGENTS.md` | project rules and invariants |
+| `.agents/skills/` | portable project procedures |
+| `docs/guide/` | user guide, including server steps |
+| `docs/development/` | architecture, API, data model, design, operations, decisions |
+| `README.md` | setup and feature overview |
 
-Update the relevant docs when changing schema, API contracts, commands or architecture.
+Update the matching doc when schema, API, commands or architecture change.

@@ -42,7 +42,7 @@ Store the Cover Art Archive URL in the DB, but render it through `CoverArt` / `/
 
 ## Discover
 
-Discover uses the service for release-group and artist lookups, plus `server/listenbrainz.ts` for popularity and similar artists. Read `docs/DISCOVERY.md` before changing queries, ranking, cache or refresh behavior.
+Discover uses the service for release-group and artist lookups, plus `server/listenbrainz.ts` for popularity and similar artists. Read `docs/development/discovery.md` before changing queries, ranking, cache or refresh behavior.
 
 ## Tests
 

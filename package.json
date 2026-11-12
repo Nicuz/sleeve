@@ -30,7 +30,10 @@
     "restore": "bun scripts/restore.ts",
     "test": "bun test",
     "test:docker": "bash scripts/test-docker.sh",
-    "sample": "bun scripts/sample-data.ts"
+    "sample": "bun scripts/sample-data.ts",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
@@ -61,6 +64,7 @@
     "happy-dom": "^21.0.4",
     "tailwindcss": "^4.3.5",
     "typescript": "5.9.3",
-    "vite": "^8.3.7"
+    "vite": "^8.3.7",
+    "vitepress": "^1.6.4"
   }
 }

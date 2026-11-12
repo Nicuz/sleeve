@@ -1,3 +1,8 @@
+---
+title: Decisions
+description: Architectural decision records and the reasoning behind Sleeve's design.
+---
+
 # Architectural decisions
 
 Short decision records for future sessions. Each captures the current choice and why.
@@ -18,7 +23,7 @@ The UI is a client-rendered SPA with React Router and TanStack Query. Tailwind v
 
 **Status:** accepted
 
-The user’s real collection lives locally in `prisma/dev.db`. Single-user/no-auth keeps the MVP simple. `db push` is used instead of migrations for fast iteration. Revisit migrations before multi-instance deployment; add auth only if multi-device/multi-user sync becomes a requirement.
+The user’s real collection lives locally in `prisma/dev.db`. Single-user/no-auth keeps the MVP simple. **Update:** the project now ships migrations (ADR-022), and `bun run db:deploy` is required for schema changes including the FTS search index. Revisit auth only if multi-device/multi-user sync becomes a requirement.
 
 ## ADR-004 — Owned data vs metadata cache
 
@@ -99,12 +104,6 @@ The CSV import page is loaded with `React.lazy` because Papa Parse and mapping U
 
 Discover is not one random genre query. `server/discovery.ts` composes album-oriented feeds: Release Radar (last 30 days from owned artists), New this week (last 7 days across top genres), New this month (8–30 days), and Lost in the Stacks (all-time older picks rotated monthly). Candidates are ranked with ListenBrainz popularity where available; MusicBrainz `releaseCount` is the fallback proxy. The feed is cached for 12 hours in `DiscoveryFeed` and refreshed automatically; stale requests return the cache immediately while a background rebuild runs. There is no user-facing refresh button. `?refresh=1` remains a dev/internal override. Release, wishlist and saved mutations invalidate the cache. Shown release groups are recorded in `DiscoverySeen` for 30 days and deprioritised, then allowed again so sparse collections still get suggestions. Benefits: streaming-like cadence, stable page reloads, and no repeated manual refresh.
 
-## ADR-018 — Library-first affinity with zero extra interactions
-
-**Status:** accepted
-
-Discover quality is improved without adding prompts: purchases, ratings, wishlist items and saved suggestions form the affinity model, while opening a card or removing a saved suggestion is logged silently in `DiscoveryEvent`. Top owned/wishlist artists seed ListenBrainz similar-artist expansion, which adds candidates outside the owned-artist and top-tag pool. Ranking combines artist/genre affinity with ListenBrainz artist and release-group popularity; `releaseCount` is no longer used because it measures editions, not demand. Genre/era caps and a deterministic exploration weight keep sparse signals from collapsing into a filter bubble. Feed payloads carry a `version` so algorithm changes invalidate immediately. Benefits: better relevance with zero new user actions and no manual refresh.
-
 ## ADR-016 — Saved suggestions are separate from Wishlist
 
 **Status:** accepted
@@ -117,17 +116,17 @@ Saved suggestions are a pre-decision queue (“listen and decide later”), not 
 
 Clicking a Discover card opens a suggestion dialog, not the Add release dialog. The recommendation reason is followed by **Listen on ListenBrainz**; the action row offers **Add to wishlist**, **Save for later** and **I already own it — Add to library**. Listening links to the ListenBrainz release-group page in a new tab; it is not an embedded player and playback depends on the user's connected music service. “I already own it — Add to library” opens the existing edition picker prefilled with the release group, because a physical release still needs a specific edition, format and condition. Benefits: Discover stays focused on decisions, and collection data is only created through the explicit edition flow.
 
-## ADR-022 — JSON replace restore, CLI exact snapshots
+## ADR-018 — Library-first affinity with zero extra interactions
 
 **Status:** accepted
 
-In-app restore uses a full JSON backup inside one transaction, not a live SQLite file swap. Replace mode clears releases, wishlist, saved, follows, library defaults and discovery state, then restores the backup, preserving `createdAt`. Every import creates a `pre-import-*.db` snapshot first and aborts if that snapshot fails; the last 5 are kept. Snapshots are internal rollback files, not a user-facing feature. JSON is the only visible backup/restore path, which also works cleanly in Docker because browser download/upload crosses the container boundary. Exact database restoration remains a CLI command (`bun run restore`, or `docker compose run` in Docker) because swapping the SQLite file under an active Prisma connection is unsafe. Benefits: safe one-click restore, no binary snapshot management in Settings, and no risk of corrupting a live database.
+Discover quality is improved without adding prompts: purchases, ratings, wishlist items and saved suggestions form the affinity model, while opening a card or removing a saved suggestion is logged silently in `DiscoveryEvent`. Top owned/wishlist artists seed ListenBrainz similar-artist expansion, which adds candidates outside the owned-artist and top-tag pool. Ranking combines artist/genre affinity with ListenBrainz artist and release-group popularity; `releaseCount` is no longer used because it measures editions, not demand. Genre/era caps and a deterministic exploration weight keep sparse signals from collapsing into a filter bubble. Feed payloads carry a `version` so algorithm changes invalidate immediately. Benefits: better relevance with zero new user actions and no manual refresh.
 
-## ADR-021 — Hybrid settings storage
+## ADR-019 — Weekly, stable Discover cadence for a physical collection
 
 **Status:** accepted
 
-Theme, accent, default view and sort stay in browser `localStorage`; default format, condition and currency move to SQLite `AppSettings`. The first group is device-specific and must apply before first paint, so synchronous local storage avoids a theme flash and keeps UI preferences personal to each browser. The second group is collection-level data: it should survive browser storage loss, apply across devices and be included in JSON backups. The app merges both sources in `SettingsProvider`. Benefits: fast, flicker-free UI boot plus portable data-entry defaults, without turning every visual preference into a server round trip.
+The feed TTL is 7 days, not 12 hours. A physical collection rewards slow browsing, and the weekly release cycle is the natural refresh unit; Lost in the Stacks still rotates monthly. The current shelf is also treated as stable: wishlist/save changes influence the next weekly rebuild but do not replace what is on screen, and owning a record prunes only the matching item from the cached payload. This avoids reshuffling picks while the user is deciding what to hunt down, while still removing a record immediately after they add it to the library. Benefits: fewer disruptive changes, longer usable shelves, and a cadence that matches listening to records rather than streaming.
 
 ## ADR-020 — Artist follow separates taste from acquisition
 
@@ -135,8 +134,14 @@ Theme, accent, default view and sort stay in browser `localStorage`; default for
 
 Discover needs explicit artist taste without forcing users to save an album they do not want or add a fake wishlist item. `ArtistFollow` stores one row per MusicBrainz artist and contributes a strong positive affinity signal; followed artists are prioritised as similar-artist and Release Radar seeds. It does not exclude the artist from Discover, create a saved item or imply buy intent. Follow is available on artist pages, release pages, wishlist search/edit dialogs and in the Discover suggestion dialog. The Discover `Following` tab makes the list visible and manageable without adding a new navigation destination, and includes direct MusicBrainz artist search so following works on a fresh install with an empty library. Benefits: a cleaner saved shelf, more accurate discovery input, and one clear meaning per action: rate owned records, want albums, save release groups, follow artists.
 
-## ADR-019 — Weekly, stable Discover cadence for a physical collection
+## ADR-021 — Hybrid settings storage
 
 **Status:** accepted
 
-The feed TTL is 7 days, not 12 hours. A physical collection rewards slow browsing, and the weekly release cycle is the natural refresh unit; Lost in the Stacks still rotates monthly. The current shelf is also treated as stable: wishlist/save changes influence the next weekly rebuild but do not replace what is on screen, and owning a record prunes only the matching item from the cached payload. This avoids reshuffling picks while the user is deciding what to hunt down, while still removing a record immediately after they add it to the library. Benefits: fewer disruptive changes, longer usable shelves, and a cadence that matches listening to records rather than streaming.
+Theme, accent, default view and sort stay in browser `localStorage`; default format, condition and currency move to SQLite `AppSettings`. The first group is device-specific and must apply before first paint, so synchronous local storage avoids a theme flash and keeps UI preferences personal to each browser. The second group is collection-level data: it should survive browser storage loss, apply across devices and be included in JSON backups. The app merges both sources in `SettingsProvider`. Benefits: fast, flicker-free UI boot plus portable data-entry defaults, without turning every visual preference into a server round trip.
+
+## ADR-022 — JSON replace restore, CLI exact snapshots
+
+**Status:** accepted
+
+In-app restore uses a full JSON backup inside one transaction, not a live SQLite file swap. Replace mode clears releases, wishlist, saved, follows, library defaults and discovery state, then restores the backup, preserving `createdAt`. Every import creates a `pre-import-*.db` snapshot first and aborts if that snapshot fails; the last 5 are kept. Snapshots are internal rollback files, not a user-facing feature. JSON is the only visible backup/restore path, which also works cleanly in Docker because browser download/upload crosses the container boundary. Exact database restoration remains a CLI command (`bun run restore`, or `docker compose run` in Docker) because swapping the SQLite file under an active Prisma connection is unsafe. Benefits: safe one-click restore, no binary snapshot management in Settings, and no risk of corrupting a live database.

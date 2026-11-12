@@ -1,6 +1,11 @@
+---
+title: Discovery
+description: How Sleeve's Discover feed builds, ranks, caches and refreshes recommendations.
+---
+
 # Discovery
 
-Canonical reference for how Discover builds its feed. Read this before changing discovery; it is intentionally more detailed than `ARCHITECTURE.md`.
+Canonical reference for how Discover builds its feed. Read this before changing discovery; it is intentionally more detailed than [Architecture](architecture.md).
 
 ## TL;DR
 
@@ -342,11 +347,3 @@ Restarting the server alone does **not** clear the cached feed.
 - Candidate pools are capped at 100 MusicBrainz results per query.
 - Release dates can be year-only or differ by edition/country.
 - No play history, audio embeddings or multi-user collaborative matrix.
-
-## Likely next improvements
-
-1. Version the feed cache key for every algorithm experiment (already stores `version`; bump it).
-2. Add relative popularity floors for New this week/month when enough candidates exist.
-3. Expand candidate pools with decade partitions for Lost in the Stacks.
-4. Persist similar-artist results in SQLite if rebuild latency becomes an issue.
-5. Optional ListenBrainz account connection for true collaborative-filtering signals.

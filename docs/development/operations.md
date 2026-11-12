@@ -1,3 +1,8 @@
+---
+title: Operations
+description: Local development, production, migrations, backups, caches and troubleshooting.
+---
+
 # Operations
 
 ## Local development
@@ -29,7 +34,6 @@ bun run start
 - Serves `dist/` and API from one Bun process.
 - Port comes from `.env` (`3001` locally).
 - Service worker is registered only in production.
-- Use a reverse proxy (Caddy/Nginx) for TLS and a real domain; secure context is required for PWA install.
 
 Recommended deploy steps:
 
@@ -40,15 +44,87 @@ Recommended deploy steps:
 5. Persist `prisma/dev.db` and `data/covers/` on a volume.
 6. Set a real `MUSICBRAINZ_USER_AGENT` with contact info.
 
+### Docker
+
+The compose file binds to localhost and stores everything in the `sleeve-data` volume:
+
+```text
+/data/sleeve.db      SQLite database
+/data/covers/        cover image cache (safe to delete)
+/data/backups/       internal pre-import snapshots
+```
+
+```bash
+docker compose up -d --build
+```
+
+### Authentication
+
+Set both variables, or neither:
+
+```dotenv
+SLEEVE_AUTH_USER=you
+SLEEVE_AUTH_PASSWORD=secret
+```
+
+For Docker secrets, use the `_FILE` variants. They read the value from a file instead of an environment variable, so secrets stay out of `docker inspect` and `/proc`. They win over the plain variables:
+
+```yaml
+services:
+  sleeve:
+    secrets:
+      - sleeve_auth_user
+      - sleeve_auth_password
+    environment:
+      SLEEVE_AUTH_USER_FILE: /run/secrets/sleeve_auth_user
+      SLEEVE_AUTH_PASSWORD_FILE: /run/secrets/sleeve_auth_password
+
+secrets:
+  sleeve_auth_user:
+    file: ./secrets/auth_user
+  sleeve_auth_password:
+    file: ./secrets/auth_password
+```
+
+Keep `secrets/` out of git and mode `600`. Restart after changing auth values.
+
+### Hardening
+
+The compose file already applies these:
+
+- runs as `uid/gid 1000` (`bun`), never root
+- `cap_drop: ALL` and `no-new-privileges`
+- read-only root filesystem with a small `/tmp` tmpfs
+- data written with `0600` files and `0700` directories
+- port published on `127.0.0.1` only
+- health probes on `/api/health`
+
+### Upgrades
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+Startup applies pending migrations. If the database contains migrations newer than the running build, Sleeve refuses to start; restore a backup or deploy the newer version.
+
 ## Environment variables
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `DATABASE_URL` | `file:./dev.db` | Prisma SQLite URL |
-| `PORT` | `3001` | API/production server port |
-| `MUSICBRAINZ_USER_AGENT` | local placeholder | Required UA/contact for MusicBrainz |
-| `COVER_CACHE_DIR` | `./data/covers` | Optional cover cache directory |
+| `PORT` | `3000` prod / `3001` dev | API/production server port |
+| `DATA_DIR` | `./data` (`/data` in Docker) | Covers and backups |
+| `COVER_CACHE_DIR` | `$DATA_DIR/covers` | Cover cache override |
+| `BACKUP_DIR` | `$DATA_DIR/backups` | Backups and import snapshots |
+| `COVER_CACHE_MAX_MB` | `500` | Cover cache size limit |
+| `AUTO_MIGRATE` | `true` | Apply pending migrations on production startup |
+| `MUSICBRAINZ_USER_AGENT` | project URL | Contact for MusicBrainz requests |
 | `NODE_ENV` | — | `production` for production mode |
+| `SLEEVE_AUTH_USER` | unset | Optional HTTP Basic auth user |
+| `SLEEVE_AUTH_PASSWORD` | unset | Optional HTTP Basic auth password |
+| `SLEEVE_AUTH_USER_FILE` | unset | Read the auth user from a file |
+| `SLEEVE_AUTH_PASSWORD_FILE` | unset | Read the auth password from a file |
 
 Do not commit `.env`.
 
@@ -195,6 +271,12 @@ bun run check
 ```
 
 `bun test` includes an isolated import/export/backup integration suite. It creates a temp database, runs migrations, exercises API routes and removes the temp data.
+
+For documentation changes:
+
+```bash
+bun run docs:build
+```
 
 Docker smoke test, optional:
 

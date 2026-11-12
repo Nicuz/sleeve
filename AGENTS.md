@@ -1,4 +1,4 @@
-# Sleeve — Agent Instructions
+# Sleeve — Project Instructions
 
 Sleeve is a single-user CD/vinyl library built with Bun, Elysia, React/Vite, Tailwind v4, Prisma and SQLite. Read this file before changing code. Deeper docs live in `docs/`. Tool-specific skills live in `.agents/skills/` and work with OpenCode, Codex and Claude Code.
 
@@ -20,6 +20,7 @@ bun install
 bun run dev          # API :3001 + Vite :5173
 bun run dev:temp     # API :3099 against a disposable temp database
 bun run check        # typecheck + lint + bun test + production build
+bun run docs:build   # VitePress docs site -> docs/.vitepress/dist
 bun run test         # bun test (integration tests create their own temp DBs)
 bun run build        # dist/
 bun run start        # production server, serves dist + API on PORT (.env: 3001)
@@ -124,11 +125,12 @@ After a Prisma schema change: create a migration with `bun run db:migrate`, appl
 4. Test the touched flow on desktop and mobile.
 5. Confirm no test records remain: `bun -e 'const { prisma } = await import("./server/db"); console.log(await prisma.release.count())'`
 6. Update the matching doc when behavior, schema, API or commands change.
-7. `git status` and commit only if asked.
+7. If docs changed, run `bun run docs:build`.
+8. `git status` and commit only if asked.
 
-## Agent skills
+## Skills
 
-Procedural playbooks live in `.agents/skills/` (Agent Skills standard). OpenCode and Codex read that path natively; Claude Code reads it through the `.claude/skills` symlink.
+Procedural playbooks live in `.agents/skills/` (portable skill format). OpenCode and Codex read that path natively; Claude Code reads it through the `.claude/skills` symlink.
 
 | Skill | Load when |
 | --- | --- |
@@ -146,23 +148,26 @@ Use these before exploring the whole repo:
 
 | Question about | Read |
 | --- | --- |
-| Discover inputs, ranking, popularity, cache, refresh | `docs/DISCOVERY.md` |
-| Overall flows and component layout | `docs/ARCHITECTURE.md` |
-| API request/response shapes | `docs/API.md` |
-| Database fields, invariants, import/export | `docs/DATA_MODEL.md` |
-| UI patterns, colors, page rules | `docs/DESIGN_SYSTEM.md` |
-| Dev/prod, backups, troubleshooting | `docs/OPERATIONS.md` |
-| Why a technical choice was made | `docs/DECISIONS.md` |
+| Discover inputs, ranking, popularity, cache, refresh | `docs/development/discovery.md` |
+| User-facing workflows | `docs/guide/` |
+| Docker, auth, upgrades | `docs/development/operations.md#production` |
+| Overall flows and component layout | `docs/development/architecture.md` |
+| API request/response shapes | `docs/development/api.md` |
+| Database fields, invariants, import/export | `docs/development/data-model.md` |
+| UI patterns, colors, page rules | `docs/development/design-system.md` |
+| Dev/prod, backups, troubleshooting | `docs/development/operations.md` |
+| Why a technical choice was made | `docs/development/decisions.md` |
 
 ## Docs
 
 - `README.md` — setup and overview
-- `docs/ARCHITECTURE.md` — flows and design
-- `docs/DISCOVERY.md` — Discover inputs, queries, ranking, cache and refresh
-- `docs/DESIGN_SYSTEM.md` — visual language and component patterns
-- `docs/API.md` — endpoints
-- `docs/DATA_MODEL.md` — schema, invariants, import/export
-- `docs/OPERATIONS.md` — dev/prod, backups, troubleshooting
-- `docs/ROADMAP.md` — completed, next, deferred
-- `docs/DECISIONS.md` — architectural decisions
+- `docs/index.md` — docs site landing page
+- `docs/guide/` — user guide, including server steps
+- `docs/development/architecture.md` — flows and design
+- `docs/development/discovery.md` — Discover inputs, queries, ranking, cache and refresh
+- `docs/development/design-system.md` — visual language and component patterns
+- `docs/development/api.md` — endpoints
+- `docs/development/data-model.md` — schema, invariants, import/export
+- `docs/development/operations.md` — dev/prod, backups, troubleshooting
+- `docs/development/decisions.md` — architectural decisions
 - `CONTRIBUTING.md` — commit/branch conventions

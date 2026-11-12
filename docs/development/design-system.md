@@ -1,3 +1,8 @@
+---
+title: Design system
+description: Sleeve's visual language, color tokens, typography, components and UI rules.
+---
+
 # Design system
 
 Canonical reference for Sleeve’s visual language, tokens and UI patterns. Read this before adding pages, components or dialogs. Theme source of truth: `src/index.css`; accent presets: `src/lib/settings.tsx`.

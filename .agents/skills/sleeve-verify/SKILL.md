@@ -52,13 +52,13 @@ Stop temp servers and remove copied DBs and temp data directories.
 
 Update the matching doc when behavior, schema, API, commands or UI patterns changed:
 
-- `docs/DATA_MODEL.md` — schema, fields, invariants, import/export
-- `docs/API.md` — endpoints and payloads
-- `docs/ARCHITECTURE.md` — flows and module layout
-- `docs/DESIGN_SYSTEM.md` — UI patterns
-- `docs/DISCOVERY.md` — Discover inputs, ranking, cache
-- `docs/OPERATIONS.md` — commands, env, backups, troubleshooting
-- `docs/DECISIONS.md` — why a choice was made
+- `docs/development/data-model.md` — schema, fields, invariants, import/export
+- `docs/development/api.md` — endpoints and payloads
+- `docs/development/architecture.md` — flows and module layout
+- `docs/development/design-system.md` — UI patterns
+- `docs/development/discovery.md` — Discover inputs, ranking, cache
+- `docs/development/operations.md` — commands, env, backups, troubleshooting
+- `docs/development/decisions.md` — why a choice was made
 
 Static facts belong in `AGENTS.md` or `docs/`, never copied into a skill.
 
@@ -67,6 +67,12 @@ Static facts belong in `AGENTS.md` or `docs/`, never copied into a skill.
 ```bash
 git status
 git diff --stat
+```
+
+If documentation or skills changed, also run:
+
+```bash
+bun run docs:build
 ```
 
 Check for accidental files (`prisma/dev.db*`, `data/`, `dist/`, `.env`) and unrelated edits. Commit only when the user explicitly asks, using Conventional Commits.

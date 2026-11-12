@@ -1,3 +1,8 @@
+---
+title: API
+description: Sleeve HTTP endpoints, request and response payloads, and status codes.
+---
+
 # API
 
 All endpoints are same-origin under `/api`. JSON requests and responses use `application/json` unless noted. Errors return `{ "message": "…" }`.
@@ -425,7 +430,9 @@ Builds a personalised feed from the user’s collection:
 - **Lost in the Stacks** — all-time older picks from top genres and similar artists, rotated deterministically once per month.
 - **Lead pick** — first Radar item, else first similar-artist pick, else first available item.
 
-Candidates are expanded with ListenBrainz similar artists and ranked with library-weighted artist/genre affinity plus ListenBrainz artist and release-group listen/user counts. The feed is cached for 7 days and refreshed automatically. Stale requests return the cached feed immediately while a rebuild runs in the background. `?refresh=1` is an internal/dev override. Saving, wishlisting or following does not rebuild the current feed; owning a record prunes only the matching item. Seen release-group IDs are remembered for 30 days and deprioritised on later builds. The payload carries a `version`; a version mismatch rebuilds before serving.
+Candidates are expanded with ListenBrainz similar artists and ranked with library-weighted artist/genre affinity plus ListenBrainz popularity. The feed is cached for 7 days and refreshed automatically; `?refresh=1` is an internal/dev override.
+
+Feed composition, ranking, cache and refresh rules: [Discovery](discovery.md).
 
 ```json
 {
@@ -555,13 +562,9 @@ The Discogs CSV UI maps a CSV client-side and sends the mapped releases to this 
 
 ## Backups
 
-The JSON export/import endpoints are the user-facing backup API. Automatic `pre-import-*.db` safety snapshots are written to `$BACKUP_DIR` but are not exposed as an API surface. Exact snapshot restore stays CLI-only:
+The JSON export/import endpoints are the user-facing backup API. Automatic `pre-import-*.db` snapshots live in `$BACKUP_DIR`; exact snapshot restore is CLI-only (`bun run restore -- <name>` with the server stopped).
 
-```bash
-bun run restore -- <backup-name>
-```
-
-Stop the server first.
+See [Operations § Backups](operations.md#backups).
 
 ## Metadata cache
 

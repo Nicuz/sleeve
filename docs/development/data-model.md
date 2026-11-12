@@ -1,3 +1,8 @@
+---
+title: Data model
+description: Prisma models, invariants, the JSON export format and import rules.
+---
+
 # Data model
 
 SQLite database: `prisma/dev.db`. Prisma schema: `prisma/schema.prisma`.
@@ -183,7 +188,7 @@ Implicit Discover interaction log. No UI prompt creates these rows.
 | `action` | `open`, `remove-save` |
 | `createdAt` | Event time |
 
-Indexes: releaseGroupId, artistId, createdAt. Rows older than 180 days are pruned. Opens add a small positive affinity signal; removing a saved suggestion adds a small decaying negative signal. See `docs/DISCOVERY.md`.
+Indexes: releaseGroupId, artistId, createdAt. Rows older than 180 days are pruned. Opens add a small positive affinity signal; removing a saved suggestion adds a small decaying negative signal. See [Discovery](discovery.md).
 
 ## Cover cache
 
@@ -267,14 +272,7 @@ JSON is the only collection export format. Discogs CSV is import-only.
 
 ## Database snapshots
 
-Not database tables. `VACUUM INTO` snapshots in `data/backups` (or `BACKUP_DIR`):
-
-- automatic before import: `pre-import-<timestamp>.db`
-- last 5 pre-import snapshots are kept
-- not exposed in the Settings UI
-- exact restore: `bun run restore -- <name>` with the server stopped
-
-Snapshots include the whole SQLite database, including follows and library defaults. Cover images are cache and are not included. JSON remains the user-facing backup format.
+Automatic `pre-import-*.db` snapshots live in `data/backups` (or `BACKUP_DIR`); the last 5 are kept. Exact restore is CLI-only and requires the server stopped. See [Operations § Backups](operations.md#backups).
 
 ## Import rules
 

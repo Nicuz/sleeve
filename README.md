@@ -13,8 +13,8 @@
 Sleeve keeps your CD and vinyl collection organized — covers, tracklists, what you paid, and what you're still hunting for. It runs on your machine: no accounts, no cloud, no telemetry.
 
 <p align="center">
-  <img src="docs/screenshot.webp" width="660" alt="Sleeve library on desktop: collection grid with album covers, formats and listening stats" />
-  <img src="docs/screenshot-mobile.webp" width="210" alt="Sleeve library on a phone: two-column collection grid with format badges" />
+  <img src="docs/public/screenshot.webp" width="660" alt="Sleeve library on desktop: collection grid with album covers, formats and listening stats" />
+  <img src="docs/public/screenshot-mobile.webp" width="210" alt="Sleeve library on a phone: two-column collection grid with format badges" />
 </p>
 
 ## Features
@@ -82,11 +82,20 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for checks, branches and commits.
 
 ## Docs
 
-- [Self-hosting](docs/SELF_HOSTING.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [API](docs/API.md)
-- [Roadmap](docs/ROADMAP.md)
+- [User guide](docs/guide/getting-started.md)
+- [Run on a server](docs/guide/getting-started.md#run-it-on-a-server)
+- [Architecture](docs/development/architecture.md)
+- [API](docs/development/api.md)
 - [Contributing](CONTRIBUTING.md)
+
+The docs site is built with VitePress:
+
+```bash
+bun run docs:dev
+bun run docs:build
+```
+
+For a GitHub project page, pass the repository base path: `DOCS_BASE=/sleeve/ bun run docs:build`.
 
 ## License
 

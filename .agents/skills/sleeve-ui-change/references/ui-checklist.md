@@ -4,7 +4,7 @@ Use with `sleeve-ui-change`.
 
 ## Before editing
 
-- [ ] Read the matching section of `docs/DESIGN_SYSTEM.md`.
+- [ ] Read the matching section of `docs/development/design-system.md`.
 - [ ] Find an existing page or component with the same shape and copy its structure.
 - [ ] Confirm the data already exists in `src/lib/types.ts` and `src/lib/api.ts`.
 
@@ -44,4 +44,4 @@ Use with `sleeve-ui-change`.
 
 - [ ] `bun run check` passes.
 - [ ] Touched flow exercised on desktop and mobile.
-- [ ] `docs/DESIGN_SYSTEM.md` updated if a new pattern was introduced.
+- [ ] `docs/development/design-system.md` updated if a new pattern was introduced.

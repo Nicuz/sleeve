@@ -42,7 +42,7 @@ Stop the server and remove the copy when done.
 2. Create a migration with `bun run db:migrate`.
 3. Apply it with `bun run db:deploy`.
 4. Run `bun run db:generate` or restart `bun run dev` so Bun reloads the Prisma client.
-5. Update `docs/DATA_MODEL.md`, and `prisma/seed.ts` if demo data must match.
+5. Update `docs/development/data-model.md`, and `prisma/seed.ts` if demo data must match.
 
 `bun run db:push` is only for throwaway databases. It skips migrations, including the FTS triggers in `prisma/migrations/20261111190000_search_fts`; search then silently falls back to `contains`.
 

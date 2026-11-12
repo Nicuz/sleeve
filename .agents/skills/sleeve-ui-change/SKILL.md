@@ -5,7 +5,7 @@ description: Use when building or changing Sleeve pages, dialogs, cards, filters
 
 # Sleeve UI change
 
-Read `docs/DESIGN_SYSTEM.md` for the section you are touching before editing.
+Read `docs/development/design-system.md` for the section you are touching before editing.
 
 ## Tokens and classes
 
@@ -39,7 +39,7 @@ Follow the existing dialog shape in `src/components/wishlist-edit-dialog.tsx`:
 
 ## Pages and navigation
 
-- Index headers follow `docs/DESIGN_SYSTEM.md` § Page headers and actions: eyebrow, display title, one description line, one accent action.
+- Index headers follow `docs/development/design-system.md` § Page headers and actions: eyebrow, display title, one description line, one accent action.
 - Register routes in `src/App.tsx`; heavy pages stay lazy.
 - Add a page to `src/components/sidebar.tsx` and `mobile-nav.tsx` only when it is a primary destination.
 - Mobile nav has 4 destinations plus the center add button; settings stays in the header.

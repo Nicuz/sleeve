@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   lang: 'en',
   title: 'Sleeve',
-  description: 'A local-first catalog for your CD and vinyl collection.',
+  description: 'A digital shelf for your CDs, vinyl and cassettes.',
   base: process.env.DOCS_BASE || '/',
   cleanUrls: true,
   lastUpdated: true,
@@ -17,8 +17,8 @@ export default defineConfig({
     logo: '/favicon.svg',
     siteTitle: 'Sleeve',
     nav: [
-      { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'Development', link: '/development/' },
+      { text: 'Docs', link: '/guide/getting-started' },
+      { text: 'Contribute', link: '/development/contributing' },
     ],
     sidebar: {
       '/guide/': [
@@ -62,9 +62,5 @@ export default defineConfig({
       text: 'Edit this page on GitHub',
     },
     socialLinks: [{ icon: 'github', link: 'https://github.com/Nicuz/sleeve' }],
-    footer: {
-      message: 'Local-first. No accounts, no telemetry.',
-      copyright: 'MIT licensed',
-    },
   },
 })

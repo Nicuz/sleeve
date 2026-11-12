@@ -16,3 +16,9 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bunx prisma generate
       - run: bun run check
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/test-docker.sh

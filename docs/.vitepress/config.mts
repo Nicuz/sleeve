@@ -4,7 +4,7 @@ export default defineConfig({
   lang: 'en',
   title: 'Sleeve',
   description: 'A local-first catalog for your CD and vinyl collection.',
-  base: process.env.DOCS_BASE ?? '/',
+  base: process.env.DOCS_BASE || '/',
   cleanUrls: true,
   lastUpdated: true,
   appearance: 'force-dark',

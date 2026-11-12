@@ -7,10 +7,13 @@
 
 <p align="center">
   <a href="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml"><img src="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/Nicuz/sleeve/actions/workflows/pages.yml"><img src="https://github.com/Nicuz/sleeve/actions/workflows/pages.yml/badge.svg" alt="Docs" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
 </p>
 
 Sleeve keeps your CD and vinyl collection organized — covers, tracklists, what you paid, and what you're still hunting for. It runs on your machine: no accounts, no cloud, no telemetry.
+
+<p align="center"><strong><a href="https://nicuz.github.io/sleeve/guide/getting-started">Read the guide →</a></strong></p>
 
 <p align="center">
   <img src="docs/public/screenshot.webp" width="660" alt="Sleeve library on desktop: collection grid with album covers, formats and listening stats" />
@@ -21,9 +24,10 @@ Sleeve keeps your CD and vinyl collection organized — covers, tracklists, what
 
 - **Catalog your collection** — covers, labels, barcodes, genres, ratings and tracklists.
 - **Import from Discogs** — export your collection as CSV; Sleeve detects the columns, previews the rows and brings the whole shelf over in one go.
-- **Skip the typing** — search MusicBrainz by name, barcode or artist and add the exact edition.
-- **Know what you spent** — spending by month, format and shop.
+- **Add the exact edition** — search MusicBrainz by name, barcode or artist and attach the right pressing.
+- **Read the collection** — formats, eras, genres, spending and records that need attention.
 - **Keep a wishlist** — separate from your shelf, with target prices.
+- **Find the next record** — weekly Discover picks built from your collection, wishlist and followed artists.
 - **Take it with you** — JSON backup and restore, plus an installable app that works offline.
 
 ## Quick start
@@ -36,29 +40,7 @@ docker compose up -d --build
 
 Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume; back it up from **Settings → Backup & restore**. Update later with `git pull && docker compose up -d --build`.
 
-Defaults suit a local install. Trimmed view with the knobs that matter:
-
-```yaml
-services:
-  sleeve:
-    build: .
-    image: sleeve:latest
-    ports:
-      - "127.0.0.1:3001:3001"   # localhost only
-    environment:
-      # Optional login: set both or neither
-      # SLEEVE_AUTH_USER: you
-      # SLEEVE_AUTH_PASSWORD: secret
-    volumes:
-      - sleeve-data:/data        # database, cover cache and backups
-
-volumes:
-  sleeve-data:
-```
-
-The volume is the only thing you need: the image stores SQLite at `/data/sleeve.db` and covers next to it.
-
-Anyone who can reach port 3001 gets in by default. Setting both auth variables makes Sleeve ask for that username and password — HTTP Basic auth — before it serves anything.
+For login, ports, data layout and upgrades, see [Run on a server](docs/guide/getting-started.md#run-it-on-a-server).
 
 <details>
 <summary><strong>Run from source</strong></summary>
@@ -76,26 +58,19 @@ Want demo data? Run `bun run sample`, then `DATABASE_URL="file:./sample.db" bun 
 
 Set a real contact in `MUSICBRAINZ_USER_AGENT` before heavy metadata use.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for checks, branches and commits.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for checks, commit rules and conventions.
 
 </details>
 
 ## Docs
 
-- [User guide](docs/guide/getting-started.md)
-- [Run on a server](docs/guide/getting-started.md#run-it-on-a-server)
-- [Architecture](docs/development/architecture.md)
-- [API](docs/development/api.md)
-- [Contributing](CONTRIBUTING.md)
+- [User guide](https://nicuz.github.io/sleeve/guide/getting-started) — install, add records, import Discogs, wishlist, Discover and backup.
+- [Run on a server](https://nicuz.github.io/sleeve/guide/getting-started#run-it-on-a-server) — Docker, optional login and upgrades.
+- [Development](https://nicuz.github.io/sleeve/development/) — architecture, API, data model, design, operations and local checks.
+- [Architecture](https://nicuz.github.io/sleeve/development/architecture) · [API](https://nicuz.github.io/sleeve/development/api)
+- [Contributing](https://nicuz.github.io/sleeve/development/contributing) — checks, commits and conventions.
 
-The docs site is built with VitePress:
-
-```bash
-bun run docs:dev
-bun run docs:build
-```
-
-For a GitHub project page, pass the repository base path: `DOCS_BASE=/sleeve/ bun run docs:build`.
+Docs source lives in `docs/` and builds with VitePress. Local commands are in [Development](docs/development/index.md#docs-site).
 
 ## License
 

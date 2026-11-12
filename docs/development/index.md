@@ -42,6 +42,15 @@ scripts/temp-db.sh bun server/index.ts
 
 Never run destructive commands against `prisma/dev.db`; see [Contributing](contributing.md).
 
+## Docs site
+
+```bash
+bun run docs:dev
+bun run docs:build
+```
+
+Use `DOCS_BASE=/sleeve/ bun run docs:build` for a GitHub project page.
+
 ## Portable skills
 
 Procedures for AI coding assistants live in `.agents/skills/` and work with OpenCode, Codex and Claude Code:

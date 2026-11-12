@@ -202,7 +202,7 @@ export function LibraryPage() {
               <Disc3 size={30} className="animate-spin-slow text-accent/80" />
             </span>
             <div>
-              <p className="eyebrow">Shelf shuffle</p>
+              <p className="eyebrow">Pick one</p>
               <p className="mt-1 font-display text-lg font-semibold text-cream">
                 Not sure what to play?
               </p>
@@ -218,7 +218,7 @@ export function LibraryPage() {
             className="btn btn-primary self-start sm:self-auto"
           >
             <Shuffle size={15} />
-            Pick a shuffle album
+            Pick a record
           </button>
         </div>
       </section>

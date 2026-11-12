@@ -46,13 +46,13 @@ export function ShuffleDialog({ open, onClose }: { open: boolean; onClose: () =>
         className="animate-scale-in w-full max-w-lg overflow-hidden rounded-t-3xl border border-white/10 bg-ink-900   sm:rounded-3xl"
         role="dialog"
         aria-modal="true"
-        aria-label="Pick a shuffle album"
+        aria-label="Pick a record"
       >
         <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] px-5 py-4">
           <div>
-            <p className="eyebrow">Shelf shuffle</p>
+            <p className="eyebrow">Pick one</p>
             <h2 className="mt-1 font-display text-lg font-semibold text-cream">
-              Pick a shuffle album
+              Pick a record
             </h2>
           </div>
           <button type="button" onClick={onClose} className="icon-btn" aria-label="Close">
@@ -102,7 +102,7 @@ export function ShuffleDialog({ open, onClose }: { open: boolean; onClose: () =>
             ) : (
               <Shuffle size={14} />
             )}
-            Shuffle again
+            Pick another
           </button>
           {release ? (
             <Link

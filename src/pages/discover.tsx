@@ -678,7 +678,7 @@ export function DiscoverPage() {
             }
             aria-pressed={view === 'for-you'}
           >
-            For you
+            Picks
           </button>
           <button
             type="button"
@@ -882,7 +882,7 @@ export function DiscoverPage() {
             No fresh suggestions right now
           </p>
           <p className="mt-1 max-w-sm text-xs text-muted">
-            MusicBrainz did not return new albums for your top genres. The feed will
+            MusicBrainz did not return new albums for your top genres. The picks will
             refresh automatically later.
           </p>
         </div>

@@ -225,3 +225,9 @@ test('adds a wishlist hit to the library from the result row', async () => {
   await waitFor(() => expect(createRelease).toHaveBeenCalled());
   expect(deleteWishlistItem).toHaveBeenCalledWith('wish-1');
 });
+
+test('links to settings from the header', () => {
+  renderHeader();
+  const link = screen.getByRole('link', { name: 'Settings' });
+  expect(link.getAttribute('href')).toBe('/settings');
+});

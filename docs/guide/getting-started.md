@@ -5,7 +5,7 @@ description: Install Sleeve, open your library and add the first record.
 
 # Getting started
 
-Sleeve is a single-user app for your CD and vinyl collection. It runs on your machine or server, keeps everything in one local database and has no accounts or telemetry.
+Sleeve is a digital shelf for your CDs, vinyl and cassettes. It runs on your machine or server, keeps the collection in one local database and has no accounts or telemetry.
 
 ## Run it
 

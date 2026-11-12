@@ -11,9 +11,9 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
 </p>
 
-Sleeve keeps your CD and vinyl collection organized — covers, tracklists, what you paid, and what you're still hunting for. It runs on your machine: no accounts, no cloud, no telemetry.
+Sleeve is a digital shelf for your CDs, vinyl and cassettes. Archive what you own, know exactly what is in the collection, and discover the next record through recommendations shaped by your purchases, wishlist and the artists you follow.
 
-<p align="center"><strong><a href="https://nicuz.github.io/sleeve/guide/getting-started">Read the guide →</a></strong></p>
+<p align="center"><strong><a href="https://nicuz.github.io/sleeve/">Read the docs →</a></strong></p>
 
 <p align="center">
   <img src="docs/public/screenshot.webp" width="660" alt="Sleeve library on desktop: collection grid with album covers, formats and listening stats" />
@@ -22,13 +22,19 @@ Sleeve keeps your CD and vinyl collection organized — covers, tracklists, what
 
 ## Features
 
-- **Catalog your collection** — covers, labels, barcodes, genres, ratings and tracklists.
-- **Import from Discogs** — export your collection as CSV; Sleeve detects the columns, previews the rows and brings the whole shelf over in one go.
-- **Add the exact edition** — search MusicBrainz by name, barcode or artist and attach the right pressing.
+- **Bring your collection over** — import a Discogs CSV or add the first CD, record or cassette.
+- **Archive what you own** — pressing, condition, rating, notes and purchase history.
+- **Keep a wishlist** — target prices, separate from the shelf and from saved finds.
+- **Find the next record** — Discover picks shaped by what you own, rate, wishlist and follow.
 - **Read the collection** — formats, eras, genres, spending and records that need attention.
-- **Keep a wishlist** — separate from your shelf, with target prices.
-- **Find the next record** — weekly Discover picks built from your collection, wishlist and followed artists.
-- **Take it with you** — JSON backup and restore, plus an installable app that works offline.
+- **Keep it yours** — local SQLite, portable JSON backups and an offline-capable app.
+
+## Look inside
+
+<p align="center">
+  <img src="docs/public/shelf-wishlist.webp" width="49%" alt="Sleeve wishlist with target prices and format badges" />
+  <img src="docs/public/shelf-insights.webp" width="49%" alt="Sleeve insights with collection stats, formats, eras and genres" />
+</p>
 
 ## Quick start
 
@@ -40,7 +46,7 @@ docker compose up -d --build
 
 Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume; back it up from **Settings → Backup & restore**. Update later with `git pull && docker compose up -d --build`.
 
-For login, ports, data layout and upgrades, see [Run on a server](docs/guide/getting-started.md#run-it-on-a-server).
+For login, ports, data layout and upgrades, see [Run on a server](https://nicuz.github.io/sleeve/guide/getting-started#run-it-on-a-server).
 
 <details>
 <summary><strong>Run from source</strong></summary>

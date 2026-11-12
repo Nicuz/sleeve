@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
-import { parseSearchQuery } from '../../src/lib/search-query';
+import { parseSearchQuery } from '../../shared/search-query';
 import { prisma } from '../db';
 import { removeOwnedReleaseFromDiscoveryFeed } from '../discovery';
 import { refreshRelease } from '../musicbrainz';

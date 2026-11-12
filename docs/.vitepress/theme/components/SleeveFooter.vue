@@ -41,7 +41,7 @@ const groups = [
           <img :src="withBase('/favicon.svg')" alt="" width="26" height="26" />
           <span>Sleeve</span>
         </a>
-        <p>Your records, on one dust-free shelf.</p>
+        <p>Your records, on a shelf you chose.</p>
       </div>
 
       <nav class="sleeve-footer-links" aria-label="Footer">

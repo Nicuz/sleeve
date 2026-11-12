@@ -57,7 +57,7 @@ Sleeve pulls the cover, label, year and tracklist from MusicBrainz. You can edit
 
 See [Adding releases](adding-releases.md) for both search and manual entry.
 
-## Bring over an existing collection
+## Import an existing collection
 
 If your shelf already lives on Discogs:
 

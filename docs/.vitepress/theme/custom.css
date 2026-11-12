@@ -490,6 +490,15 @@ body:has(.sleeve-home) .VPNavBarSearch {
   line-height: 1.6;
 }
 
+.sleeve-card-copy em {
+  color: #f4b860;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.18em;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
 .sleeve-preview {
   margin-top: auto;
   padding-top: 18px;

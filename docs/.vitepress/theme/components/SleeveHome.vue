@@ -45,16 +45,18 @@ const features = [
   {
     step: '01',
     tag: 'Import',
-    title: 'Bring Discogs over',
-    details:
-      'Start with what you own: export a Discogs collection as CSV, or add the first CD, record or cassette by hand.',
+    title: 'Import your collection',
+    details: '',
+    detailsBefore: 'Import an existing collection from a CSV. If you already keep yours on ',
+    highlight: 'Discogs',
+    detailsAfter: ', its export works as-is.',
     wide: true,
     preview: 'import',
   },
   {
     step: '02',
     tag: 'Shelf',
-    title: 'Archive the collection',
+    title: 'Keep the shelf accurate',
     details:
       'CDs, vinyl and cassettes with pressing, condition, rating, notes and what you paid.',
   },
@@ -63,14 +65,14 @@ const features = [
     tag: 'Wishlist',
     title: 'Keep the hunt focused',
     details:
-      'A buy-intent list with target prices, separate from the shelf and from saved finds.',
+      'A want list with target prices, separate from the shelf and from saved finds.',
   },
   {
     step: '04',
     tag: 'Discover',
     title: 'Find the next record',
     details:
-      'Recommendations shaped by what you own, rate, wishlist and follow — not generic charts.',
+      'Records worth checking next, shaped by what you own, rate, wishlist and follow. Nothing is added until you choose.',
     wide: true,
     preview: 'discover',
   },
@@ -99,15 +101,14 @@ const features = [
     <section class="sleeve-hero">
       <div class="sleeve-hero-copy">
         <h1 class="sleeve-title">
-          Every record<br />
-          you own, on one<br />
-          <em>dust-free</em> shelf.
+          A shelf for the<br />
+          records <em>you chose</em>.
         </h1>
         <p class="sleeve-lead">
-          Sleeve is a digital shelf for your CDs, vinyl and cassettes. Archive what you
-          own, know exactly what is in the collection, and discover the next record
-          through recommendations shaped by your purchases, wishlist and the artists you
-          follow.
+          Sleeve is a catalog for a physical collection, and a slower way to decide what
+          to play next. It is not a streaming replacement. Keep a want list, follow the
+          artists you care about, and find records worth checking next. Nothing plays or
+          gets added until you choose.
         </p>
         <div class="sleeve-actions">
           <a class="sleeve-btn sleeve-btn-primary" :href="links.guide">
@@ -132,7 +133,7 @@ const features = [
         <div class="sleeve-float" aria-hidden="true">
           <span class="sleeve-float-cover">J</span>
           <div>
-            <p>For you</p>
+            <p>Picks</p>
             <strong>Justice — Cross</strong>
             <span>Because you own Daft Punk</span>
           </div>
@@ -143,7 +144,7 @@ const features = [
     <section class="sleeve-section">
       <div class="sleeve-section-head" data-reveal>
         <p class="sleeve-eyebrow">What it does</p>
-        <h2>Built for the shelf, not the cloud.</h2>
+        <h2>Made for a physical collection.</h2>
       </div>
       <div class="sleeve-grid">
         <article
@@ -158,7 +159,12 @@ const features = [
             <p class="sleeve-card-tag">{{ feature.tag }}</p>
           </div>
           <h3>{{ feature.title }}</h3>
-          <p class="sleeve-card-copy">{{ feature.details }}</p>
+          <p class="sleeve-card-copy">
+            <template v-if="feature.highlight">
+              {{ feature.detailsBefore }}<em>{{ feature.highlight }}</em>{{ feature.detailsAfter }}
+            </template>
+            <template v-else>{{ feature.details }}</template>
+          </p>
 
           <div
             v-if="feature.preview === 'import'"
@@ -166,7 +172,7 @@ const features = [
             aria-hidden="true"
           >
             <div class="sleeve-preview-head">
-              <span>discogs.csv</span>
+              <span>collection.csv</span>
               <span>auto-mapped</span>
             </div>
             <div class="sleeve-preview-row is-labels">
@@ -265,7 +271,7 @@ const features = [
             <h3>See the shape of the collection.</h3>
             <p>
               Formats, eras, genres and spending, plus the records that still need a
-              cover, purchase price or MusicBrainz match.
+              cover or purchase price.
             </p>
           </div>
           <figure class="sleeve-proof-media">
@@ -282,7 +288,7 @@ const features = [
     <section class="sleeve-cta" data-reveal>
       <div>
         <p class="sleeve-eyebrow">Ready when you are</p>
-        <h2>One shelf. Every record.</h2>
+        <h2>Start with one record.</h2>
         <p>Docker up, open the browser, add the first CD.</p>
       </div>
       <div class="sleeve-actions">

@@ -18,7 +18,7 @@ Sleeve keeps three things in one place: the records you own, the records you are
 
 ## The shelf
 
-Every CD, record and cassette you own, with pressing, condition, rating, notes, purchase date, shop and price. Covers, labels, years and tracklists come from MusicBrainz. If your collection already lives on Discogs, import the CSV.
+Every CD, record and cassette you own, with pressing, condition, rating, notes, purchase date, shop and price. Covers, labels, years and tracklists come from MusicBrainz. Import an existing collection from a CSV. If it already lives on Discogs, its export works as-is.
 
 ## The wishlist
 

@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   lang: 'en',
   title: 'Sleeve',
-  description: 'A digital shelf for your CDs, vinyl and cassettes.',
+  description: 'A catalog for the records you chose, and a slower way to decide what to play next.',
   base: process.env.DOCS_BASE || '/',
   cleanUrls: true,
   lastUpdated: true,

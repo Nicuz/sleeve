@@ -204,7 +204,14 @@ bun run test:docker
 docker build --target test .
 ```
 
-Then manually verify the touched flow. For destructive testing, use temporary records and delete them, or copy the DB:
+Then manually verify the touched flow. Use the disposable-database wrapper so the real library is never mutated:
+
+```bash
+scripts/temp-db.sh bun run seed
+scripts/temp-db.sh bun server/index.ts
+```
+
+It creates a temp SQLite database, applies migrations, exports `DATA_DIR`/`BACKUP_DIR` and removes everything on exit. The default API port is 3099; for the Vite UI use `PORT=3001 scripts/temp-db.sh bun server/index.ts` so the `/api` proxy matches. If you need a copy of the real DB instead, use:
 
 ```bash
 cp prisma/dev.db /tmp/sleeve-test.db

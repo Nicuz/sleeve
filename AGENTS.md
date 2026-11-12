@@ -1,6 +1,6 @@
-# Sleeve — OpenCode Project Instructions
+# Sleeve — Agent Instructions
 
-Sleeve is a single-user CD/vinyl library built with Bun, Elysia, React/Vite, Tailwind v4, Prisma and SQLite. Read this file before changing code. Deeper docs live in `docs/`.
+Sleeve is a single-user CD/vinyl library built with Bun, Elysia, React/Vite, Tailwind v4, Prisma and SQLite. Read this file before changing code. Deeper docs live in `docs/`. Tool-specific skills live in `.agents/skills/` and work with OpenCode, Codex and Claude Code.
 
 ## Golden rules
 
@@ -18,10 +18,13 @@ Sleeve is a single-user CD/vinyl library built with Bun, Elysia, React/Vite, Tai
 ```bash
 bun install
 bun run dev          # API :3001 + Vite :5173
-bun run check        # tsc --noEmit + production build
+bun run dev:temp     # API :3099 against a disposable temp database
+bun run check        # typecheck + lint + bun test + production build
+bun run test         # bun test (integration tests create their own temp DBs)
 bun run build        # dist/
 bun run start        # production server, serves dist + API on PORT (.env: 3001)
-bun run db:push      # apply Prisma schema to SQLite (no migrations)
+bun run db:push      # quick local schema sync only; skips migrations and FTS triggers
+bun run db:migrate   # create a migration after a schema change
 bun run db:deploy    # apply prisma/migrations (required for FTS search index)
 bun run db:generate  # regenerate Prisma client
 bun run db:studio    # Prisma Studio
@@ -29,7 +32,7 @@ bun run seed         # add demo records if missing; skips existing
 bun run seed -- --reset  # DESTRUCTIVE: wipe library, then seed
 ```
 
-After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so Bun reloads `@prisma/client`. Use `bun run db:deploy` when a change ships a migration (for example the FTS search index).
+After a Prisma schema change: create a migration with `bun run db:migrate`, apply it with `bun run db:deploy`, then restart `bun run dev` so Bun reloads `@prisma/client`. `db:push` is fine for throwaway local iteration, but it skips the FTS triggers and search silently falls back to the slower `contains` path.
 
 ## Architecture map
 
@@ -46,10 +49,11 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
   - `applyReleaseDetail` (preserves user fields)
   - `enrichReleaseById` (barcode → artist/title → title fallback, score threshold 75)
   - `applyReleaseMatch` (manual MusicBrainz ID)
-- `server/routes/` — releases, global search, wishlist, discovery, import, export, stats, metadata cache, covers, meta, MusicBrainz proxies.
-- `server/search-query.ts` — parses `artist:`, `label:`, `year:`, `format:`, `track:`, `title:`, `genre:` operators into Prisma filters.
+- `server/routes/` — releases, global search, wishlist, saved suggestions, follows, settings, discovery, import, export, stats, metadata cache, covers, maintenance, meta, MusicBrainz proxies.
+- `shared/search-query.ts` — parses `artist:`, `label:`, `catalog:`, `year:`, `format:`, `track:`, `title:`, `genre:` operators; the client (`src/lib/search-query.ts`) re-exports it.
+- `server/search-query.ts` — turns parsed operators into Prisma filters for releases and wishlist.
 - `server/search-index.ts` — SQLite FTS5 lookup with `contains` fallback; `prisma/migrations/20261111190000_search_fts` creates the table and triggers.
-- `prisma/schema.prisma` — `Release`, `Track`, `WishlistItem`, `SavedSuggestion`, `MetadataCache`, `DiscoveryFeed`, `DiscoverySeen`, `DiscoveryEvent`.
+- `prisma/schema.prisma` — `Release`, `Track`, `WishlistItem`, `SavedSuggestion`, `ArtistFollow`, `AppSettings`, `MetadataCache`, `DiscoveryFeed`, `DiscoverySeen`, `DiscoveryEvent`.
 - `server/discovery.ts` — builds the cached Discover feed (Release Radar, New this week, New this month, Lost in the Stacks), expands candidates with similar artists, ranks with library affinity + ListenBrainz popularity and refreshes automatically.
 - `server/listenbrainz.ts` — batched release-group and artist popularity plus similar-artist lookup, with in-memory caches and 1s request spacing.
 - `prisma/seed.ts` — demo data. Destructive only with `--reset`.
@@ -81,7 +85,7 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
 - Use existing tokens/components; don’t hardcode new palettes.
 - Use `CoverArt` for every cover; it proxies CAA and handles fallbacks.
 - Every icon-only button needs `aria-label`.
-- Check desktop and mobile. Mobile nav has 5 destinations.
+- Check desktop and mobile. Mobile nav has 4 destinations plus the center add button; settings lives in the header.
 - Discover cards open a suggestion dialog; creating a release goes through the edition picker.
 - Avoid comments in code unless intent is non-obvious.
 
@@ -110,14 +114,31 @@ After a Prisma schema change: `bun run db:push`, then restart `bun run dev` so B
 - **PWA stale shell:** production only; hard reload or clear site data if the service worker serves an old build.
 - **Port conflict:** `.env` sets `PORT=3001`; dev API and production both use it.
 - **User data:** current DB may contain real imported records. Do not reseed for convenience.
-- **No test suite committed:** use `bun run check` plus manual/Playwright flows. All verification must avoid mutating user data; use temporary records and delete them, or copy the DB.
+- **Tests exist:** `bun test` covers search parsing, Discogs mapping, settings, header UI and temp-DB import/export/migration flows. No Playwright setup is committed. Manual verification must avoid mutating user data; use `scripts/temp-db.sh`, temporary records, or a copied DB.
 
 ## Before finishing
 
 1. `bun run check`
-2. Test the touched flow on desktop and mobile.
-3. Confirm no test records remain: `bun -e 'import { prisma } from "./server/db"; …'`
-4. `git status` and commit only if asked.
+2. Run targeted tests for touched logic (`bun test path/to/file.test.ts`).
+3. For manual flows, use `scripts/temp-db.sh` instead of the real DB.
+4. Test the touched flow on desktop and mobile.
+5. Confirm no test records remain: `bun -e 'const { prisma } = await import("./server/db"); console.log(await prisma.release.count())'`
+6. Update the matching doc when behavior, schema, API or commands change.
+7. `git status` and commit only if asked.
+
+## Agent skills
+
+Procedural playbooks live in `.agents/skills/` (Agent Skills standard). OpenCode and Codex read that path natively; Claude Code reads it through the `.claude/skills` symlink.
+
+| Skill | Load when |
+| --- | --- |
+| `sleeve-data-safety` | Touching Prisma, seeds, migrations, backups, test data or destructive routes |
+| `sleeve-feature-slice` | Adding or changing a field, endpoint, page or cross-layer behavior |
+| `sleeve-ui-change` | Building or changing pages, dialogs, cards, filters or navigation |
+| `sleeve-musicbrainz` | Working on metadata, enrichment, refresh, artists or Discover queries |
+| `sleeve-verify` | Finishing a task; run the definition-of-done checks |
+
+Skills carry procedures only. Static facts (models, routes, commands, invariants) stay in this file and `docs/`; update them there, not inside a skill.
 
 ## Fast lookup
 

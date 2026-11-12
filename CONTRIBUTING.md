@@ -19,10 +19,10 @@ bun run dev
 ## Before every commit
 
 ```bash
-bun run check          # typecheck + production build
+bun run check          # typecheck + lint + tests + production build
 ```
 
-Test the touched flow manually. For UI changes, check desktop and mobile widths.
+Test the touched flow manually. Use `scripts/temp-db.sh <command>` so manual testing never writes to `prisma/dev.db`. For UI changes, check desktop and mobile widths.
 
 ## Branches
 
@@ -109,7 +109,7 @@ refactor(api): extract release payload validation
 - New UI has loading, empty and error states.
 - Desktop + mobile checked.
 - Screenshots included for visible UI changes.
-- Prisma schema changes include a migration or `bun run db:push` plus seed/DB verification. Run `bun run db:deploy` when a migration is involved (for example the FTS search index).
+- Prisma schema changes include a migration (`bun run db:migrate`) and `bun run db:deploy` verification. `bun run db:push` is only for throwaway databases; it skips the FTS triggers.
 - No secrets, local database files or build output committed.
 
 ## Code conventions
@@ -126,7 +126,8 @@ refactor(api): extract release payload validation
 
 ## Documentation map
 
-- `AGENTS.md` — instructions for OpenCode sessions
+- `AGENTS.md` — instructions for all coding agents
+- `.agents/skills/` — portable procedural skills for OpenCode, Codex and Claude Code
 - `README.md` — setup, features, scripts
 - `docs/ARCHITECTURE.md` — runtime, modules, flows
 - `docs/DESIGN_SYSTEM.md` — colors, typography, components, UI rules

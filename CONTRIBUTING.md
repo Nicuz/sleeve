@@ -19,6 +19,14 @@ bun run dev
 
 Optional demo library: `bun run seed` adds demo records to your development database. For an isolated demo database, use `bun run sample` and start against `sample.db`.
 
+## Feature requests
+
+Have an idea, or found something that could work better? Open an issue and describe what you were trying to do, what got in the way, and what you hoped would happen. You do not need to know how Sleeve is built. A plain description is enough.
+
+Sleeve is a personal app that keeps the collection on your machine. Ideas that add accounts, let several people share one library, show marketplace prices or estimate what a collection is worth need a conversation first. They are not automatically out of reach, but they change what the app is.
+
+If you write code, small fixes and copy changes are welcome as a pull request.
+
 ## Verify a change
 
 A change is done when the automated checks pass and the changed feature has been exercised in the app.

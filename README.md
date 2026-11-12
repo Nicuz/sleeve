@@ -1,149 +1,93 @@
-# Sleeve
+<h1 align="center">
+  <img src="public/favicon.svg" width="40" height="40" alt="Sleeve logo" />
+  Sleeve
+</h1>
 
-A private, single-user CD and vinyl library with a warm, Spotify-inspired interface. Built with Bun, Elysia, React, Tailwind, Prisma and SQLite.
+<p align="center"><strong>Every record you own, on one dust-free shelf.</strong></p>
 
-## What it does
+<p align="center">
+  <a href="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml"><img src="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
+</p>
 
-- Catalog owned releases with cover art, label, catalog number, barcode, genres and tracklists.
-- Search MusicBrainz by release, barcode or artist; browse artist discographies and add a specific edition.
-- Track purchase date, shop, price and currency; see spending insights by month, format and shop.
-- Keep a separate wishlist with target prices and priorities.
-- Discover new artists and studio albums from the genres in your collection.
-- Enrich manual records automatically or pick a MusicBrainz edition manually.
-- Import Discogs collection CSVs with automatic column detection, visual mapping and live preview.
-- Export/import a full JSON backup of releases, wishlist, saved items, follows and defaults.
-- Work offline in a production build through the PWA service worker.
+Sleeve keeps your CD and vinyl collection organized — covers, tracklists, what you paid, and what you're still hunting for. It runs on your machine: no accounts, no cloud, no telemetry.
 
-## Stack
+<p align="center">
+  <img src="docs/screenshot.webp" width="660" alt="Sleeve library on desktop: collection grid with album covers, formats and listening stats" />
+  <img src="docs/screenshot-mobile.webp" width="210" alt="Sleeve library on a phone: two-column collection grid with format badges" />
+</p>
 
-| Layer | Technology |
-| --- | --- |
-| Runtime | Bun 1.4+ |
-| API | Elysia 1.4 |
-| Frontend | React 19, Vite 8, React Router 7, TanStack Query 5 |
-| Styling | Tailwind CSS 4, custom CSS tokens |
-| Data | SQLite, Prisma 6 |
-| Metadata | MusicBrainz web service, Cover Art Archive |
-| CSV | Papa Parse |
-| PWA | Custom service worker + web manifest |
+## Features
+
+- **Catalog your collection** — covers, labels, barcodes, genres, ratings and tracklists.
+- **Skip the typing** — search MusicBrainz by name, barcode or artist and add the exact edition.
+- **Know what you spent** — spending by month, format and shop.
+- **Keep a wishlist** — separate from your shelf, with target prices.
+- **Bring your data** — import Discogs CSV, export JSON, install the app for offline browsing.
 
 ## Quick start
 
 ```bash
+git clone https://github.com/Nicuz/sleeve.git
+cd sleeve
+docker compose up -d --build
+```
+
+Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume; back it up from **Settings → Backup & restore**. Update later with `git pull && docker compose up -d --build`.
+
+Defaults suit a local install. Trimmed view with the knobs that matter:
+
+```yaml
+services:
+  sleeve:
+    build: .
+    image: sleeve:latest
+    ports:
+      - "127.0.0.1:3001:3001"   # localhost only
+    environment:
+      PORT: "3001"
+      DATA_DIR: /data
+      DATABASE_URL: file:/data/sleeve.db
+      # Optional login: set both or neither
+      # SLEEVE_AUTH_USER: you
+      # SLEEVE_AUTH_PASSWORD: secret
+    volumes:
+      - sleeve-data:/data        # database, cover cache and backups
+
+volumes:
+  sleeve-data:
+```
+
+Anyone who can reach port 3001 gets in by default. Setting both auth variables makes Sleeve ask for that username and password — HTTP Basic auth — before it serves anything.
+
+<details>
+<summary><strong>Run from source</strong></summary>
+
+Requires [Bun](https://bun.sh) 1.4 or newer.
+
+```bash
 bun install
-cp .env.example .env   # if missing
+cp .env.example .env
 bun run db:deploy
-bun run seed           # optional demo library
-bun run dev
+bun run dev        # http://localhost:5173
 ```
 
-- UI: http://localhost:5173
-- API: http://localhost:3001
-- DB: `prisma/dev.db` (ignored by git)
+Want demo data? Run `bun run sample`, then `DATABASE_URL="file:./sample.db" bun run dev`.
 
-Production:
+Set a real contact in `MUSICBRAINZ_USER_AGENT` before heavy metadata use.
 
-```bash
-bun run db:deploy
-bun run build
-bun run start
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for checks, branches and commits.
 
-PWA/service worker is registered only in production builds.
+</details>
 
-## Sample data
-
-Generate a separate demo database with 60 releases over two years, five formats, genres, ratings, tracks, purchase history and wishlist items:
-
-```bash
-bun run sample
-DATABASE_URL="file:./sample.db" bun run dev
-```
-
-The script creates `prisma/sample.db` (gitignored) and never touches your real database. Sample covers are generated locally as SVG data URLs, so they match each title and work offline.
-
-## Environment
-
-`.env`:
-
-```env
-DATABASE_URL="file:./dev.db"
-PORT=3001
-MUSICBRAINZ_USER_AGENT="Sleeve/0.1 ( https://github.com/local/sleeve )"
-```
-
-Set a real contact in `MUSICBRAINZ_USER_AGENT` before heavy use. The MusicBrainz service layer enforces 1.2s spacing, retries, cooldown, caching and single-flight.
-
-## Scripts
-
-| Command | Purpose |
-| --- | --- |
-| `bun run dev` | API + Vite dev server |
-| `bun run check` | TypeScript + Biome + production build |
-| `bun run lint` | Biome lint/format check |
-| `bun run format` | Apply Biome formatting |
-| `bun run build` | Build `dist/` |
-| `bun run start` | Production Bun server |
-| `bun run db:migrate` | Create/apply migrations in development |
-| `bun run db:deploy` | Apply migrations in production |
-| `bun run db:push` | Legacy: push schema without migration history |
-| `bun run db:generate` | Regenerate Prisma client |
-| `bun run db:studio` | Open Prisma Studio |
-| `bun run seed` | Add missing demo records |
-| `bun run seed -- --reset` | **Destructive:** wipe library, then seed |
-| `bun run sample` | Create/refresh a separate 60-release sample database |
-
-## Project structure
-
-```text
-server/
-  index.ts                 Elysia app + production static server
-  musicbrainz.ts           MB/CAA client, cache, rate limiting, single-flight
-  release-metadata.ts      enrichment, refresh, manual match
-  routes/                  releases, wishlist, discover, import, export, stats, covers…
-prisma/
-  schema.prisma            Release, Track, WishlistItem, MetadataCache
-  seed.ts                  demo data
-src/
-  pages/                   library, release, artist, wishlist, discover, stats, settings, import
-  components/              shell, cards, dialogs, cover art, toasts
-  lib/                     API client, types, settings, Discogs mapping, utils
-public/
-  sw.js                    PWA service worker
-  manifest.webmanifest     PWA manifest
-docs/                      architecture, API, data, operations, roadmap, decisions
-```
-
-## Data and backups
-
-The SQLite database is the source of truth for the owned collection. MusicBrainz responses are cached separately in `MetadataCache`; covers are cached on disk in `data/covers/`.
-
-- JSON export: Settings → Backup & restore, or `GET /api/export`
-- JSON restore: Settings → Restore a backup (preview, add or replace)
-- Discogs CSV import: Settings or Library → Import CSV
-- Automatic pre-import SQLite snapshots live in `data/backups`; exact restore uses `bun run restore`
-
-Never run `bun run seed -- --reset` on a real library.
-
-## Documentation
+## Docs
 
 - [Self-hosting](docs/SELF_HOSTING.md)
-
 - [Architecture](docs/ARCHITECTURE.md)
-- [Design system](docs/DESIGN_SYSTEM.md)
 - [API](docs/API.md)
-- [Data model](docs/DATA_MODEL.md)
-- [Operations](docs/OPERATIONS.md)
 - [Roadmap](docs/ROADMAP.md)
-- [Decisions](docs/DECISIONS.md)
 - [Contributing](CONTRIBUTING.md)
-- [OpenCode project instructions](AGENTS.md)
 
-## Current limitations
+## License
 
-- Single-user only, no authentication or sync.
-- No audio playback or streaming integrations.
-- Discovery is genre/tag-based, not collaborative filtering.
-- Discogs CSV imports have no MusicBrainz ID or cover; use metadata enrichment.
-- Some Cover Art Archive editions have no image; use **Search match** to choose another edition.
-- Prisma uses `db push` rather than migrations (acceptable for this local prototype; switch before multi-instance deployment).
+MIT — see [LICENSE](LICENSE).

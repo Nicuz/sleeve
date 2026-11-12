@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   ArrowUpRight,
@@ -76,6 +76,7 @@ export function LibraryPage() {
   const [shuffleOpen, setShuffleOpen] = useState(false);
   const { settings } = useSettings();
   const navigate = useNavigate();
+  const location = useLocation();
   const [params, setParams] = useSearchParams();
   const [enrichOpen, setEnrichOpen] = useState(false);
   const openRelease = (id: string) => navigate(`/releases/${id}`);
@@ -160,7 +161,11 @@ export function LibraryPage() {
             <Plus size={16} />
             Add a release
           </button>
-          <Link to="/import/csv" className="btn btn-secondary">
+          <Link
+            to="/import/csv"
+            state={{ from: `${location.pathname}${location.search}` }}
+            className="btn btn-secondary"
+          >
             <Table2 size={15} />
             Import CSV
           </Link>

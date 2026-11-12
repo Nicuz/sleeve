@@ -179,7 +179,7 @@ Settings → Library data → **Import JSON**.
 
 ### Discogs CSV
 
-Settings or Library → **Import CSV**.
+Library → **Import CSV**.
 
 - Upload/drop CSV.
 - Check auto-detected mapping.

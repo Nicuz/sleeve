@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Papa from 'papaparse';
 import {
@@ -25,6 +25,11 @@ import { formatPrice, pluralize } from '@/lib/utils';
 import { useToast } from '@/components/toast';
 
 export function ImportCsvPage() {
+  const location = useLocation();
+  const fromState = (location.state as { from?: unknown } | null)?.from;
+  const from =
+    typeof fromState === 'string' && fromState.startsWith('/') ? fromState : '/';
+  const backLabel = from.startsWith('/settings') ? 'Back to settings' : 'Back to library';
   const { settings } = useSettings();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -130,11 +135,11 @@ export function ImportCsvPage() {
   return (
     <div className="pb-24">
       <Link
-        to="/settings"
+        to={from}
         className="mt-5 inline-flex items-center gap-2 text-xs font-medium text-muted transition hover:text-cream"
       >
         <ArrowLeft size={14} />
-        Back to settings
+        {backLabel}
       </Link>
 
       <header className="mt-4">

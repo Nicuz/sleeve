@@ -20,10 +20,11 @@ Sleeve keeps your CD and vinyl collection organized — covers, tracklists, what
 ## Features
 
 - **Catalog your collection** — covers, labels, barcodes, genres, ratings and tracklists.
+- **Import from Discogs** — export your collection as CSV; Sleeve detects the columns, previews the rows and brings the whole shelf over in one go.
 - **Skip the typing** — search MusicBrainz by name, barcode or artist and add the exact edition.
 - **Know what you spent** — spending by month, format and shop.
 - **Keep a wishlist** — separate from your shelf, with target prices.
-- **Bring your data** — import Discogs CSV, export JSON, install the app for offline browsing.
+- **Take it with you** — JSON backup and restore, plus an installable app that works offline.
 
 ## Quick start
 

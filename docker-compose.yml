@@ -7,12 +7,14 @@ services:
     stop_grace_period: 30s
     security_opt:
       - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
     ports:
       - "127.0.0.1:3001:3001"
     environment:
-      PORT: "3001"
-      DATA_DIR: /data
-      DATABASE_URL: file:/data/sleeve.db
       MUSICBRAINZ_USER_AGENT: ${MUSICBRAINZ_USER_AGENT:-}
       SLEEVE_AUTH_USER: ${SLEEVE_AUTH_USER:-}
       SLEEVE_AUTH_PASSWORD: ${SLEEVE_AUTH_PASSWORD:-}

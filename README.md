@@ -46,9 +46,6 @@ services:
     ports:
       - "127.0.0.1:3001:3001"   # localhost only
     environment:
-      PORT: "3001"
-      DATA_DIR: /data
-      DATABASE_URL: file:/data/sleeve.db
       # Optional login: set both or neither
       # SLEEVE_AUTH_USER: you
       # SLEEVE_AUTH_PASSWORD: secret
@@ -58,6 +55,8 @@ services:
 volumes:
   sleeve-data:
 ```
+
+The volume is the only thing you need: the image stores SQLite at `/data/sleeve.db` and covers next to it.
 
 Anyone who can reach port 3001 gets in by default. Setting both auth variables makes Sleeve ask for that username and password — HTTP Basic auth — before it serves anything.
 

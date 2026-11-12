@@ -11,7 +11,7 @@ docker compose up -d --build
 
 Open http://127.0.0.1:3001.
 
-The compose file binds to localhost only and stores everything in the `sleeve-data` volume:
+The compose file binds to localhost only and stores everything in the `sleeve-data` volume. No database variables are needed — the container defaults to `/data/sleeve.db`:
 
 ```text
 /data/sleeve.db      SQLite database
@@ -42,9 +42,9 @@ bun run start
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `DATABASE_URL` | required | SQLite URL, e.g. `file:/data/sleeve.db` |
+| `DATABASE_URL` | `$DATA_DIR/sleeve.db` in Docker | SQLite URL; required when running from source |
 | `PORT` | `3000` prod / `3001` dev | HTTP port |
-| `DATA_DIR` | `./data` | Covers and backups |
+| `DATA_DIR` | `./data`, `/data` in Docker | Covers and backups |
 | `COVER_CACHE_DIR` | `$DATA_DIR/covers` | Cover cache override |
 | `BACKUP_DIR` | `$DATA_DIR/backups` | Backups |
 | `COVER_CACHE_MAX_MB` | `500` | Cover cache size limit |
@@ -86,6 +86,20 @@ Container checks:
 bun run test:docker          # build release image + runtime smoke test
 docker build --target test . # run the full test suite inside Docker
 ```
+
+## Hardening
+
+The compose file already applies these; keep them if you deploy your own:
+
+- runs as `uid/gid 1000` (`bun`), never root
+- bind-mounting a host folder owned by another user? Either `sudo chown -R 1000:1000 ./data` or add `user: "<uid>:<gid>"` to the service
+- `cap_drop: ALL` and `no-new-privileges`
+- read-only root filesystem, with `/tmp` as a 64 MB tmpfs
+- data written with `0600` files and `0700` directories (`umask 077`)
+- port published on `127.0.0.1` only
+- health probes on `/api/health`
+
+Sleeve speaks plain HTTP. If it leaves localhost, terminate TLS in front of it.
 
 ## Backups
 

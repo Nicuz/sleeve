@@ -1,16 +1,19 @@
 import { defineConfig } from 'vitepress'
 
+const rawBase = (process.env.DOCS_BASE || '/').replace(/^\/+|\/+$/g, '')
+const base = rawBase ? `/${rawBase}/` : '/'
+
 export default defineConfig({
   lang: 'en',
   title: 'Sleeve',
   description: 'A catalog for the records you chose, and a slower way to decide what to play next.',
-  base: process.env.DOCS_BASE || '/',
+  base,
   cleanUrls: true,
   lastUpdated: true,
   appearance: 'force-dark',
   ignoreDeadLinks: [/^http:\/\/localhost/, /^http:\/\/127\.0\.0\.1/],
   head: [
-    ['link', { rel: 'icon', href: '/favicon.svg' }],
+    ['link', { rel: 'icon', href: `${base}favicon.svg` }],
     ['meta', { name: 'theme-color', content: '#07080b' }],
   ],
   themeConfig: {

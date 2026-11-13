@@ -33,4 +33,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- Empty Discover feeds retry after 30 minutes instead of staying cached for a week, and the empty state offers a **Try again** action.
 - Wishlist grid cards reserve a two-line note slot, so cards with and without notes stay aligned and long notes truncate instead of changing row height.

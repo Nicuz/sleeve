@@ -40,6 +40,8 @@ Nothing is added to your shelf or wishlist automatically. Opening a card records
 
 Picks are cached and refreshed weekly. There is no manual refresh button. The page shows when it was updated and when the next refresh is due.
 
+If MusicBrainz returns no picks, Sleeve retries in about 30 minutes instead of waiting a full week. The empty state also offers **Try again**.
+
 Saving, wishlisting or following does not rebuild the current picks immediately. Owning a record removes only that record from the current picks.
 
 ## Make it better

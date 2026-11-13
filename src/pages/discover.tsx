@@ -580,6 +580,21 @@ export function DiscoverPage() {
     },
   });
 
+  const refreshDiscovery = useMutation({
+    mutationFn: () => api.discover(true),
+    onSuccess: (feed) => {
+      queryClient.setQueryData(['discover'], feed);
+    },
+    onError: (mutationError) => {
+      toast(
+        mutationError instanceof ApiError
+          ? mutationError.message
+          : 'Could not refresh discovery',
+        'error',
+      );
+    },
+  });
+
   function wishlistItem(item: DiscoveryItem) {
     addToWishlist.mutate(item);
   }
@@ -882,9 +897,17 @@ export function DiscoverPage() {
             No fresh suggestions right now
           </p>
           <p className="mt-1 max-w-sm text-xs text-muted">
-            MusicBrainz did not return new albums for your top genres. The picks will
-            refresh automatically later.
+            MusicBrainz did not return new albums for your top genres. Sleeve will try
+            again automatically, or you can search now.
           </p>
+          <button
+            type="button"
+            onClick={() => refreshDiscovery.mutate()}
+            disabled={refreshDiscovery.isPending}
+            className="btn btn-secondary mt-4"
+          >
+            {refreshDiscovery.isPending ? 'Searching…' : 'Try again'}
+          </button>
         </div>
       ) : (
         <>

@@ -289,6 +289,7 @@ Rows older than 180 days are pruned. Events never create UI prompts.
 ### Refresh behavior
 
 - Fresh cache → returned immediately.
+- Empty feed → cached for 30 minutes instead of 7 days, so a failed MusicBrainz build is retried soon.
 - Current cache with an older/short expiry → expiry is extended to `generatedAt + 7 days` without rebuilding, so existing picks survive a cadence change.
 - Expired cache → cached feed returned immediately; rebuild runs in background.
 - Version mismatch → rebuild before serving.

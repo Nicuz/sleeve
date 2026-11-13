@@ -47,6 +47,7 @@ export const DISCOVERY_VERSION = 4;
 
 const VARIOUS_ARTISTS_ID = '89ad4ac3-39f7-470e-963a-56509c546377';
 const FEED_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+export const EMPTY_FEED_TTL_MS = 30 * 60 * 1000;
 const SEEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const EVENT_WINDOW_DAYS = 180;
 const RADAR_WINDOW_DAYS = 30;
@@ -67,6 +68,12 @@ const FOLLOW_WEIGHT = 1.5;
 const MAX_ARTIST_AFFINITY = 12;
 const MIN_ARTIST_AFFINITY = -4;
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+export function discoveryFeedTtlMs(
+  feed: Pick<DiscoveryFeed, 'featured' | 'sections'>,
+): number {
+  return feed.featured || feed.sections.length > 0 ? FEED_TTL_MS : EMPTY_FEED_TTL_MS;
+}
 
 function isoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -878,6 +885,7 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
     },
   ];
   const sections = allSections.filter((section) => section.items.length > 0);
+  const ttlMs = discoveryFeedTtlMs({ featured, sections });
 
   const feed: DiscoveryFeed = {
     version: DISCOVERY_VERSION,
@@ -885,7 +893,7 @@ async function buildDiscoveryFeed(signal?: AbortSignal): Promise<DiscoveryFeed> 
     featured,
     sections,
     generatedAt: new Date().toISOString(),
-    nextRefreshAt: new Date(Date.now() + FEED_TTL_MS).toISOString(),
+    nextRefreshAt: new Date(Date.now() + ttlMs).toISOString(),
   };
 
   const returned = [featured, ...sections.flatMap((section) => section.items)].filter(
@@ -914,34 +922,38 @@ async function rebuildFeed(signal?: AbortSignal): Promise<DiscoveryFeed> {
 
   rebuildPromise = (async () => {
     const feed = await buildDiscoveryFeed(signal);
+    const empty = !feed.featured && feed.sections.length === 0;
 
-    if (feed.sections.length === 0) {
+    if (empty) {
       const existing = await prisma.discoveryFeed.findUnique({
         where: { id: 'current' },
       });
       const cached = existing ? parseFeed(existing.payload) : null;
-      if (cached) {
+      const cachedHasItems =
+        Boolean(cached?.featured) || Boolean(cached?.sections.length);
+      if (cached && cachedHasItems) {
         await prisma.discoveryFeed
           .update({
             where: { id: 'current' },
-            data: { expiresAt: new Date(Date.now() + FEED_TTL_MS) },
+            data: { expiresAt: new Date(Date.now() + discoveryFeedTtlMs(cached)) },
           })
           .catch(() => undefined);
         return cached;
       }
     }
 
+    const ttlMs = discoveryFeedTtlMs(feed);
     await prisma.discoveryFeed.upsert({
       where: { id: 'current' },
       create: {
         id: 'current',
         payload: JSON.stringify(feed),
-        expiresAt: new Date(Date.now() + FEED_TTL_MS),
+        expiresAt: new Date(Date.now() + ttlMs),
       },
       update: {
         payload: JSON.stringify(feed),
         generatedAt: new Date(),
-        expiresAt: new Date(Date.now() + FEED_TTL_MS),
+        expiresAt: new Date(Date.now() + ttlMs),
       },
     });
 
@@ -1015,12 +1027,12 @@ export async function getDiscoveryFeed(
   if (!refresh && cached && current) {
     const generatedAt = new Date(cached.generatedAt).getTime();
     if (Number.isFinite(generatedAt)) {
-      const expectedRefreshAt = new Date(generatedAt + FEED_TTL_MS);
+      const expectedRefreshAt = new Date(generatedAt + discoveryFeedTtlMs(cached));
+      const normalized: DiscoveryFeed = {
+        ...cached,
+        nextRefreshAt: expectedRefreshAt.toISOString(),
+      };
       if (expectedRefreshAt.getTime() > Date.now()) {
-        const normalized: DiscoveryFeed = {
-          ...cached,
-          nextRefreshAt: expectedRefreshAt.toISOString(),
-        };
         if (
           cachedRow &&
           (cachedRow.expiresAt.getTime() < expectedRefreshAt.getTime() ||
@@ -1038,6 +1050,8 @@ export async function getDiscoveryFeed(
         }
         return normalized;
       }
+      void rebuildFeed().catch(() => undefined);
+      return normalized;
     }
     if (cachedRow && cachedRow.expiresAt.getTime() > Date.now()) return cached;
     void rebuildFeed().catch(() => undefined);

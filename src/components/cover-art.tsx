@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Disc3 } from 'lucide-react';
 import { cn, hueFromString, proxiedCoverUrl } from '@/lib/utils';
 
@@ -17,16 +17,20 @@ export function CoverArt({
   iconSize = 38,
   onError,
 }: CoverArtProps) {
-  const [loaded, setLoaded] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
   const hue = hueFromString(title);
   const resolvedSrc = proxiedCoverUrl(src);
+  const loaded = Boolean(resolvedSrc) && loadedSrc === resolvedSrc;
+  const failed = Boolean(resolvedSrc) && failedSrc === resolvedSrc;
   const showImage = Boolean(resolvedSrc) && !failed;
 
   useEffect(() => {
-    setLoaded(false);
-    setFailed(false);
-  }, [src]);
+    const image = imageRef.current;
+    if (!resolvedSrc || !image?.complete || image.naturalWidth === 0) return;
+    setLoadedSrc(resolvedSrc);
+  }, [resolvedSrc]);
 
   return (
     <div
@@ -52,17 +56,19 @@ export function CoverArt({
       )}
       {showImage && (
         <img
+          key={resolvedSrc}
+          ref={imageRef}
           src={resolvedSrc as string}
           alt=""
           loading="lazy"
+          decoding="async"
           className={cn(
             'relative h-full w-full object-cover transition-opacity duration-500',
             loaded ? 'opacity-100' : 'opacity-0',
           )}
-          onLoad={() => setLoaded(true)}
+          onLoad={() => setLoadedSrc(resolvedSrc)}
           onError={() => {
-            setFailed(true);
-            setLoaded(false);
+            setFailedSrc(resolvedSrc);
             onError?.();
           }}
         />

@@ -6,10 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Fixed
-
-- Wishlist grid cards reserve a two-line note slot, so cards with and without notes stay aligned and long notes truncate instead of changing row height.
-
 ## [0.1.0] - 2026-11-13
 
 ### Added
@@ -28,3 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Tagged releases publish multi-arch (`amd64`/`arm64`) images to `ghcr.io/nicuz/sleeve`, with a minimal `docker-compose.image.yml` stack.
 - Docker Compose takes an optional `SLEEVE_PORT` for the host port; the container and production default stay `3001`.
 - Static read-only demo at `/demo/` with real album artwork, CD/Vinyl/Cassette formats and EUR prices.
+
+### Fixed
+
+- Wishlist grid cards reserve a two-line note slot, so cards with and without notes stay aligned and long notes truncate instead of changing row height.

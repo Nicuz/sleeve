@@ -6,11 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Changed
-
-- The published GHCR image is now the primary Docker path; `docker-compose.image.yml` accepts `SLEEVE_VERSION` and the auth/user-agent variables.
-- `SLEEVE_DATA_DIR` can point `/data` at an absolute host directory instead of the named volume.
-
 ## [0.1.0] - 2026-11-13
 
 ### Added
@@ -29,6 +24,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Tagged releases publish multi-arch (`amd64`/`arm64`) images to `ghcr.io/nicuz/sleeve`, with a minimal `docker-compose.image.yml` stack.
 - Docker Compose takes an optional `SLEEVE_PORT` for the host port; the container and production default stay `3001`.
 - Static read-only demo at `/demo/` with real album artwork, CD/Vinyl/Cassette formats and EUR prices.
+
+### Changed
+
+- The published GHCR image is the primary Docker path; `docker-compose.image.yml` accepts `SLEEVE_VERSION` and the auth/user-agent variables.
+- `SLEEVE_DATA_DIR` can point `/data` at an absolute host directory instead of the named volume.
+- The image entrypoint fixes data-directory ownership before dropping to the non-root app user, so bind mounts work without manual `chown`.
 
 ### Fixed
 

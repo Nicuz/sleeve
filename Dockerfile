@@ -65,7 +65,7 @@ ENV NODE_ENV=production \
     DATA_DIR=/data \
     PORT=3001
 
-USER bun
+USER root
 EXPOSE 3001
 VOLUME ["/data"]
 

@@ -28,12 +28,7 @@ Data lives in the named volume `sleeve-data` by default. To use a host directory
 SLEEVE_DATA_DIR=/opt/stacks/sleeve/data
 ```
 
-Create it first and make it writable by uid/gid `1000`:
-
-```bash
-mkdir -p /opt/stacks/sleeve/data
-sudo chown -R 1000:1000 /opt/stacks/sleeve/data
-```
+The image's entrypoint creates the directory and fixes ownership before starting the app. No manual `chown` needed.
 
 Or clone and build the image locally:
 

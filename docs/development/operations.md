@@ -72,14 +72,9 @@ docker compose up -d --build
 SLEEVE_DATA_DIR=/opt/stacks/sleeve/data
 ```
 
-Create it first and give it to the container user:
+The image entrypoint starts as root only long enough to create the directory and recursively set ownership to uid/gid `1000`, then drops to the `bun` user before starting the app. No manual `chown` is needed, including for bind mounts.
 
-```bash
-mkdir -p /opt/stacks/sleeve/data
-sudo chown -R 1000:1000 /opt/stacks/sleeve/data
-```
-
-Docker creates a missing bind-mount directory as `root:root`, but the container runs as uid/gid `1000`.
+If you run the container with an explicit non-root `user:`, the entrypoint cannot change ownership. In that case create the directory yourself and make it writable by that user, or use the default named volume.
 
 ### Ports
 
@@ -402,7 +397,7 @@ Never leave test records in the real DB.
 | Symptom | Cause / fix |
 | --- | --- |
 | `EADDRINUSE` on 3001 | Another process owns the port. For Docker, set `SLEEVE_PORT`; for a source run, set `PORT`. |
-| Docker: `unable to open database file` | Bind-mount directory is not writable by uid/gid `1000`. Create it and `chown -R 1000:1000`, or use the default named volume. |
+| Docker: `unable to open database file` | The image entrypoint fixes bind-mount ownership. If you run with an explicit non-root `user:`, chown the data directory to that user or use the named volume. |
 | New route/model missing | Dev API not restarted after schema/code change. |
 | Prisma model undefined | Run `bun run db:push`/`db:generate`, restart dev. |
 | Metadata not updating | Check MBID; use Refresh/Search match. |

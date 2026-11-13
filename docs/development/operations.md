@@ -57,7 +57,7 @@ The compose file binds to localhost and stores everything in the `sleeve-data` v
 Published image:
 
 ```bash
-docker compose -f docker-compose.image.yml up -d
+docker compose up -d
 ```
 
 Source build:
@@ -65,6 +65,8 @@ Source build:
 ```bash
 docker compose up -d --build
 ```
+
+Use the inline stack from the README/getting started as `compose.yaml`. The repository's `docker-compose.image.yml` is the same stack with auth and user-agent variables.
 
 `/data` uses the named volume `sleeve-data` by default. To store the database and covers in a visible host directory, set an absolute path:
 
@@ -122,7 +124,7 @@ Tagged releases publish multi-arch images to GitHub Container Registry:
 
 The package is public. If a pull asks for credentials, check the package visibility in GitHub package settings. Images appear after the first tagged release.
 
-`docker-compose.image.yml` is the minimal runtime stack: image, restart policy, localhost port, auth and user-agent variables, and the data volume. Use it directly or as the basis for another compose manager. Set `SLEEVE_VERSION` to pin `0.1.0`, `0.1`, or another tag; the default is `latest`. With `latest`, an update action that runs `docker compose pull` picks up new releases.
+`docker-compose.image.yml` is the full runtime stack with auth and user-agent variables. The README and getting started show a shorter inline version without them. Set `SLEEVE_VERSION` to pin `0.1.0`, `0.1`, or another tag; the default is `latest`. With `latest`, an update action that runs `docker compose pull` picks up new releases.
 
 Source builds keep using the root `docker-compose.yml` and its hardening options.
 
@@ -172,8 +174,8 @@ The compose file already applies these:
 Published image:
 
 ```bash
-docker compose -f docker-compose.image.yml pull
-docker compose -f docker-compose.image.yml up -d
+docker compose pull
+docker compose up -d
 ```
 
 Source build:

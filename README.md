@@ -46,14 +46,26 @@ New releases from artists you follow, records by similar artists, and older albu
 
 ## Run it
 
-The fastest route is the published multi-arch image:
+The fastest route is the published multi-arch image. Save this as `compose.yaml`:
 
-```bash
-curl -fsSLO https://raw.githubusercontent.com/Nicuz/sleeve/main/docker-compose.image.yml
-docker compose -f docker-compose.image.yml up -d
+```yaml
+services:
+  sleeve:
+    image: ghcr.io/nicuz/sleeve:${SLEEVE_VERSION:-latest}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - ${SLEEVE_DATA_DIR:-./data}:/data
 ```
 
-Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume by default. Set `SLEEVE_DATA_DIR=/absolute/path` in `.env` to use a host directory instead; the image fixes its ownership on startup. Back it up from **Settings → Backup & restore**. Pin a release with `SLEEVE_VERSION=0.1.0` in `.env`; update later with `docker compose -f docker-compose.image.yml pull && docker compose -f docker-compose.image.yml up -d`. **Settings → About** shows the running version and commit. If `3001` is already in use, set `SLEEVE_PORT=3011` in `.env`; the container keeps listening on `3001`.
+Then start it:
+
+```bash
+docker compose up -d
+```
+
+Open **http://127.0.0.1:3001**. Data defaults to `./data` next to the compose file. Set `SLEEVE_DATA_DIR=/absolute/path` in `.env` to use another directory; the image fixes its ownership on startup. Back it up from **Settings → Backup & restore**. Pin a release with `SLEEVE_VERSION=0.1.0` in `.env`; update later with `docker compose pull && docker compose up -d`. **Settings → About** shows the running version and commit. If `3001` is already in use, change the host side of `ports`. The full [docker-compose.image.yml](docker-compose.image.yml) also wires optional auth, user-agent and `SLEEVE_PORT` variables.
 
 Or clone and build the image locally:
 

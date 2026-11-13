@@ -13,16 +13,28 @@ Want to look around first? Try the [static demo](https://nicuz.github.io/sleeve/
 
 ## Run it
 
-The fastest route is the published multi-arch image:
+The fastest route is the published multi-arch image. Save this as `compose.yaml`:
 
-```bash
-curl -fsSLO https://raw.githubusercontent.com/Nicuz/sleeve/main/docker-compose.image.yml
-docker compose -f docker-compose.image.yml up -d
+```yaml
+services:
+  sleeve:
+    image: ghcr.io/nicuz/sleeve:${SLEEVE_VERSION:-latest}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - ${SLEEVE_DATA_DIR:-./data}:/data
 ```
 
-Open [http://127.0.0.1:3001](http://127.0.0.1:3001). Pin a release with `SLEEVE_VERSION=0.1.0` in `.env`; the default is `latest`. If `3001` is taken, set `SLEEVE_PORT=3011`.
+Then start it:
 
-Data lives in the named volume `sleeve-data` by default. To use a host directory instead:
+```bash
+docker compose up -d
+```
+
+Open [http://127.0.0.1:3001](http://127.0.0.1:3001). Pin a release with `SLEEVE_VERSION=0.1.0` in `.env`; the default is `latest`. If `3001` is taken, change the host side of `ports`.
+
+Data defaults to `./data` next to the compose file. To use another path:
 
 ```dotenv
 SLEEVE_DATA_DIR=/opt/stacks/sleeve/data
@@ -55,8 +67,8 @@ Start with one of the Docker commands above. For a long-running server:
 2. Upgrade the published image with:
 
    ```bash
-   docker compose -f docker-compose.image.yml pull
-   docker compose -f docker-compose.image.yml up -d
+   docker compose pull
+   docker compose up -d
    ```
 
    Or upgrade a source build with:
@@ -69,7 +81,7 @@ Start with one of the Docker commands above. For a long-running server:
    Pending migrations run on startup. **Settings → About** and `/api/version` show the running version and commit.
 3. Download a backup from **Settings → Backup & restore** after upgrades and before risky changes.
 
-Tagged releases publish `ghcr.io/nicuz/sleeve` images for `linux/amd64` and `linux/arm64`. The minimal stack lives in `docker-compose.image.yml`: image, restart policy, localhost port and the `/data` volume. The volume keeps the SQLite database, covers and snapshots; back it up before upgrading.
+Tagged releases publish `ghcr.io/nicuz/sleeve` images for `linux/amd64` and `linux/arm64`. The inline stack above is the minimal setup. The repository's `docker-compose.image.yml` adds auth and user-agent variables. The data directory keeps the SQLite database, covers and snapshots; back it up before upgrading.
 
 Basic auth protects an exposed instance. It does not add user accounts or separate libraries. Environment variables, Docker details and hardening live in [Operations](../development/operations.md#production).
 

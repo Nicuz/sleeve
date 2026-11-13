@@ -5,6 +5,13 @@
 
 <p align="center"><strong>A shelf for the records you chose, and a slower way to decide what to play next.</strong></p>
 
+<p align="center"><a href="https://nicuz.github.io/sleeve/"><strong>Website</strong></a> · <a href="https://nicuz.github.io/sleeve/guide/getting-started"><strong>Docs</strong></a></p>
+
+<p align="center">
+  <a href="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml"><img src="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
+</p>
+
 I started collecting CDs because I wanted to taste music again. I wanted to decide what to listen to based on how I feel, instead of letting shuffle decide for me. I also wanted to own what I really like.
 
 Sleeve is not a replacement for streaming. I still use streaming. This is another way to enjoy music, built around the records I chose.
@@ -12,8 +19,8 @@ Sleeve is not a replacement for streaming. I still use streaming. This is anothe
 Sleeve keeps three things in one place: the records you own, the records you are looking for, and a small set of records worth checking next.
 
 <p align="center">
-  <img src="docs/public/screenshot.webp" width="660" alt="Sleeve library on desktop with album covers, formats and collection totals" />
-  <img src="docs/public/screenshot-mobile.webp" width="210" alt="Sleeve library on a phone with a two-column collection grid" />
+  <img src="docs/public/screenshot.webp" width="600" alt="Sleeve library on desktop with album covers, formats and collection totals" />
+  <img src="docs/public/screenshot-mobile.webp" width="180" alt="Sleeve library on a phone with a two-column collection grid" />
 </p>
 
 ## The shelf

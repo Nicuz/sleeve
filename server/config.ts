@@ -54,7 +54,7 @@ if (Boolean(authUser) !== Boolean(authPassword)) {
 
 export const env = {
   isProduction: process.env.NODE_ENV === 'production',
-  port: readPort(process.env.PORT, process.env.NODE_ENV === 'production' ? 3000 : 3001),
+  port: readPort(process.env.PORT, 3001),
   userAgent,
   dataDir,
   coverCacheDir: process.env.COVER_CACHE_DIR ?? join(dataDir, 'covers'),

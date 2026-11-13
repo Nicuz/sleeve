@@ -7,6 +7,7 @@ volume="sleeve-smoke-${suffix}"
 image="sleeve:smoke-${suffix}"
 port="${SLEEVE_SMOKE_PORT:-3299}"
 base="http://127.0.0.1:${port}"
+expected_version="$(node -p "require('./package.json').version")"
 
 cleanup() {
   docker rm -f "${container}" >/dev/null 2>&1 || true
@@ -28,7 +29,17 @@ wait_for_health() {
 }
 
 echo "Building Docker image…"
-docker build --target release --build-arg SLEEVE_COMMIT=smoke-test -t "${image}" . >/dev/null
+docker build --target release \
+  --build-arg SLEEVE_VERSION="${expected_version}" \
+  --build-arg SLEEVE_COMMIT=smoke-test \
+  -t "${image}" . >/dev/null
+
+label_version="$(docker image inspect "${image}" \
+  --format '{{ index .Config.Labels "org.opencontainers.image.version" }}')"
+label_revision="$(docker image inspect "${image}" \
+  --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')"
+test "${label_version}" = "${expected_version}"
+test "${label_revision}" = "smoke-test"
 
 echo "Starting isolated container…"
 docker run -d \
@@ -43,7 +54,6 @@ docker run -d \
 wait_for_health
 
 echo "Checking version endpoint…"
-expected_version="$(node -p "require('./package.json').version")"
 version_json="$(curl -fsS "${base}/api/version")"
 printf '%s' "${version_json}" | grep -q '"name":"Sleeve"'
 printf '%s' "${version_json}" | grep -q "\"version\":\"${expected_version}\""

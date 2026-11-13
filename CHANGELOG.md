@@ -20,3 +20,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Settings → About now shows the app version, commit and build date, with a link to releases.
 - Public `GET /api/version` endpoint for checking a running instance.
 - Tagged releases with notes generated from this changelog.
+- Docker images carry OCI version and revision labels; `bun run docker:build` tags both `sleeve:<version>` and `sleeve:latest`.
+- Tagged releases publish multi-arch (`amd64`/`arm64`) images to `ghcr.io/nicuz/sleeve`, with a minimal `docker-compose.image.yml` stack.
+- Docker Compose takes an optional `SLEEVE_PORT` for the host port; the container and production default stay `3001`.

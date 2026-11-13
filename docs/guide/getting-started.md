@@ -45,6 +45,14 @@ Start with the Docker command above. For a long-running server:
    Pending migrations run on startup. **Settings → About** and `/api/version` show the running version and commit.
 3. Download a backup from **Settings → Backup & restore** after upgrades and before risky changes.
 
+### Prebuilt image
+
+Tagged releases publish `ghcr.io/nicuz/sleeve` images for `linux/amd64` and `linux/arm64`. The minimal stack lives in `docker-compose.image.yml`: image, restart policy, localhost port and the `/data` volume. Use it directly or adapt it to your compose manager.
+
+Use `latest` if you want `docker compose pull` to pick up releases. Pin an exact version tag if you prefer manual upgrades. The volume keeps the SQLite database, covers and snapshots; back it up before upgrading.
+
+If `3001` is already taken, set `SLEEVE_PORT=3011` in the stack `.env` or change only the host side of `ports`. The container keeps listening on `3001`.
+
 Basic auth protects an exposed instance. It does not add user accounts or separate libraries. Environment variables, Docker details and hardening live in [Operations](../development/operations.md#production).
 
 ## Add your first record

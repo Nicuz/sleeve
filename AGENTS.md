@@ -22,6 +22,7 @@ bun run dev:temp     # API :3099 against a disposable temp database
 bun run check        # typecheck + lint + bun test + production build
 bun run docs:build   # VitePress docs site -> docs/.vitepress/dist
 bun run test         # bun test (integration tests create their own temp DBs)
+bun run docker:build # build sleeve:<version> + sleeve:latest with OCI labels
 bun run build        # dist/
 bun run start        # production server, serves dist + API on PORT (.env: 3001)
 bun run db:push      # quick local schema sync only; skips migrations and FTS triggers

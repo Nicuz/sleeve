@@ -29,6 +29,20 @@ RUN DATABASE_URL=file:/app/build.db \
 RUN bun test
 
 FROM base AS release
+ARG SLEEVE_VERSION=dev
+ARG SLEEVE_COMMIT=unknown
+ARG SLEEVE_BUILD_DATE
+
+LABEL org.opencontainers.image.title="Sleeve" \
+      org.opencontainers.image.description="Local-first physical music collection catalog" \
+      org.opencontainers.image.version="${SLEEVE_VERSION}" \
+      org.opencontainers.image.revision="${SLEEVE_COMMIT}" \
+      org.opencontainers.image.created="${SLEEVE_BUILD_DATE:-unknown}" \
+      org.opencontainers.image.source="https://github.com/Nicuz/sleeve" \
+      org.opencontainers.image.url="https://github.com/Nicuz/sleeve" \
+      org.opencontainers.image.documentation="https://nicuz.github.io/sleeve/" \
+      org.opencontainers.image.licenses="MIT"
+
 COPY --from=install /temp/prod/node_modules node_modules
 COPY --from=prerelease /app/dist ./dist
 COPY --from=prerelease /app/server ./server

@@ -30,6 +30,7 @@
     "restore": "bun scripts/restore.ts",
     "test": "bun test",
     "test:docker": "bash scripts/test-docker.sh",
+    "docker:build": "bash scripts/docker-build.sh",
     "sample": "bun scripts/sample-data.ts",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",

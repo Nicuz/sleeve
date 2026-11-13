@@ -58,6 +58,56 @@ The compose file binds to localhost and stores everything in the `sleeve-data` v
 docker compose up -d --build
 ```
 
+### Ports
+
+The container always listens on `3001`. The host port defaults to `3001`, so the two appear identical. Only the host side can collide with another service.
+
+If something else already uses `3001`, set `SLEEVE_PORT` in `.env`:
+
+```dotenv
+SLEEVE_PORT=3011
+```
+
+Then redeploy and open `http://127.0.0.1:3011`:
+
+```bash
+docker compose up -d
+```
+
+Do not change `PORT` unless you also change the container side of the mapping. `PORT` is the port inside the container; `SLEEVE_PORT` is the host port.
+
+When a reverse proxy runs in the same Docker network, remove `ports` entirely and proxy to `sleeve:3001`. No host port is published, so no collision is possible.
+
+### Images and tags
+
+`bun run docker:build` builds a stamped release image and tags it twice:
+
+- `sleeve:<version>` — exact release, treat as immutable.
+- `sleeve:latest` — newest local build, moving pointer.
+
+The script passes `SLEEVE_VERSION`, `SLEEVE_COMMIT`, `SLEEVE_DIRTY` and `SLEEVE_BUILD_DATE` as build args. Images carry OCI labels for version, revision, build date, source and license:
+
+```bash
+docker image inspect sleeve:latest --format '{{json .Config.Labels}}'
+```
+
+`docker compose up -d --build` also accepts `SLEEVE_VERSION` (default `dev`) and `SLEEVE_COMMIT`, but still tags the image `sleeve:latest`. Use `bun run docker:build` when you need an exact version tag.
+
+### Published images
+
+Tagged releases publish multi-arch images to GitHub Container Registry:
+
+- `ghcr.io/nicuz/sleeve:<version>` — exact release.
+- `ghcr.io/nicuz/sleeve:<major>.<minor>` — newest patch in that line.
+- `ghcr.io/nicuz/sleeve:latest` — newest stable release.
+- Platforms: `linux/amd64`, `linux/arm64`.
+
+The package is private by default. For anonymous pulls, open the package settings on GitHub and change visibility to public. After that, plain `docker compose pull` works without registry credentials. Images appear after the first tagged release.
+
+`docker-compose.image.yml` is the minimal runtime stack: image, restart policy, localhost port and the data volume. Use it directly or as the basis for another compose manager. With the `latest` tag, an update action that runs `docker compose pull` picks up new releases; pin an exact version tag if you prefer deliberate upgrades.
+
+Source builds keep using the root `docker-compose.yml` and its hardening options.
+
 ### Authentication
 
 Set both variables, or neither:
@@ -123,7 +173,8 @@ Startup applies pending migrations. If the database contains migrations newer th
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `DATABASE_URL` | `file:./dev.db` | Prisma SQLite URL |
-| `PORT` | `3000` prod / `3001` dev | API/production server port |
+| `PORT` | `3001` | Port inside the app/container |
+| `SLEEVE_PORT` | `3001` | Host port published by Docker Compose |
 | `DATA_DIR` | `./data` (`/data` in Docker) | Covers and backups |
 | `COVER_CACHE_DIR` | `$DATA_DIR/covers` | Cover cache override |
 | `BACKUP_DIR` | `$DATA_DIR/backups` | Backups and import snapshots |
@@ -316,7 +367,7 @@ Never leave test records in the real DB.
 
 | Symptom | Cause / fix |
 | --- | --- |
-| `EADDRINUSE` on 3001 | Another dev/prod server is running. Stop it or use another `PORT`. |
+| `EADDRINUSE` on 3001 | Another process owns the port. For Docker, set `SLEEVE_PORT`; for a source run, set `PORT`. |
 | New route/model missing | Dev API not restarted after schema/code change. |
 | Prisma model undefined | Run `bun run db:push`/`db:generate`, restart dev. |
 | Metadata not updating | Check MBID; use Refresh/Search match. |

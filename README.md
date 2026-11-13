@@ -9,6 +9,7 @@
 
 <p align="center">
   <a href="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml"><img src="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/Nicuz/sleeve/releases"><img src="https://img.shields.io/github/v/release/Nicuz/sleeve?display_name=tag" alt="Latest release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
 </p>
 
@@ -53,7 +54,9 @@ cd sleeve
 docker compose up -d --build
 ```
 
-Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume. Back it up from **Settings → Backup & restore**. Update later with `git pull && SLEEVE_COMMIT=$(git rev-parse --short HEAD) docker compose up -d --build`. **Settings → About** shows the running version and commit.
+Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume. Back it up from **Settings → Backup & restore**. Update later with `git pull && SLEEVE_COMMIT=$(git rev-parse --short HEAD) docker compose up -d --build`. **Settings → About** shows the running version and commit. If `3001` is already in use, set `SLEEVE_PORT=3011` in `.env`; the container keeps listening on `3001`.
+
+Prefer a prebuilt image? Use `docker-compose.image.yml`; it pulls `ghcr.io/nicuz/sleeve:latest` and keeps the same `/data` volume.
 
 For login, ports, data layout and upgrades, see [Run on a server](https://nicuz.github.io/sleeve/guide/getting-started#run-it-on-a-server).
 

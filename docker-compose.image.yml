@@ -1,0 +1,11 @@
+services:
+  sleeve:
+    image: ghcr.io/nicuz/sleeve:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${SLEEVE_PORT:-3001}:3001"
+    volumes:
+      - sleeve-data:/data
+
+volumes:
+  sleeve-data:

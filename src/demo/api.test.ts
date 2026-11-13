@@ -26,7 +26,11 @@ describe('demo api', () => {
       releases: Array<{ format: string; coverUrl: string | null }>;
     };
     const wishlist = (await (await get('/api/wishlist')).json()) as {
-      items: Array<{ format: string; targetCurrency: string | null }>;
+      items: Array<{
+        format: string;
+        targetCurrency: string | null;
+        notes: string | null;
+      }>;
     };
 
     const formats = new Set([
@@ -36,6 +40,7 @@ describe('demo api', () => {
     expect([...formats].sort()).toEqual(['CD', 'Cassette', 'Vinyl']);
     expect(releases.releases.every((release) => release.coverUrl)).toBe(true);
     expect(wishlist.items.every((item) => item.targetCurrency === 'EUR')).toBe(true);
+    expect(wishlist.items.some((item) => (item.notes?.length ?? 0) > 80)).toBe(true);
   });
 
   test('returns stats and spending for the chosen range', async () => {

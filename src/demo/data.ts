@@ -164,7 +164,12 @@ function buildWishlist(): WishlistItem[] {
       format,
       formatDetail: format === 'Vinyl' ? 'LP' : format,
       coverUrl: cover(album),
-      notes: index % 2 === 0 ? 'Waiting for a clean copy at a fair price.' : null,
+      notes:
+        index === 0
+          ? 'Waiting for a clean copy at a fair price. The last two I found had worn sleeves and noisy vinyl, so I am holding out for a near mint pressing.'
+          : index % 2 === 0
+            ? 'Waiting for a clean copy at a fair price.'
+            : null,
       targetPrice: 15 + index * 4,
       targetCurrency: 'EUR',
       createdAt: monthsAgo(10 - index, 4).toISOString(),

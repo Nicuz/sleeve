@@ -274,6 +274,7 @@ These classes live in `src/index.css`.
 - Artist/wishlist/discover cards reuse the same square-cover rhythm.
 - Discover cards keep Album/EP type in the text block beside the year, not over the cover.
 - All grid cards (library, wishlist, artist, Discover) use the same full-surface hover halo; covers do not zoom or lift.
+- Wishlist grid cards reserve a fixed two-line note slot at the bottom, so cards with and without notes keep the same height. Long notes clamp with an ellipsis; the full text is available in the edit dialog.
 
 ### Dialogs
 

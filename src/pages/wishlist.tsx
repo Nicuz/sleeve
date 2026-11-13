@@ -34,7 +34,7 @@ function WishlistCard({
     <button
       type="button"
       onClick={() => onEdit(item)}
-      className="group relative w-full text-left outline-none"
+      className="group relative flex h-full w-full flex-col text-left outline-none"
     >
       <CardHalo />
       <div className="relative aspect-square overflow-hidden rounded-xl group-focus-visible:ring-2 group-focus-visible:ring-accent/60">
@@ -45,7 +45,7 @@ function WishlistCard({
           Edit
         </span>
       </div>
-      <div className="mt-3 min-w-0">
+      <div className="mt-3 flex min-h-0 flex-1 flex-col">
         <p className="truncate text-sm font-semibold text-cream" title={item.title}>
           {item.title}
         </p>
@@ -71,11 +71,16 @@ function WishlistCard({
             </span>
           )}
         </div>
-        {item.notes && (
-          <p className="mt-1 line-clamp-2 text-[10px] leading-relaxed text-muted/50">
-            {item.notes}
-          </p>
-        )}
+        <div className="mt-auto min-h-10 pt-1.5">
+          {item.notes ? (
+            <p
+              className="line-clamp-2 break-words text-[10px] leading-relaxed text-muted/50"
+              title={item.notes}
+            >
+              {item.notes}
+            </p>
+          ) : null}
+        </div>
       </div>
     </button>
   );

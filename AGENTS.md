@@ -20,7 +20,9 @@ bun install
 bun run dev          # API :3001 + Vite :5173
 bun run dev:temp     # API :3099 against a disposable temp database
 bun run check        # typecheck + lint + bun test + production build
-bun run docs:build   # VitePress docs site -> docs/.vitepress/dist
+bun run docs:build   # demo + VitePress docs -> docs/.vitepress/dist
+bun run demo:build   # static read-only demo -> docs/public/demo
+bun run demo:dev     # demo on http://localhost:5173/demo/
 bun run test         # bun test (integration tests create their own temp DBs)
 bun run docker:build # build sleeve:<version> + sleeve:latest with OCI labels
 bun run build        # dist/
@@ -64,6 +66,8 @@ After a Prisma schema change: create a migration with `bun run db:migrate`, appl
 
 - `src/App.tsx` — routes: `/`, `/releases/:id`, `/artists/:mbid`, `/wishlist`, `/discover`, `/stats`, `/settings`, `/import/csv`.
 - `src/pages/` — one page per route.
+- `src/demo/` — static read-only demo: same app, mock `/api` via fetch, fixture data.
+- `vite.demo.config.ts` — demo build into `docs/public/demo`.
 - `src/components/` — dialogs, cards, shell, cover art, metadata match/enrich, wishlist, spending.
 - `src/lib/api.ts` — typed fetch client.
 - `src/lib/types.ts` — shared client types.

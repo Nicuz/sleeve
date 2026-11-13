@@ -1,0 +1,3367 @@
+{
+  "owned": [
+    {
+      "title": "Kind of Blue",
+      "artist": "Miles Davis",
+      "artistId": "561d854a-6a28-4aa7-8c99-323e6ce46c2a",
+      "releaseGroupId": "8e8a594f-2175-38c7-a871-abb68ec363e7",
+      "coverUrl": "https://dn710907.ca.archive.org/0/items/mbid-e7ba3cb7-a074-45ee-870f-3baeb6d3e8bf/mbid-e7ba3cb7-a074-45ee-870f-3baeb6d3e8bf-12708426541_thumb500.jpg",
+      "year": 1959,
+      "releaseDate": "1959-08-17",
+      "country": "GB",
+      "label": "Fontana",
+      "catalogNumber": "682 059 TL",
+      "barcode": null,
+      "format": "Vinyl",
+      "type": "Album",
+      "genres": [
+        "Jazz",
+        "Modal"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "So What",
+          "duration": 545,
+          "artist": "Miles Davis"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Freddie Freeloader",
+          "duration": 576,
+          "artist": "Miles Davis"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Blue in Green",
+          "duration": 329,
+          "artist": "Miles Davis"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "All Blues",
+          "duration": 694,
+          "artist": "Miles Davis"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "Flamenco Sketches",
+          "duration": 565,
+          "artist": "Miles Davis"
+        }
+      ]
+    },
+    {
+      "title": "Random Access Memories",
+      "artist": "Daft Punk",
+      "artistId": "056e4f3e-d505-4dad-8ec1-d04f521cbb56",
+      "releaseGroupId": "aa997ea0-2936-40bd-884d-3af8a0e064dc",
+      "coverUrl": "https://dn721601.ca.archive.org/0/items/mbid-5000a285-b67e-4cfc-b54b-2b98f1810d2e/mbid-5000a285-b67e-4cfc-b54b-2b98f1810d2e-46361185179_thumb500.jpg",
+      "year": 2013,
+      "releaseDate": "2013-05-17",
+      "country": "BR",
+      "label": "Columbia",
+      "catalogNumber": "88883716862",
+      "barcode": "888837168625",
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Electronic",
+        "Disco"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Give Life Back to Music",
+          "duration": 274,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "The Game of Love",
+          "duration": 321,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Giorgio by Moroder",
+          "duration": 544,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Within",
+          "duration": 228,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "Instant Crush",
+          "duration": 337,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Lose Yourself to Dance",
+          "duration": 353,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "Touch",
+          "duration": 498,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "Get Lucky",
+          "duration": 367,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "Beyond",
+          "duration": 290,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Motherboard",
+          "duration": 341,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 11,
+          "disc": null,
+          "number": 11,
+          "title": "Fragments of Time",
+          "duration": 279,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 12,
+          "disc": null,
+          "number": 12,
+          "title": "Doin’ It Right",
+          "duration": 251,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 13,
+          "disc": null,
+          "number": 13,
+          "title": "Contact",
+          "duration": 381,
+          "artist": "Daft Punk"
+        }
+      ]
+    },
+    {
+      "title": "Rumours",
+      "artist": "Fleetwood Mac",
+      "artistId": "bd13909f-1c29-4c27-a874-d4aaf27c5b1a",
+      "releaseGroupId": "416bb5e5-c7d1-3977-8fd7-7c9daf6c2be6",
+      "coverUrl": "https://dn710803.ca.archive.org/0/items/mbid-7699b503-6a69-4920-91ac-8ee8aa1c1622/mbid-7699b503-6a69-4920-91ac-8ee8aa1c1622-7946930592_thumb500.jpg",
+      "year": 1977,
+      "releaseDate": "1977-02-04",
+      "country": "CA",
+      "label": "Warner Bros. Records",
+      "catalogNumber": "CD 3010",
+      "barcode": "075992731324",
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Rock",
+        "Pop Rock"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Second Hand News",
+          "duration": 174,
+          "artist": "Fleetwood Mac"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Dreams",
+          "duration": 258,
+          "artist": "Fleetwood Mac"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Never Going Back Again",
+          "duration": 135,
+          "artist": "Fleetwood Mac"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Don’t Stop",
+          "duration": 194,
+          "artist": "Fleetwood Mac"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "Go Your Own Way",
+          "duration": 220,
+          "artist": "Fleetwood Mac"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Songbird",
+          "duration": 203,
+          "artist": "Fleetwood Mac"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "The Chain",
+          "duration": 271,
+          "artist": "Fleetwood Mac"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "You Make Loving Fun",
+          "duration": 213,
+          "artist": "Fleetwood Mac"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "I Don’t Want to Know",
+          "duration": 195,
+          "artist": "Fleetwood Mac"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Oh Daddy",
+          "duration": 238,
+          "artist": "Fleetwood Mac"
+        },
+        {
+          "position": 11,
+          "disc": null,
+          "number": 11,
+          "title": "Gold Dust Woman",
+          "duration": 302,
+          "artist": "Fleetwood Mac"
+        }
+      ]
+    },
+    {
+      "title": "The Dark Side of the Moon",
+      "artist": "Pink Floyd",
+      "artistId": "83d91898-7763-47d7-b03b-b92132375c47",
+      "releaseGroupId": "f5093c06-23e3-404f-aeaa-40f72885ee3a",
+      "coverUrl": "https://dn710607.ca.archive.org/0/items/mbid-956fbc58-362d-43b8-b880-3779e0508559/mbid-956fbc58-362d-43b8-b880-3779e0508559-34025419985_thumb500.jpg",
+      "year": 1973,
+      "releaseDate": "1973-03-24",
+      "country": "JP",
+      "label": "EMI",
+      "catalogNumber": "EMLF-97002",
+      "barcode": "",
+      "format": "Vinyl",
+      "type": "Album",
+      "genres": [
+        "Progressive Rock",
+        "Psychedelic Rock"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Speak to Me",
+          "duration": 68,
+          "artist": "Pink Floyd"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Breathe in the Air",
+          "duration": 169,
+          "artist": "Pink Floyd"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "On the Run",
+          "duration": 231,
+          "artist": "Pink Floyd"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Time",
+          "duration": 410,
+          "artist": "Pink Floyd"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "The Great Gig in the Sky",
+          "duration": 284,
+          "artist": "Pink Floyd"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Money",
+          "duration": 383,
+          "artist": "Pink Floyd"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "Us and Them",
+          "duration": 470,
+          "artist": "Pink Floyd"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "Any Colour You Like",
+          "duration": 206,
+          "artist": "Pink Floyd"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "Brain Damage",
+          "duration": 227,
+          "artist": "Pink Floyd"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Eclipse",
+          "duration": 132,
+          "artist": "Pink Floyd"
+        }
+      ]
+    },
+    {
+      "title": "Thriller",
+      "artist": "Michael Jackson",
+      "artistId": "f27ec8db-af05-4f36-916e-3d57f91ecf5e",
+      "releaseGroupId": "3a7817b5-22cb-32c3-a31b-2c8309fbf92e",
+      "coverUrl": "https://dn711207.ca.archive.org/0/items/mbid-1bc5a5c1-7e4e-4a16-80f4-32a4bcd2201f/mbid-1bc5a5c1-7e4e-4a16-80f4-32a4bcd2201f-12124765400_thumb500.jpg",
+      "year": 1983,
+      "releaseDate": "1983",
+      "country": "NL",
+      "label": "Epic",
+      "catalogNumber": "EPCA 12-3643",
+      "barcode": null,
+      "format": "Vinyl",
+      "type": "Single",
+      "genres": [
+        "Pop",
+        "Funk"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Thriller (long version)",
+          "duration": 357,
+          "artist": "Michael Jackson"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Thriller (remixed short version)",
+          "duration": 245,
+          "artist": "Michael Jackson"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Things I Do for You",
+          "duration": 211,
+          "artist": "Michael Jackson"
+        }
+      ]
+    },
+    {
+      "title": "Abbey Road",
+      "artist": "The Beatles",
+      "artistId": "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+      "releaseGroupId": "9162580e-5df4-32de-80cc-f45a8d8a9b1d",
+      "coverUrl": "https://dn721702.ca.archive.org/0/items/mbid-31765b9f-e969-4257-855f-c7ea1f657b2a/mbid-31765b9f-e969-4257-855f-c7ea1f657b2a-39706767821_thumb500.jpg",
+      "year": 1969,
+      "releaseDate": "1969-09-26",
+      "country": "ES",
+      "label": "Odeon",
+      "catalogNumber": "1J 062-04.243",
+      "barcode": "",
+      "format": "Vinyl",
+      "type": "Album",
+      "genres": [
+        "Rock",
+        "Pop Rock"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Come Together",
+          "duration": 261,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Something",
+          "duration": 183,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Maxwell’s Silver Hammer",
+          "duration": 207,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Oh! Darling",
+          "duration": 207,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "Octopus’s Garden",
+          "duration": 171,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "I Want You (She’s So Heavy)",
+          "duration": 467,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "Here Comes the Sun",
+          "duration": 186,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "Because",
+          "duration": 166,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "You Never Give Me Your Money",
+          "duration": 242,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Sun King",
+          "duration": 146,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 11,
+          "disc": null,
+          "number": 11,
+          "title": "Mean Mr. Mustard",
+          "duration": 66,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 12,
+          "disc": null,
+          "number": 12,
+          "title": "Polythene Pam",
+          "duration": 73,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 13,
+          "disc": null,
+          "number": 13,
+          "title": "She Came In Through the Bathroom Window",
+          "duration": 118,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 14,
+          "disc": null,
+          "number": 14,
+          "title": "Golden Slumbers",
+          "duration": 92,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 15,
+          "disc": null,
+          "number": 15,
+          "title": "Carry That Weight",
+          "duration": 97,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 16,
+          "disc": null,
+          "number": 16,
+          "title": "The End",
+          "duration": 140,
+          "artist": "The Beatles"
+        },
+        {
+          "position": 17,
+          "disc": null,
+          "number": 17,
+          "title": "Her Majesty",
+          "duration": 23,
+          "artist": "The Beatles"
+        }
+      ]
+    },
+    {
+      "title": "Blue Train",
+      "artist": "John Coltrane",
+      "artistId": "b625448e-bf4a-41c3-a421-72ad46cdb831",
+      "releaseGroupId": "c63baaaa-10c0-4b86-ad7e-1f39d7e2eccc",
+      "coverUrl": "https://dn710704.ca.archive.org/0/items/mbid-1a8b1ea7-9a08-46f5-ae12-1fb7f6c21cc6/mbid-1a8b1ea7-9a08-46f5-ae12-1fb7f6c21cc6-24182197342_thumb500.jpg",
+      "year": 2008,
+      "releaseDate": "2008",
+      "country": "DE",
+      "label": "Documents",
+      "catalogNumber": "231877-321",
+      "barcode": "4011222318770",
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Jazz",
+        "Hard Bop"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": 1,
+          "number": 1,
+          "title": "On It",
+          "duration": 545,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 2,
+          "disc": 1,
+          "number": 2,
+          "title": "Polka Dots and Moonbeams",
+          "duration": 520,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 3,
+          "disc": 1,
+          "number": 3,
+          "title": "Weeja",
+          "duration": 670,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 4,
+          "disc": 1,
+          "number": 4,
+          "title": "Avalon",
+          "duration": 581,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 5,
+          "disc": 1,
+          "number": 5,
+          "title": "Tenor Madness",
+          "duration": 739,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 6,
+          "disc": 1,
+          "number": 6,
+          "title": "Tenor Conclave",
+          "duration": 501,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 7,
+          "disc": 1,
+          "number": 7,
+          "title": "Bobs Boys",
+          "duration": 665,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 1,
+          "disc": 2,
+          "number": 1,
+          "title": "Just You, Just Me",
+          "duration": 570,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 2,
+          "disc": 2,
+          "number": 2,
+          "title": "How Deep Is the Ocean?",
+          "duration": 927,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 3,
+          "disc": 2,
+          "number": 3,
+          "title": "Soultrane",
+          "duration": 324,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 4,
+          "disc": 2,
+          "number": 4,
+          "title": "Gnid",
+          "duration": 309,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 5,
+          "disc": 2,
+          "number": 5,
+          "title": "Mating Call",
+          "duration": 336,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 6,
+          "disc": 2,
+          "number": 6,
+          "title": "On a Misty Night",
+          "duration": 382,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 7,
+          "disc": 2,
+          "number": 7,
+          "title": "Romas",
+          "duration": 412,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 8,
+          "disc": 2,
+          "number": 8,
+          "title": "Super Jet",
+          "duration": 355,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 1,
+          "disc": 3,
+          "number": 1,
+          "title": "Interplay",
+          "duration": 580,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 2,
+          "disc": 3,
+          "number": 2,
+          "title": "Soul Eyes",
+          "duration": 1052,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 3,
+          "disc": 3,
+          "number": 3,
+          "title": "Anatomy",
+          "duration": 715,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 4,
+          "disc": 3,
+          "number": 4,
+          "title": "Light Blue",
+          "duration": 471,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 5,
+          "disc": 3,
+          "number": 5,
+          "title": "C.T.A.",
+          "duration": 282,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 6,
+          "disc": 3,
+          "number": 6,
+          "title": "Solacium",
+          "duration": 550,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 1,
+          "disc": 4,
+          "number": 1,
+          "title": "Tommys Time",
+          "duration": 720,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 2,
+          "disc": 4,
+          "number": 2,
+          "title": "Minor Mishap",
+          "duration": 446,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 3,
+          "disc": 4,
+          "number": 3,
+          "title": "Witches Pit",
+          "duration": 402,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 4,
+          "disc": 4,
+          "number": 4,
+          "title": "Marys Blues",
+          "duration": 408,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 5,
+          "disc": 4,
+          "number": 5,
+          "title": "Cat Walk",
+          "duration": 433,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 6,
+          "disc": 4,
+          "number": 6,
+          "title": "Route Four",
+          "duration": 415,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 7,
+          "disc": 4,
+          "number": 7,
+          "title": "Dakar",
+          "duration": 430,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 8,
+          "disc": 4,
+          "number": 8,
+          "title": "Velvet Scene",
+          "duration": 283,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 1,
+          "disc": 5,
+          "number": 1,
+          "title": "Potpourri",
+          "duration": 397,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 2,
+          "disc": 5,
+          "number": 2,
+          "title": "Dont Explain",
+          "duration": 418,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 3,
+          "disc": 5,
+          "number": 3,
+          "title": "Falling in Love With Love",
+          "duration": 699,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 4,
+          "disc": 5,
+          "number": 4,
+          "title": "J.M.S. Dream Doll",
+          "duration": 521,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 5,
+          "disc": 5,
+          "number": 5,
+          "title": "Chronic Blues",
+          "duration": 494,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 6,
+          "disc": 5,
+          "number": 6,
+          "title": "Bakai",
+          "duration": 523,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 7,
+          "disc": 5,
+          "number": 7,
+          "title": "While My Lady Sleeps",
+          "duration": 283,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 1,
+          "disc": 6,
+          "number": 1,
+          "title": "Time Was",
+          "duration": 449,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 2,
+          "disc": 6,
+          "number": 2,
+          "title": "Slowtrane",
+          "duration": 439,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 3,
+          "disc": 6,
+          "number": 3,
+          "title": "I Hear a Rhapsody",
+          "duration": 359,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 4,
+          "disc": 6,
+          "number": 4,
+          "title": "Violets for Your Furs",
+          "duration": 377,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 5,
+          "disc": 6,
+          "number": 5,
+          "title": "Tranes Slo Blues",
+          "duration": 362,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 6,
+          "disc": 6,
+          "number": 6,
+          "title": "Like Someone in Love",
+          "duration": 298,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 7,
+          "disc": 6,
+          "number": 7,
+          "title": "I Love You",
+          "duration": 331,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 8,
+          "disc": 6,
+          "number": 8,
+          "title": "Monks Mood",
+          "duration": 472,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 9,
+          "disc": 6,
+          "number": 9,
+          "title": "Trinkle, Tinkle",
+          "duration": 401,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 10,
+          "disc": 6,
+          "number": 10,
+          "title": "Nutty",
+          "duration": 395,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 1,
+          "disc": 7,
+          "number": 1,
+          "title": "Blue Train",
+          "duration": 642,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 2,
+          "disc": 7,
+          "number": 2,
+          "title": "Moments Notice",
+          "duration": 550,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 3,
+          "disc": 7,
+          "number": 3,
+          "title": "Locomotion",
+          "duration": 434,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 4,
+          "disc": 7,
+          "number": 4,
+          "title": "Im Old Fashioned",
+          "duration": 478,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 5,
+          "disc": 7,
+          "number": 5,
+          "title": "Lazy Bird",
+          "duration": 426,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 6,
+          "disc": 7,
+          "number": 6,
+          "title": "Dealin (take 1)",
+          "duration": 602,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 7,
+          "disc": 7,
+          "number": 7,
+          "title": "Things Ain't What They Used to Be",
+          "duration": 505,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 1,
+          "disc": 8,
+          "number": 1,
+          "title": "Wheelin (take 1)",
+          "duration": 626,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 2,
+          "disc": 8,
+          "number": 2,
+          "title": "Robbins Nest",
+          "duration": 934,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 3,
+          "disc": 8,
+          "number": 3,
+          "title": "Dealin (take 2)",
+          "duration": 618,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 4,
+          "disc": 8,
+          "number": 4,
+          "title": "Wheelin (take 2)",
+          "duration": 683,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 5,
+          "disc": 8,
+          "number": 5,
+          "title": "Slow Dance",
+          "duration": 326,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 6,
+          "disc": 8,
+          "number": 6,
+          "title": "Soft Lights and Sweet Music",
+          "duration": 279,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 1,
+          "disc": 9,
+          "number": 1,
+          "title": "Traneing In",
+          "duration": 754,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 2,
+          "disc": 9,
+          "number": 2,
+          "title": "You Leave Me Breathless",
+          "duration": 443,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 3,
+          "disc": 9,
+          "number": 3,
+          "title": "Bass Blues",
+          "duration": 465,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 4,
+          "disc": 9,
+          "number": 4,
+          "title": "Woodyn You",
+          "duration": 410,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 5,
+          "disc": 9,
+          "number": 5,
+          "title": "I Got It Bad (and That Ain't Good)",
+          "duration": 376,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 6,
+          "disc": 9,
+          "number": 6,
+          "title": "They Cant Take That Away From Me",
+          "duration": 626,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 7,
+          "disc": 9,
+          "number": 7,
+          "title": "Our Delight",
+          "duration": 378,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 1,
+          "disc": 10,
+          "number": 1,
+          "title": "Monks Mood",
+          "duration": 472,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 2,
+          "disc": 10,
+          "number": 2,
+          "title": "Evidence",
+          "duration": 282,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 3,
+          "disc": 10,
+          "number": 3,
+          "title": "Crepuscule With Nellie",
+          "duration": 267,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 4,
+          "disc": 10,
+          "number": 4,
+          "title": "Nutty",
+          "duration": 304,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 5,
+          "disc": 10,
+          "number": 5,
+          "title": "Epistrophy",
+          "duration": 271,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 6,
+          "disc": 10,
+          "number": 6,
+          "title": "Bye-Ya",
+          "duration": 375,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 7,
+          "disc": 10,
+          "number": 7,
+          "title": "Sweet and Lovely",
+          "duration": 575,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 8,
+          "disc": 10,
+          "number": 8,
+          "title": "Blue Monk",
+          "duration": 391,
+          "artist": "John Coltrane"
+        },
+        {
+          "position": 9,
+          "disc": 10,
+          "number": 9,
+          "title": "Epistrophy (incomplete)",
+          "duration": 141,
+          "artist": "John Coltrane"
+        }
+      ]
+    },
+    {
+      "title": "Back to Black",
+      "artist": "Amy Winehouse",
+      "artistId": "dfe9a7c4-8cf2-47f4-9dcb-d233c2b86ec3",
+      "releaseGroupId": "395c3c5d-a677-3c1f-ac1f-1beff237f62d",
+      "coverUrl": "https://dn711100.ca.archive.org/0/items/mbid-e75e5bc2-0145-4a26-8b87-7340362dfe4b/mbid-e75e5bc2-0145-4a26-8b87-7340362dfe4b-8493304569_thumb500.jpg",
+      "year": 2007,
+      "releaseDate": "2007-04-30",
+      "country": "GB",
+      "label": "Universal Music Group",
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "Vinyl",
+      "type": "Single",
+      "genres": [
+        "Soul",
+        "R&B"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Back to Black (Steve Mac remix)",
+          "duration": null,
+          "artist": "Amy Winehouse"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Back to Black (Steve Mac remix) (instrumental)",
+          "duration": null,
+          "artist": "Amy Winehouse"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Back to Black",
+          "duration": null,
+          "artist": "Amy Winehouse"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Back to Black (MushtaQ remix)",
+          "duration": null,
+          "artist": "Amy Winehouse"
+        }
+      ]
+    },
+    {
+      "title": "OK Computer",
+      "artist": "Radiohead",
+      "artistId": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+      "releaseGroupId": "b1392450-e666-3926-a536-22c65f834433",
+      "coverUrl": "https://dn720706.ca.archive.org/0/items/mbid-30702389-5c67-4438-9ea0-2351c8de0f1d/mbid-30702389-5c67-4438-9ea0-2351c8de0f1d-43287476628_thumb500.jpg",
+      "year": 1997,
+      "releaseDate": "1997-05-21",
+      "country": "US",
+      "label": "Capitol Records",
+      "catalogNumber": "CDP 7243 8 55229 2 5",
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Alternative Rock",
+        "Art Rock"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Airbag",
+          "duration": 284,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Paranoid Android",
+          "duration": 383,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Subterranean Homesick Alien",
+          "duration": 268,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Exit Music (for a Film)",
+          "duration": 265,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "Let Down",
+          "duration": 299,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Karma Police",
+          "duration": 262,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "Fitter Happier",
+          "duration": 117,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "Electioneering",
+          "duration": 231,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "Climbing Up the Walls",
+          "duration": 285,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "No Surprises",
+          "duration": 229,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 11,
+          "disc": null,
+          "number": 11,
+          "title": "Lucky",
+          "duration": 260,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 12,
+          "disc": null,
+          "number": 12,
+          "title": "The Tourist",
+          "duration": 325,
+          "artist": "Radiohead"
+        }
+      ]
+    },
+    {
+      "title": "The Queen Is Dead",
+      "artist": "The Smiths",
+      "artistId": "40f5d9e4-2de7-4f2d-ad41-e31a9a9fea27",
+      "releaseGroupId": "d8dde278-482c-3cc8-a530-fea70476f3a5",
+      "coverUrl": "https://dn710905.ca.archive.org/0/items/mbid-527277a6-0ea1-3281-aa8f-abbe03a781b0/mbid-527277a6-0ea1-3281-aa8f-abbe03a781b0-2571659463_thumb500.jpg",
+      "year": 1986,
+      "releaseDate": "1986-06-16",
+      "country": "GB",
+      "label": "Rough Trade",
+      "catalogNumber": "ROUGH 96",
+      "barcode": "",
+      "format": "Vinyl",
+      "type": "Album",
+      "genres": [
+        "Indie Rock",
+        "Post-Punk"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "The Queen Is Dead (Take Me Back to Dear Old Blighty (medley))",
+          "duration": 383,
+          "artist": "The Smiths"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Frankly, Mr. Shankly",
+          "duration": 137,
+          "artist": "The Smiths"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "I Know It’s Over",
+          "duration": 348,
+          "artist": "The Smiths"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Never Had No One Ever",
+          "duration": 216,
+          "artist": "The Smiths"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "Cemetry Gates",
+          "duration": 159,
+          "artist": "The Smiths"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Bigmouth Strikes Again",
+          "duration": 192,
+          "artist": "The Smiths"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "The Boy With the Thorn in His Side",
+          "duration": 195,
+          "artist": "The Smiths"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "Vicar in a Tutu",
+          "duration": 141,
+          "artist": "The Smiths"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "There Is a Light That Never Goes Out",
+          "duration": 242,
+          "artist": "The Smiths"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Some Girls Are Bigger Than Others",
+          "duration": 194,
+          "artist": "The Smiths"
+        }
+      ]
+    },
+    {
+      "title": "Purple Rain",
+      "artist": "Prince",
+      "artistId": "070d193a-845c-479f-980e-bef15710653e",
+      "releaseGroupId": "d230d994-b6ab-31a0-b3e7-c6ede8307a95",
+      "coverUrl": "https://dn710600.ca.archive.org/0/items/mbid-1d413c76-18da-402d-8f41-31f6df3f136c/mbid-1d413c76-18da-402d-8f41-31f6df3f136c-17425619297_thumb500.jpg",
+      "year": 1984,
+      "releaseDate": "1984-09-10",
+      "country": "GB",
+      "label": "Warner Bros. Records",
+      "catalogNumber": "W9174T",
+      "barcode": "",
+      "format": "Vinyl",
+      "type": "Single",
+      "genres": [
+        "Pop",
+        "Funk"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Purple Rain (Long Version)",
+          "duration": 427,
+          "artist": "PrinceThe Revolution"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "God (Instrumental)",
+          "duration": 480,
+          "artist": "PrinceThe Revolution"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "God (Vocal)",
+          "duration": 243,
+          "artist": "PrinceThe Revolution"
+        }
+      ]
+    },
+    {
+      "title": "Songs in the Key of Life",
+      "artist": "Stevie Wonder",
+      "artistId": "1ee18fb3-18a6-4c7f-8ba0-bc41cdd0462e",
+      "releaseGroupId": "ea88b09b-fd34-33cf-a3e5-25a3a2fb4c6f",
+      "coverUrl": "https://dn710000.ca.archive.org/0/items/mbid-8bf1769c-b081-4a70-ac6d-9a97c83ad135/mbid-8bf1769c-b081-4a70-ac6d-9a97c83ad135-39110820929_thumb500.jpg",
+      "year": 1976,
+      "releaseDate": "1976-09-28",
+      "country": "JP",
+      "label": "Motown",
+      "catalogNumber": "R30M-1001~02",
+      "barcode": "4988017001301",
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Soul",
+        "Funk"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": 1,
+          "number": 1,
+          "title": "Love’s in Need of Love Today",
+          "duration": 427,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 2,
+          "disc": 1,
+          "number": 2,
+          "title": "Have a Talk With God",
+          "duration": 162,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 3,
+          "disc": 1,
+          "number": 3,
+          "title": "Village Ghetto Land",
+          "duration": 205,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 4,
+          "disc": 1,
+          "number": 4,
+          "title": "Contusion",
+          "duration": 226,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 5,
+          "disc": 1,
+          "number": 5,
+          "title": "Sir Duke",
+          "duration": 232,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 6,
+          "disc": 1,
+          "number": 6,
+          "title": "I Wish",
+          "duration": 253,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 7,
+          "disc": 1,
+          "number": 7,
+          "title": "Knocks Me Off My Feet",
+          "duration": 217,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 8,
+          "disc": 1,
+          "number": 8,
+          "title": "Pastime Paradise",
+          "duration": 208,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 9,
+          "disc": 1,
+          "number": 9,
+          "title": "Summer Soft",
+          "duration": 254,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 10,
+          "disc": 1,
+          "number": 10,
+          "title": "Ordinary Pain",
+          "duration": 376,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 11,
+          "disc": 1,
+          "number": 11,
+          "title": "Saturn",
+          "duration": 294,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 12,
+          "disc": 1,
+          "number": 12,
+          "title": "Ebony Eyes",
+          "duration": 251,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 1,
+          "disc": 2,
+          "number": 1,
+          "title": "Isn’t She Lovely",
+          "duration": 395,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 2,
+          "disc": 2,
+          "number": 2,
+          "title": "Joy Inside My Tears",
+          "duration": 390,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 3,
+          "disc": 2,
+          "number": 3,
+          "title": "Black Man",
+          "duration": 508,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 4,
+          "disc": 2,
+          "number": 4,
+          "title": "Ngiculela / Es una historia / I Am Singing",
+          "duration": 229,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 5,
+          "disc": 2,
+          "number": 5,
+          "title": "If It’s Magic",
+          "duration": 192,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 6,
+          "disc": 2,
+          "number": 6,
+          "title": "As",
+          "duration": 429,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 7,
+          "disc": 2,
+          "number": 7,
+          "title": "Another Star",
+          "duration": 489,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 8,
+          "disc": 2,
+          "number": 8,
+          "title": "All Day Sucker",
+          "duration": 306,
+          "artist": "Stevie Wonder"
+        },
+        {
+          "position": 9,
+          "disc": 2,
+          "number": 9,
+          "title": "Easy Goin’ Evening (My Mama’s Call)",
+          "duration": 233,
+          "artist": "Stevie Wonder"
+        }
+      ]
+    },
+    {
+      "title": "Homogenic",
+      "artist": "Björk",
+      "artistId": "87c5dedd-371d-4a53-9f7f-80522fb7f3cb",
+      "releaseGroupId": "810272e0-aef1-3d85-b2d3-e512e87fc38c",
+      "coverUrl": "https://dn721903.ca.archive.org/0/items/mbid-9eb06b8b-73af-4e4f-815c-1a0e459af1c4/mbid-9eb06b8b-73af-4e4f-815c-1a0e459af1c4-42643046619_thumb500.jpg",
+      "year": 1997,
+      "releaseDate": "1997-09-20",
+      "country": null,
+      "label": "One Little Indian Records",
+      "catalogNumber": "TPLP71",
+      "barcode": "5016958032913",
+      "format": "Vinyl",
+      "type": "Album",
+      "genres": [
+        "Electronic",
+        "Art Pop"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Hunter",
+          "duration": null,
+          "artist": "Björk"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Jóga",
+          "duration": null,
+          "artist": "Björk"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Unravel",
+          "duration": null,
+          "artist": "Björk"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Bachelorette",
+          "duration": null,
+          "artist": "Björk"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "All Neon Like",
+          "duration": null,
+          "artist": "Björk"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "5 Years",
+          "duration": null,
+          "artist": "Björk"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "Immature",
+          "duration": null,
+          "artist": "Björk"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "Alarm Call",
+          "duration": null,
+          "artist": "Björk"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "Pluto",
+          "duration": null,
+          "artist": "Björk"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "All Is Full of Love",
+          "duration": null,
+          "artist": "Björk"
+        }
+      ]
+    },
+    {
+      "title": "Discovery",
+      "artist": "Daft Punk",
+      "artistId": "056e4f3e-d505-4dad-8ec1-d04f521cbb56",
+      "releaseGroupId": "48117b90-a16e-34ca-a514-19c702df1158",
+      "coverUrl": "https://dn721806.ca.archive.org/0/items/mbid-6cd30d99-4923-4d5e-8e51-9d87506976f1/mbid-6cd30d99-4923-4d5e-8e51-9d87506976f1-43702618964_thumb500.jpg",
+      "year": 2001,
+      "releaseDate": "2001-02-26",
+      "country": "XE",
+      "label": "Virgin",
+      "catalogNumber": "724354278228",
+      "barcode": "724354278228",
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Electronic",
+        "House"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "One More Time",
+          "duration": 321,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Aerodynamic",
+          "duration": 208,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Digital Love",
+          "duration": 298,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Harder, Better, Faster, Stronger",
+          "duration": 224,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "Crescendolls",
+          "duration": 212,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Nightvision",
+          "duration": 104,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "Superheroes",
+          "duration": 238,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "High Life",
+          "duration": 202,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "Something About Us",
+          "duration": 231,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Voyager",
+          "duration": 228,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 11,
+          "disc": null,
+          "number": 11,
+          "title": "Veridis Quo",
+          "duration": 345,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 12,
+          "disc": null,
+          "number": 12,
+          "title": "Short Circuit",
+          "duration": 207,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 13,
+          "disc": null,
+          "number": 13,
+          "title": "Face to Face",
+          "duration": 240,
+          "artist": "Daft Punk"
+        },
+        {
+          "position": 14,
+          "disc": null,
+          "number": 14,
+          "title": "Too Long",
+          "duration": 600,
+          "artist": "Daft Punk"
+        }
+      ]
+    },
+    {
+      "title": "In Rainbows",
+      "artist": "Radiohead",
+      "artistId": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+      "releaseGroupId": "6e335887-60ba-38f0-95af-fae7774336bf",
+      "coverUrl": "https://dn711201.ca.archive.org/0/items/mbid-1a33443c-3fff-450f-8298-efbc65659d32/mbid-1a33443c-3fff-450f-8298-efbc65659d32-14926982777_thumb500.jpg",
+      "year": 2007,
+      "releaseDate": "2007-10-10",
+      "country": "XW",
+      "label": "XL Recordings",
+      "catalogNumber": "XLDA324",
+      "barcode": "634904032463",
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Alternative Rock",
+        "Art Rock"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "15 Step",
+          "duration": 237,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Bodysnatchers",
+          "duration": 242,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Nude",
+          "duration": 255,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Weird Fishes/Arpeggi",
+          "duration": 318,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "All I Need",
+          "duration": 228,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Faust Arp",
+          "duration": 129,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "Reckoner",
+          "duration": 290,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "House of Cards",
+          "duration": 328,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "Jigsaw Falling Into Place",
+          "duration": 248,
+          "artist": "Radiohead"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Videotape",
+          "duration": 279,
+          "artist": "Radiohead"
+        }
+      ]
+    },
+    {
+      "title": "Currents",
+      "artist": "Tame Impala",
+      "artistId": "63aa26c3-d59b-4da4-84ac-716b54f1ef4d",
+      "releaseGroupId": "08aa7a6c-3e43-4459-87b2-e47faf3a088a",
+      "coverUrl": "https://dn710704.ca.archive.org/0/items/mbid-8e7746ca-7832-41b2-a731-de5b0010f37d/mbid-8e7746ca-7832-41b2-a731-de5b0010f37d-13249592911_thumb500.jpg",
+      "year": 2015,
+      "releaseDate": "2015-07-15",
+      "country": "AU",
+      "label": "Modular Recordings",
+      "catalogNumber": "4730677",
+      "barcode": "060254730672",
+      "format": "Vinyl",
+      "type": "Album",
+      "genres": [
+        "Psychedelic Pop",
+        "Synthpop"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": 1,
+          "number": 1,
+          "title": "Let It Happen",
+          "duration": 466,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 2,
+          "disc": 1,
+          "number": 2,
+          "title": "Nangs",
+          "duration": 107,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 3,
+          "disc": 1,
+          "number": 3,
+          "title": "The Moment",
+          "duration": 255,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 4,
+          "disc": 1,
+          "number": 4,
+          "title": "Yes I’m Changing",
+          "duration": 270,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 5,
+          "disc": 1,
+          "number": 5,
+          "title": "Eventually",
+          "duration": 319,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 6,
+          "disc": 1,
+          "number": 6,
+          "title": "Gossip",
+          "duration": 55,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 1,
+          "disc": 2,
+          "number": 1,
+          "title": "The Less I Know the Better",
+          "duration": 218,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 2,
+          "disc": 2,
+          "number": 2,
+          "title": "Past Life",
+          "duration": 227,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 3,
+          "disc": 2,
+          "number": 3,
+          "title": "Disciples",
+          "duration": 108,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 4,
+          "disc": 2,
+          "number": 4,
+          "title": "’Cause I’m a Man",
+          "duration": 241,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 5,
+          "disc": 2,
+          "number": 5,
+          "title": "Reality in Motion",
+          "duration": 252,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 6,
+          "disc": 2,
+          "number": 6,
+          "title": "Love/Paranoia",
+          "duration": 186,
+          "artist": "Tame Impala"
+        },
+        {
+          "position": 7,
+          "disc": 2,
+          "number": 7,
+          "title": "New Person, Same Old Mistakes",
+          "duration": 362,
+          "artist": "Tame Impala"
+        }
+      ]
+    },
+    {
+      "title": "Blonde",
+      "artist": "Frank Ocean",
+      "artistId": "e520459c-dff4-491d-a6e4-c97be35e0044",
+      "releaseGroupId": "0da340a0-6ad7-4fc2-a272-6f94393a7831",
+      "coverUrl": "https://dn710706.ca.archive.org/0/items/mbid-8294645a-f996-44b6-9060-7f189b9f59f3/mbid-8294645a-f996-44b6-9060-7f189b9f59f3-32623366008_thumb500.jpg",
+      "year": 2016,
+      "releaseDate": "2016-08-20",
+      "country": "US",
+      "label": "Boys Don’t Cry",
+      "catalogNumber": "[none]",
+      "barcode": "883958014219",
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "R&B",
+        "Alternative R&B"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Nikes",
+          "duration": 314,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Ivy",
+          "duration": 249,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Pink + White",
+          "duration": 185,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Be Yourself",
+          "duration": 87,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "Solo",
+          "duration": 257,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Skyline To",
+          "duration": 185,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "Self Control",
+          "duration": 250,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "Good Guy",
+          "duration": 67,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "Nights",
+          "duration": 307,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Solo (reprise)",
+          "duration": 79,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 11,
+          "disc": null,
+          "number": 11,
+          "title": "Pretty Sweet",
+          "duration": 158,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 12,
+          "disc": null,
+          "number": 12,
+          "title": "Facebook Story",
+          "duration": 69,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 13,
+          "disc": null,
+          "number": 13,
+          "title": "Close to You",
+          "duration": 86,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 14,
+          "disc": null,
+          "number": 14,
+          "title": "White Ferrari",
+          "duration": 249,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 15,
+          "disc": null,
+          "number": 15,
+          "title": "Seigfried",
+          "duration": 335,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 16,
+          "disc": null,
+          "number": 16,
+          "title": "Godspeed",
+          "duration": 178,
+          "artist": "Frank Ocean"
+        },
+        {
+          "position": 17,
+          "disc": null,
+          "number": 17,
+          "title": "Futura Free",
+          "duration": 564,
+          "artist": "Frank Ocean"
+        }
+      ]
+    },
+    {
+      "title": "The Suburbs",
+      "artist": "Arcade Fire",
+      "artistId": "52074ba6-e495-4ef3-9bb4-0703888a9f68",
+      "releaseGroupId": "161863df-8451-4567-96c7-6ebd360c15f5",
+      "coverUrl": "https://dn721507.ca.archive.org/0/items/mbid-9d9630a2-2076-457d-8159-49eed0429ce8/mbid-9d9630a2-2076-457d-8159-49eed0429ce8-11807080831_thumb500.jpg",
+      "year": 2010,
+      "releaseDate": "2010-05-27",
+      "country": "US",
+      "label": "Merge Records",
+      "catalogNumber": "MRG393",
+      "barcode": "602527426303",
+      "format": "Vinyl",
+      "type": "Single",
+      "genres": [
+        "Indie Rock",
+        "Baroque Pop"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "The Suburbs",
+          "duration": 315,
+          "artist": "Arcade Fire"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Month of May",
+          "duration": 242,
+          "artist": "Arcade Fire"
+        }
+      ]
+    },
+    {
+      "title": "Master of Puppets",
+      "artist": "Metallica",
+      "artistId": "65f4f0c5-ef9e-490c-aee3-909e7ae6b2ab",
+      "releaseGroupId": "cd526fb3-27a6-465e-810b-ab9653cbe84e",
+      "coverUrl": "https://dn711301.ca.archive.org/0/items/mbid-9ad9f401-9b5e-44d7-8b41-51ef37146f32/mbid-9ad9f401-9b5e-44d7-8b41-51ef37146f32-1810244497_thumb500.jpg",
+      "year": 1986,
+      "releaseDate": "1986",
+      "country": "FR",
+      "label": "Music for Nations",
+      "catalogNumber": "MU 102",
+      "barcode": null,
+      "format": "Vinyl",
+      "type": "Single",
+      "genres": [
+        "Thrash Metal"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Master of Puppets",
+          "duration": null,
+          "artist": "Metallica"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Welcome Home (Sanitarium)",
+          "duration": null,
+          "artist": "Metallica"
+        }
+      ]
+    },
+    {
+      "title": "Enter the Wu‐Tang (36 Chambers)",
+      "artist": "Wu‐Tang Clan",
+      "artistId": "0febdcf7-4e1f-4661-9493-b40427de2c13",
+      "releaseGroupId": "610fb60f-900a-3c42-ac7d-f6b6aa8035f9",
+      "coverUrl": "https://dn711305.ca.archive.org/0/items/mbid-2a059e43-e66c-4d6d-9a4f-dea9a6919061/mbid-2a059e43-e66c-4d6d-9a4f-dea9a6919061-10112836421_thumb500.jpg",
+      "year": 1993,
+      "releaseDate": "1993-11-09",
+      "country": "BR",
+      "label": "BMG Brasil Ltda.",
+      "catalogNumber": "66336-2",
+      "barcode": "078636633626",
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Hip Hop",
+        "Boom Bap"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Bring da Ruckus",
+          "duration": 251,
+          "artist": "Wu‐Tang Clan"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Shame on a Nigga",
+          "duration": 177,
+          "artist": "Wu‐Tang Clan"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Clan in da Front",
+          "duration": 273,
+          "artist": "Wu‐Tang Clan"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Wu‐Tang: 7th Chamber",
+          "duration": 367,
+          "artist": "Wu‐Tang Clan"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "Can It Be All So Simple / Intermission",
+          "duration": 413,
+          "artist": "Wu‐Tang Clan"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Da Mystery of Chessboxin’",
+          "duration": 287,
+          "artist": "Wu‐Tang Clan"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "Wu‐Tang Clan Ain’t Nuthing ta F’ Wit",
+          "duration": 216,
+          "artist": "Wu‐Tang Clan"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "C.R.E.A.M.",
+          "duration": 252,
+          "artist": "Wu‐Tang Clan"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "Method Man",
+          "duration": 351,
+          "artist": "Wu‐Tang Clan"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Protect Ya Neck",
+          "duration": 291,
+          "artist": "Wu‐Tang Clan"
+        },
+        {
+          "position": 11,
+          "disc": null,
+          "number": 11,
+          "title": "Tearz",
+          "duration": 258,
+          "artist": "Wu‐Tang Clan"
+        },
+        {
+          "position": 12,
+          "disc": null,
+          "number": 12,
+          "title": "Wu‐Tang: 7th Chamber, Part II / Conclusion",
+          "duration": 369,
+          "artist": "Wu‐Tang Clan"
+        }
+      ]
+    },
+    {
+      "title": "The Miseducation of Lauryn Hill",
+      "artist": "Lauryn Hill",
+      "artistId": "e8414012-4a1c-4ad4-be5e-fc55294e28cc",
+      "releaseGroupId": "8691d12c-abd8-385c-b1eb-d841190124f7",
+      "coverUrl": "https://dn710901.ca.archive.org/0/items/mbid-4f931a2b-98eb-49bb-94b7-0ec62dcfe644/mbid-4f931a2b-98eb-49bb-94b7-0ec62dcfe644-5356827241_thumb500.jpg",
+      "year": 1998,
+      "releaseDate": "1998-08-19",
+      "country": "XE",
+      "label": "Ruffhouse Records",
+      "catalogNumber": "489843 2",
+      "barcode": "5099748984326",
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Hip Hop",
+        "Neo Soul"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Intro",
+          "duration": 47,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Lost Ones",
+          "duration": 334,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Ex-Factor",
+          "duration": 327,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "To Zion",
+          "duration": 369,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "Doo Wop (That Thing)",
+          "duration": 320,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Superstar",
+          "duration": 297,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "Final Hour",
+          "duration": 256,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "When It Hurts So Bad",
+          "duration": 342,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "I Used to Love Him",
+          "duration": 340,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Forgive Them Father",
+          "duration": 315,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 11,
+          "disc": null,
+          "number": 11,
+          "title": "Every Ghetto, Every City",
+          "duration": 315,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 12,
+          "disc": null,
+          "number": 12,
+          "title": "Nothing Even Matters",
+          "duration": 351,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 13,
+          "disc": null,
+          "number": 13,
+          "title": "Everything Is Everything",
+          "duration": 293,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 14,
+          "disc": null,
+          "number": 14,
+          "title": "The Miseducation of Lauryn Hill",
+          "duration": 257,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 15,
+          "disc": null,
+          "number": 15,
+          "title": "Can’t Take My Eyes Off of You",
+          "duration": 221,
+          "artist": "Lauryn Hill"
+        },
+        {
+          "position": 16,
+          "disc": null,
+          "number": 16,
+          "title": "Tell Him",
+          "duration": 281,
+          "artist": "Lauryn Hill"
+        }
+      ]
+    },
+    {
+      "title": "Is This It",
+      "artist": "The Strokes",
+      "artistId": "f181961b-20f7-459e-89de-920ef03c7ed0",
+      "releaseGroupId": "6d44b57a-2b9d-372a-b7c2-c670dca997d3",
+      "coverUrl": "https://dn710709.ca.archive.org/0/items/mbid-a4b72651-bb31-4408-a99c-081ddbca7fcc/mbid-a4b72651-bb31-4408-a99c-081ddbca7fcc-38627956465_thumb500.jpg",
+      "year": 2003,
+      "releaseDate": "2003-09-23",
+      "country": "US",
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Single",
+      "genres": [
+        "Indie Rock",
+        "Garage Rock"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Is This It (home recording)",
+          "duration": 72,
+          "artist": "The Strokes"
+        }
+      ]
+    },
+    {
+      "title": "Untrue",
+      "artist": "Burial",
+      "artistId": "9ddce51c-2b75-4b3e-ac8c-1db09e7c89c6",
+      "releaseGroupId": "fddedc4f-7a2e-3d7d-9ec5-1705c416f3f4",
+      "coverUrl": "https://ia803106.us.archive.org/26/items/mbid-e685c54d-196c-47bd-9a75-74dafe4c43b7/mbid-e685c54d-196c-47bd-9a75-74dafe4c43b7-24820081496_thumb500.jpg",
+      "year": 2007,
+      "releaseDate": "2007-11-05",
+      "country": null,
+      "label": "Hyperdub",
+      "catalogNumber": "HDBCD002",
+      "barcode": "5024545486520",
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Electronic",
+        "Dubstep"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "[untitled]",
+          "duration": 48,
+          "artist": "Burial"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Archangel",
+          "duration": 240,
+          "artist": "Burial"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Near Dark",
+          "duration": 237,
+          "artist": "Burial"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Ghost Hardware",
+          "duration": 295,
+          "artist": "Burial"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "Endorphin",
+          "duration": 179,
+          "artist": "Burial"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Etched Headplate",
+          "duration": 362,
+          "artist": "Burial"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "In McDonalds",
+          "duration": 126,
+          "artist": "Burial"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "Untrue",
+          "duration": 379,
+          "artist": "Burial"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "Shell of Light",
+          "duration": 283,
+          "artist": "Burial"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Dog Shelter",
+          "duration": 181,
+          "artist": "Burial"
+        },
+        {
+          "position": 11,
+          "disc": null,
+          "number": 11,
+          "title": "Homeless",
+          "duration": 323,
+          "artist": "Burial"
+        },
+        {
+          "position": 12,
+          "disc": null,
+          "number": 12,
+          "title": "UK",
+          "duration": 102,
+          "artist": "Burial"
+        },
+        {
+          "position": 13,
+          "disc": null,
+          "number": 13,
+          "title": "Raver",
+          "duration": 300,
+          "artist": "Burial"
+        }
+      ]
+    },
+    {
+      "title": "Selected Ambient Works 85–92",
+      "artist": "Aphex Twin",
+      "artistId": "f22942a1-6f70-4f48-866e-238cb2308fbd",
+      "releaseGroupId": "6842c81d-ea77-3dfd-abf7-4323add3f4d4",
+      "coverUrl": "https://dn710809.ca.archive.org/0/items/mbid-cbe086e2-5c1b-311c-8499-c060b0c12aac/mbid-cbe086e2-5c1b-311c-8499-c060b0c12aac-8131224534_thumb500.jpg",
+      "year": 1992,
+      "releaseDate": "1992-11-01",
+      "country": "XW",
+      "label": "R&S Records",
+      "catalogNumber": "AMB9322DB",
+      "barcode": "5055274700038",
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Ambient",
+        "IDM"
+      ],
+      "tracks": [
+        {
+          "position": 1,
+          "disc": null,
+          "number": 1,
+          "title": "Xtal",
+          "duration": 294,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 2,
+          "disc": null,
+          "number": 2,
+          "title": "Tha",
+          "duration": 547,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 3,
+          "disc": null,
+          "number": 3,
+          "title": "Pulsewidth",
+          "duration": 228,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 4,
+          "disc": null,
+          "number": 4,
+          "title": "Ageispolis",
+          "duration": 323,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 5,
+          "disc": null,
+          "number": 5,
+          "title": "I",
+          "duration": 77,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 6,
+          "disc": null,
+          "number": 6,
+          "title": "Green Calx",
+          "duration": 365,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 7,
+          "disc": null,
+          "number": 7,
+          "title": "Heliosphan",
+          "duration": 294,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 8,
+          "disc": null,
+          "number": 8,
+          "title": "We Are the Music Makers",
+          "duration": 464,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 9,
+          "disc": null,
+          "number": 9,
+          "title": "Schottkey 7th Path",
+          "duration": 309,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 10,
+          "disc": null,
+          "number": 10,
+          "title": "Ptolemy",
+          "duration": 434,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 11,
+          "disc": null,
+          "number": 11,
+          "title": "Hedphelym",
+          "duration": 364,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 12,
+          "disc": null,
+          "number": 12,
+          "title": "Delphium",
+          "duration": 329,
+          "artist": "Aphex Twin"
+        },
+        {
+          "position": 13,
+          "disc": null,
+          "number": 13,
+          "title": "Actium",
+          "duration": 456,
+          "artist": "Aphex Twin"
+        }
+      ]
+    }
+  ],
+  "wishlist": [
+    {
+      "title": "Pastel Blues",
+      "artist": "Nina Simone",
+      "artistId": "2944824d-4c26-476f-a981-be849081942f",
+      "releaseGroupId": "1b3233e2-15ed-344e-bc8e-6630455db87f",
+      "coverUrl": "https://dn711001.ca.archive.org/0/items/mbid-942c3b04-a812-48a3-83e7-e536a6bc3e0e/mbid-942c3b04-a812-48a3-83e7-e536a6bc3e0e-45933770115_thumb500.jpg",
+      "year": 1965,
+      "releaseDate": "1965-10-01",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Jazz",
+        "Soul"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Diamond Life",
+      "artist": "Sade",
+      "artistId": "67930b3e-e00b-469f-8c74-fd69f20522ec",
+      "releaseGroupId": "af2a0c41-e612-3232-949d-bdca340c407c",
+      "coverUrl": "https://dn720701.ca.archive.org/0/items/mbid-98063a3f-563e-3b9e-be19-af33da0fef52/mbid-98063a3f-563e-3b9e-be19-af33da0fef52-8211603614_thumb500.jpg",
+      "year": 1984,
+      "releaseDate": "1984-07-28",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Soul",
+        "Smooth Jazz"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Mezzanine",
+      "artist": "Massive Attack",
+      "artistId": "10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8",
+      "releaseGroupId": "6f9f6899-c0d3-311d-ae87-a10ae6bc53a9",
+      "coverUrl": "https://dn710600.ca.archive.org/0/items/mbid-6e512ec0-1316-4abb-b6b6-07dbd8b005ed/mbid-6e512ec0-1316-4abb-b6b6-07dbd8b005ed-12203062606_thumb500.jpg",
+      "year": 1998,
+      "releaseDate": "1998-04-17",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Trip Hop",
+        "Electronic"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Blue",
+      "artist": "Joni Mitchell",
+      "artistId": "a6de8ef9-b1a1-4756-97aa-481bbb8a4069",
+      "releaseGroupId": "42d725fb-a8b7-388c-8866-3b02789af326",
+      "coverUrl": "https://dn710202.ca.archive.org/0/items/mbid-d87c6632-f385-4bef-91f8-f7bb2fbabc2e/mbid-d87c6632-f385-4bef-91f8-f7bb2fbabc2e-38571480291_thumb500.jpg",
+      "year": 1971,
+      "releaseDate": "1971-06-22",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Folk",
+        "Singer-Songwriter"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Tapestry",
+      "artist": "Carole King",
+      "artistId": "bf6c29f5-b69f-4842-9031-37f9645d365d",
+      "releaseGroupId": "6e4f39e6-3403-39d7-81c6-8e61a990d509",
+      "coverUrl": "https://dn711309.ca.archive.org/0/items/mbid-74467fc2-2b96-3e25-914b-082a82373014/mbid-74467fc2-2b96-3e25-914b-082a82373014-3890190163_thumb500.jpg",
+      "year": 1971,
+      "releaseDate": "1971-01-30",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Folk",
+        "Singer-Songwriter"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Dummy",
+      "artist": "Portishead",
+      "artistId": "8f6bd1e4-fbe1-4f50-aa9b-94c450ec0f11",
+      "releaseGroupId": "48140466-cff6-3222-bd55-63c27e43190d",
+      "coverUrl": "https://dn711103.ca.archive.org/0/items/mbid-76df3287-6cda-33eb-8e9a-044b5e15ffdd/mbid-76df3287-6cda-33eb-8e9a-044b5e15ffdd-829521842_thumb500.jpg",
+      "year": 1994,
+      "releaseDate": "1994-08-22",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Trip Hop",
+        "Electronic"
+      ],
+      "tracks": []
+    }
+  ],
+  "discover": [
+    {
+      "title": "Sometimes I Might Be Introvert",
+      "artist": "Little Simz",
+      "artistId": "3cdb40fe-a63e-4bb9-b40d-17cda5f50979",
+      "releaseGroupId": "e95de3f4-84db-4d24-8d06-fd970576a6ef",
+      "coverUrl": "https://dn710203.ca.archive.org/0/items/mbid-27ee7d2d-4ea8-4849-8a4e-8e4b05d611e1/mbid-27ee7d2d-4ea8-4849-8a4e-8e4b05d611e1-29398429148_thumb500.jpg",
+      "year": 2021,
+      "releaseDate": "2021-09-03",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Hip Hop",
+        "Conscious Hip Hop"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Dragon New Warm Mountain I Believe in You",
+      "artist": "Big Thief",
+      "artistId": "9f81247f-7f57-42f3-a8ba-75bef554e591",
+      "releaseGroupId": "d705a3ed-be7a-459c-ac74-58cddaf98576",
+      "coverUrl": "https://dn721805.ca.archive.org/0/items/mbid-a64d764d-deca-4231-bffe-bcaf40fb1943/mbid-a64d764d-deca-4231-bffe-bcaf40fb1943-34229330075_thumb500.jpg",
+      "year": 2022,
+      "releaseDate": "2022-02-11",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Indie Folk",
+        "Alternative Rock"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "What’s Your Pleasure?",
+      "artist": "Jessie Ware",
+      "artistId": "6ed40778-8d03-4a5c-ad35-93cf814627c9",
+      "releaseGroupId": "970b41f5-8f24-40af-9696-25db6b7fab32",
+      "coverUrl": "https://dn710205.ca.archive.org/0/items/mbid-f9184ed8-f144-449a-824b-fcd59b0fbdaa/mbid-f9184ed8-f144-449a-824b-fcd59b0fbdaa-26808564488_thumb500.jpg",
+      "year": 2020,
+      "releaseDate": "2020-07-24",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Single",
+      "genres": [
+        "Disco",
+        "Pop"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Promises",
+      "artist": "Floating Points",
+      "artistId": "69d9c5ba-7bba-4cb7-ab32-8ccc48ad4f97",
+      "releaseGroupId": "970f689d-1778-4953-b3ed-48d057625724",
+      "coverUrl": "https://ia601806.us.archive.org/23/items/mbid-9f279a47-778f-44fe-a9ff-4ca61dae26c8/mbid-9f279a47-778f-44fe-a9ff-4ca61dae26c8-28949992190_thumb500.jpg",
+      "year": 2020,
+      "releaseDate": "2020-11-24",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Jazz",
+        "Ambient"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Jubilee",
+      "artist": "Japanese Breakfast",
+      "artistId": "8c529495-91f5-4e2f-b71b-adcb66878d04",
+      "releaseGroupId": "f4e55ff9-2fe6-417c-a631-f4cf528edc61",
+      "coverUrl": "https://dn710008.ca.archive.org/0/items/mbid-7aa0673a-53b0-4cb8-9a94-9834b3c43b22/mbid-7aa0673a-53b0-4cb8-9a94-9834b3c43b22-28719263845_thumb500.jpg",
+      "year": 2021,
+      "releaseDate": "2021-06-04",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Indie Pop",
+        "Dream Pop"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Ants From Up There",
+      "artist": "Black Country, New Road",
+      "artistId": "e9403d9c-329b-4108-a26f-564159d441d9",
+      "releaseGroupId": "d622ed70-ccc3-4658-8a0a-b7a2d577c28d",
+      "coverUrl": "https://dn710202.ca.archive.org/0/items/mbid-d9a6a448-a14f-4776-ae47-43125358fcb7/mbid-d9a6a448-a14f-4776-ae47-43125358fcb7-31640191132_thumb500.jpg",
+      "year": 2022,
+      "releaseDate": "2022-02-04",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Post-Rock",
+        "Art Rock"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Blue Rev",
+      "artist": "Alvvays",
+      "artistId": "99450990-b24e-4132-bb68-235f8c3e2564",
+      "releaseGroupId": "0e68df76-a5fc-4d70-9ff6-e71e2ad83330",
+      "coverUrl": "https://dn710209.ca.archive.org/0/items/mbid-d3ed7333-9769-46e8-a9ea-f4f0730c8051/mbid-d3ed7333-9769-46e8-a9ea-f4f0730c8051-33264982030_thumb500.jpg",
+      "year": 2022,
+      "releaseDate": "2022-10-07",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Indie Pop",
+        "Shoegaze"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Natural Brown Prom Queen",
+      "artist": "Sudan Archives",
+      "artistId": "6ce5eca0-4ad6-49e0-a5ab-e11482d85324",
+      "releaseGroupId": "b7cf92f5-a814-4e4c-9906-97a2af67f357",
+      "coverUrl": "https://dn710009.ca.archive.org/0/items/mbid-cc5d852f-27fa-44dc-8b37-4530f6415aaa/mbid-cc5d852f-27fa-44dc-8b37-4530f6415aaa-33520807990_thumb500.jpg",
+      "year": 2022,
+      "releaseDate": "2022-09-09",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Alternative R&B",
+        "Experimental"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Wet Leg",
+      "artist": "Wet Leg",
+      "artistId": "90744b3e-363a-458e-8da1-e3e392a489c4",
+      "releaseGroupId": "d53be2e5-fe7c-4681-85f3-960493aa02b5",
+      "coverUrl": "https://dn721907.ca.archive.org/0/items/mbid-9ae2c520-80b4-4b84-9e71-129d9c32a993/mbid-9ae2c520-80b4-4b84-9e71-129d9c32a993-38642593025_thumb500.jpg",
+      "year": 2022,
+      "releaseDate": "2022-04-08",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Indie Rock",
+        "Post-Punk"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Topical Dancer",
+      "artist": "Charlotte Adigéry",
+      "artistId": "602d121e-b374-405d-9d06-164be173eddd",
+      "releaseGroupId": "66d130fa-6fb5-469c-b02a-1b827ab9d8f5",
+      "coverUrl": "https://dn721806.ca.archive.org/0/items/mbid-d2f8849f-73f5-45d1-8769-7766f0fe8a37/mbid-d2f8849f-73f5-45d1-8769-7766f0fe8a37-35971140329_thumb500.jpg",
+      "year": 2022,
+      "releaseDate": "2022-03-04",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Electronic",
+        "Art Pop"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Diaspora Problems",
+      "artist": "Soul Glo",
+      "artistId": "d10d6441-dcc1-4202-93bf-0c0acf72913a",
+      "releaseGroupId": "6fb334a7-c230-4cab-8b64-92e21c2a284e",
+      "coverUrl": "https://dn721805.ca.archive.org/0/items/mbid-c94d04ba-d82a-43d7-9b80-145d8b0f1a99/mbid-c94d04ba-d82a-43d7-9b80-145d8b0f1a99-33852527151_thumb500.jpg",
+      "year": 2022,
+      "releaseDate": "2022-03-25",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Hardcore",
+        "Punk"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Praise a Lord Who Chews but Which Does Not Consume; (Or Simply, Hot Between Worlds)",
+      "artist": "Yves Tumor",
+      "artistId": "b675f327-4738-4af4-bb83-1adb0003f2d3",
+      "releaseGroupId": "7a7d42ce-73e2-433d-a774-148eb8727e0a",
+      "coverUrl": "https://ia801604.us.archive.org/9/items/mbid-6fb339e9-5fe3-4041-99b7-e0fdcb0ca0ec/mbid-6fb339e9-5fe3-4041-99b7-e0fdcb0ca0ec-35176220062_thumb500.jpg",
+      "year": 2023,
+      "releaseDate": "2023-03-17",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Art Rock",
+        "Neo-Psychedelia"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "RENAISSANCE",
+      "artist": "Beyoncé",
+      "artistId": "859d0860-d480-4efd-970c-c05d5f1776b8",
+      "releaseGroupId": "2c385052-5083-43a2-b1e5-36566d2ae3c0",
+      "coverUrl": "https://ia601506.us.archive.org/22/items/mbid-dfb0eb62-e729-4fc3-b198-c50283d9ed17/mbid-dfb0eb62-e729-4fc3-b198-c50283d9ed17-33083332053_thumb500.jpg",
+      "year": 2022,
+      "releaseDate": "2022-07-29",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Pop",
+        "Dance"
+      ],
+      "tracks": []
+    },
+    {
+      "title": "Fetch the Bolt Cutters",
+      "artist": "Fiona Apple",
+      "artistId": "a9ee533f-8871-4f62-a6bb-91eb264abc90",
+      "releaseGroupId": "882db6d8-e28b-46ba-8a30-277e86fbddf7",
+      "coverUrl": "https://dn721608.ca.archive.org/0/items/mbid-51f08309-cfad-478b-a25d-ee61ba4acc26/mbid-51f08309-cfad-478b-a25d-ee61ba4acc26-25960785041_thumb500.jpg",
+      "year": 2020,
+      "releaseDate": "2020-04-17",
+      "country": null,
+      "label": null,
+      "catalogNumber": null,
+      "barcode": null,
+      "format": "CD",
+      "type": "Album",
+      "genres": [
+        "Art Pop",
+        "Singer-Songwriter"
+      ],
+      "tracks": []
+    }
+  ]
+}

@@ -9,6 +9,8 @@ Sleeve is a catalog for a physical collection. It does not play music and it doe
 
 There are no user accounts and no telemetry. One instance holds one collection.
 
+Want to look around first? Try the [static demo](https://nicuz.github.io/sleeve/demo/). It uses made-up records and read-only data.
+
 ## Run it
 
 The fastest route is Docker:

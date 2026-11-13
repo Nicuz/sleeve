@@ -38,6 +38,7 @@ const proofWishlist = withBase('/shelf-wishlist.webp')
 const proofInsights = withBase('/shelf-insights.webp')
 const links = {
   guide: withBase('/guide/getting-started'),
+  demo: withBase('/demo/'),
   contribute: withBase('/development/contributing'),
 }
 
@@ -113,6 +114,9 @@ const features = [
         <div class="sleeve-actions">
           <a class="sleeve-btn sleeve-btn-primary" :href="links.guide">
             Get started
+          </a>
+          <a class="sleeve-btn sleeve-btn-ghost" :href="links.demo" target="_blank" rel="noreferrer">
+            Try the demo
           </a>
         </div>
       </div>
@@ -292,7 +296,10 @@ const features = [
         <p>Docker up, open the browser, add the first CD.</p>
       </div>
       <div class="sleeve-actions">
-        <a class="sleeve-btn sleeve-btn-primary" :href="links.guide">
+        <a class="sleeve-btn sleeve-btn-primary" :href="links.demo" target="_blank" rel="noreferrer">
+          Try the demo
+        </a>
+        <a class="sleeve-btn sleeve-btn-ghost" :href="links.guide">
           Read the docs
         </a>
         <a class="sleeve-btn sleeve-btn-ghost" :href="links.contribute">

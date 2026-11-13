@@ -5,7 +5,7 @@
 
 <p align="center"><strong>A shelf for the records you chose, and a slower way to decide what to play next.</strong></p>
 
-<p align="center"><a href="https://nicuz.github.io/sleeve/"><strong>Website</strong></a> · <a href="https://nicuz.github.io/sleeve/guide/getting-started"><strong>Docs</strong></a></p>
+<p align="center"><a href="https://nicuz.github.io/sleeve/"><strong>Website</strong></a> · <a href="https://nicuz.github.io/sleeve/demo/"><strong>Demo</strong></a> · <a href="https://nicuz.github.io/sleeve/guide/getting-started"><strong>Docs</strong></a></p>
 
 <p align="center">
   <a href="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml"><img src="https://github.com/Nicuz/sleeve/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>

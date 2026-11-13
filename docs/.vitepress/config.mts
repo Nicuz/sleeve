@@ -1,7 +1,24 @@
 import { defineConfig } from 'vitepress'
+import type { Plugin } from 'vite'
 
 const rawBase = (process.env.DOCS_BASE || '/').replace(/^\/+|\/+$/g, '')
 const base = rawBase ? `/${rawBase}/` : '/'
+
+const demoDevPlugin: Plugin = {
+  name: 'docs-demo-dev',
+  apply: 'serve',
+  configureServer(server) {
+    const demoPath = `${base}demo/`
+    const demoSansSlash = demoPath.slice(0, -1)
+    server.middlewares.use((request, _response, next) => {
+      const [pathname, search] = (request.url ?? '').split('?')
+      if (pathname === demoPath || pathname === demoSansSlash) {
+        request.url = `${demoPath}index.html${search ? `?${search}` : ''}`
+      }
+      next()
+    })
+  },
+}
 
 export default defineConfig({
   lang: 'en',
@@ -16,10 +33,14 @@ export default defineConfig({
     ['link', { rel: 'icon', href: `${base}favicon.svg` }],
     ['meta', { name: 'theme-color', content: '#07080b' }],
   ],
+  vite: {
+    plugins: [demoDevPlugin],
+  },
   themeConfig: {
     logo: '/favicon.svg',
     siteTitle: 'Sleeve',
     nav: [
+      { text: 'Demo', link: '/demo/', target: '_blank' },
       { text: 'Docs', link: '/guide/getting-started' },
       { text: 'Contribute', link: '/development/contributing' },
     ],

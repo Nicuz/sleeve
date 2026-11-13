@@ -17,11 +17,24 @@ const buildInfoPlugin: Plugin = {
   },
 };
 
+const demoDevPlugin: Plugin = {
+  name: 'sleeve-demo-dev',
+  configureServer(server) {
+    server.middlewares.use((request, _response, next) => {
+      const [pathname, search] = (request.url ?? '').split('?');
+      if (pathname === '/demo' || pathname === '/demo/') {
+        request.url = `/demo.html${search ? `?${search}` : ''}`;
+      }
+      next();
+    });
+  },
+};
+
 export default defineConfig({
   define: {
     __SLEEVE_BUILD__: JSON.stringify(buildInfo),
   },
-  plugins: [react(), tailwindcss(), buildInfoPlugin],
+  plugins: [react(), tailwindcss(), buildInfoPlugin, demoDevPlugin],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

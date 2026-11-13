@@ -253,6 +253,10 @@ Feed rules:
 
 Visual language and component patterns are documented in [Design system](design-system.md).
 
+### Static demo
+
+`src/demo/` mounts the same React app with `HashRouter` for static hosting. `api.ts` replaces `window.fetch` for `/api/*`, serving deterministic fixtures and read-only responses; `data.ts` generates the records, wishlist, Discover feed, stats and artist pages. `vite.demo.config.ts` builds it into `docs/public/demo`, and `bun run docs:build` includes that folder in the docs site at `/demo/`. No database, API server or service worker is involved.
+
 ### Filtering and defaults
 
 - Library filters live in URL search params (`q`, `format`, `genre`, `decade`, `sort`, `view`).

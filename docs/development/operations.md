@@ -54,6 +54,14 @@ The compose file binds to localhost and stores everything in the `sleeve-data` v
 /data/backups/       internal pre-import snapshots
 ```
 
+Published image:
+
+```bash
+docker compose -f docker-compose.image.yml up -d
+```
+
+Source build:
+
 ```bash
 docker compose up -d --build
 ```
@@ -102,9 +110,9 @@ Tagged releases publish multi-arch images to GitHub Container Registry:
 - `ghcr.io/nicuz/sleeve:latest` — newest stable release.
 - Platforms: `linux/amd64`, `linux/arm64`.
 
-The package is private by default. For anonymous pulls, open the package settings on GitHub and change visibility to public. After that, plain `docker compose pull` works without registry credentials. Images appear after the first tagged release.
+The package is public. If a pull asks for credentials, check the package visibility in GitHub package settings. Images appear after the first tagged release.
 
-`docker-compose.image.yml` is the minimal runtime stack: image, restart policy, localhost port and the data volume. Use it directly or as the basis for another compose manager. With the `latest` tag, an update action that runs `docker compose pull` picks up new releases; pin an exact version tag if you prefer deliberate upgrades.
+`docker-compose.image.yml` is the minimal runtime stack: image, restart policy, localhost port, auth and user-agent variables, and the data volume. Use it directly or as the basis for another compose manager. Set `SLEEVE_VERSION` to pin `0.1.0`, `0.1`, or another tag; the default is `latest`. With `latest`, an update action that runs `docker compose pull` picks up new releases.
 
 Source builds keep using the root `docker-compose.yml` and its hardening options.
 
@@ -151,12 +159,21 @@ The compose file already applies these:
 
 ### Upgrades
 
+Published image:
+
+```bash
+docker compose -f docker-compose.image.yml pull
+docker compose -f docker-compose.image.yml up -d
+```
+
+Source build:
+
 ```bash
 git pull
 SLEEVE_COMMIT=$(git rev-parse --short HEAD) docker compose up -d --build
 ```
 
-`.git` is excluded from the image, so pass the commit at build time. Without it, **Settings → About** and `/api/version` show `unknown`.
+For source builds, `.git` is excluded from the image, so pass the commit at build time. Without it, **Settings → About** and `/api/version` show `unknown`.
 
 Check what is running before and after an upgrade:
 
@@ -175,6 +192,7 @@ Startup applies pending migrations. If the database contains migrations newer th
 | `DATABASE_URL` | `file:./dev.db` | Prisma SQLite URL |
 | `PORT` | `3001` | Port inside the app/container |
 | `SLEEVE_PORT` | `3001` | Host port published by Docker Compose |
+| `SLEEVE_VERSION` | `latest` | Image tag used by `docker-compose.image.yml` |
 | `DATA_DIR` | `./data` (`/data` in Docker) | Covers and backups |
 | `COVER_CACHE_DIR` | `$DATA_DIR/covers` | Cover cache override |
 | `BACKUP_DIR` | `$DATA_DIR/backups` | Backups and import snapshots |

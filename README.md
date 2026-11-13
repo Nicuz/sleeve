@@ -46,17 +46,22 @@ New releases from artists you follow, records by similar artists, and older albu
 
 ## Run it
 
-The fastest route is Docker:
+The fastest route is the published multi-arch image:
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/Nicuz/sleeve/main/docker-compose.image.yml
+docker compose -f docker-compose.image.yml up -d
+```
+
+Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume. Back it up from **Settings → Backup & restore**. Pin a release with `SLEEVE_VERSION=0.1.0` in `.env`; update later with `docker compose -f docker-compose.image.yml pull && docker compose -f docker-compose.image.yml up -d`. **Settings → About** shows the running version and commit. If `3001` is already in use, set `SLEEVE_PORT=3011` in `.env`; the container keeps listening on `3001`.
+
+Or clone and build the image locally:
 
 ```bash
 git clone https://github.com/Nicuz/sleeve.git
 cd sleeve
 docker compose up -d --build
 ```
-
-Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume. Back it up from **Settings → Backup & restore**. Update later with `git pull && SLEEVE_COMMIT=$(git rev-parse --short HEAD) docker compose up -d --build`. **Settings → About** shows the running version and commit. If `3001` is already in use, set `SLEEVE_PORT=3011` in `.env`; the container keeps listening on `3001`.
-
-Prefer a prebuilt image? Use `docker-compose.image.yml`; it pulls `ghcr.io/nicuz/sleeve:latest` and keeps the same `/data` volume.
 
 For login, ports, data layout and upgrades, see [Run on a server](https://nicuz.github.io/sleeve/guide/getting-started#run-it-on-a-server).
 

@@ -1,9 +1,16 @@
+# Published multi-arch image. Pin a release with SLEEVE_VERSION=0.1.0 in .env.
 services:
   sleeve:
-    image: ghcr.io/nicuz/sleeve:latest
+    image: ghcr.io/nicuz/sleeve:${SLEEVE_VERSION:-latest}
     restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
     ports:
       - "127.0.0.1:${SLEEVE_PORT:-3001}:3001"
+    environment:
+      MUSICBRAINZ_USER_AGENT: ${MUSICBRAINZ_USER_AGENT:-}
+      SLEEVE_AUTH_USER: ${SLEEVE_AUTH_USER:-}
+      SLEEVE_AUTH_PASSWORD: ${SLEEVE_AUTH_PASSWORD:-}
     volumes:
       - sleeve-data:/data
 

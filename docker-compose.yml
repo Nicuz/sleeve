@@ -1,3 +1,4 @@
+# Source build. For the published image use docker-compose.image.yml.
 services:
   sleeve:
     build:

@@ -13,15 +13,22 @@ Want to look around first? Try the [static demo](https://nicuz.github.io/sleeve/
 
 ## Run it
 
-The fastest route is Docker:
+The fastest route is the published multi-arch image:
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/Nicuz/sleeve/main/docker-compose.image.yml
+docker compose -f docker-compose.image.yml up -d
+```
+
+Open [http://127.0.0.1:3001](http://127.0.0.1:3001). Pin a release with `SLEEVE_VERSION=0.1.0` in `.env`; the default is `latest`. If `3001` is taken, set `SLEEVE_PORT=3011`.
+
+Or clone and build the image locally:
 
 ```bash
 git clone https://github.com/Nicuz/sleeve.git
 cd sleeve
 docker compose up -d --build
 ```
-
-Open [http://127.0.0.1:3001](http://127.0.0.1:3001).
 
 From source, with Bun 1.4 or newer:
 
@@ -34,10 +41,17 @@ bun run dev
 
 ## Run it on a server
 
-Start with the Docker command above. For a long-running server:
+Start with one of the Docker commands above. For a long-running server:
 
-1. Optional login: set both `SLEEVE_AUTH_USER` and `SLEEVE_AUTH_PASSWORD` in `.env`, then restart with `docker compose up -d`. Set both or neither.
-2. Upgrade with:
+1. Optional login: set both `SLEEVE_AUTH_USER` and `SLEEVE_AUTH_PASSWORD` in `.env`, then recreate the stack. Set both or neither.
+2. Upgrade the published image with:
+
+   ```bash
+   docker compose -f docker-compose.image.yml pull
+   docker compose -f docker-compose.image.yml up -d
+   ```
+
+   Or upgrade a source build with:
 
    ```bash
    git pull
@@ -47,13 +61,7 @@ Start with the Docker command above. For a long-running server:
    Pending migrations run on startup. **Settings → About** and `/api/version` show the running version and commit.
 3. Download a backup from **Settings → Backup & restore** after upgrades and before risky changes.
 
-### Prebuilt image
-
-Tagged releases publish `ghcr.io/nicuz/sleeve` images for `linux/amd64` and `linux/arm64`. The minimal stack lives in `docker-compose.image.yml`: image, restart policy, localhost port and the `/data` volume. Use it directly or adapt it to your compose manager.
-
-Use `latest` if you want `docker compose pull` to pick up releases. Pin an exact version tag if you prefer manual upgrades. The volume keeps the SQLite database, covers and snapshots; back it up before upgrading.
-
-If `3001` is already taken, set `SLEEVE_PORT=3011` in the stack `.env` or change only the host side of `ports`. The container keeps listening on `3001`.
+Tagged releases publish `ghcr.io/nicuz/sleeve` images for `linux/amd64` and `linux/arm64`. The minimal stack lives in `docker-compose.image.yml`: image, restart policy, localhost port and the `/data` volume. The volume keeps the SQLite database, covers and snapshots; back it up before upgrading.
 
 Basic auth protects an exposed instance. It does not add user accounts or separate libraries. Environment variables, Docker details and hardening live in [Operations](../development/operations.md#production).
 

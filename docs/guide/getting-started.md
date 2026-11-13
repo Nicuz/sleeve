@@ -22,6 +22,19 @@ docker compose -f docker-compose.image.yml up -d
 
 Open [http://127.0.0.1:3001](http://127.0.0.1:3001). Pin a release with `SLEEVE_VERSION=0.1.0` in `.env`; the default is `latest`. If `3001` is taken, set `SLEEVE_PORT=3011`.
 
+Data lives in the named volume `sleeve-data` by default. To use a host directory instead:
+
+```dotenv
+SLEEVE_DATA_DIR=/opt/stacks/sleeve/data
+```
+
+Create it first and make it writable by uid/gid `1000`:
+
+```bash
+mkdir -p /opt/stacks/sleeve/data
+sudo chown -R 1000:1000 /opt/stacks/sleeve/data
+```
+
 Or clone and build the image locally:
 
 ```bash

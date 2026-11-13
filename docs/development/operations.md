@@ -66,6 +66,21 @@ Source build:
 docker compose up -d --build
 ```
 
+`/data` uses the named volume `sleeve-data` by default. To store the database and covers in a visible host directory, set an absolute path:
+
+```dotenv
+SLEEVE_DATA_DIR=/opt/stacks/sleeve/data
+```
+
+Create it first and give it to the container user:
+
+```bash
+mkdir -p /opt/stacks/sleeve/data
+sudo chown -R 1000:1000 /opt/stacks/sleeve/data
+```
+
+Docker creates a missing bind-mount directory as `root:root`, but the container runs as uid/gid `1000`.
+
 ### Ports
 
 The container always listens on `3001`. The host port defaults to `3001`, so the two appear identical. Only the host side can collide with another service.
@@ -192,6 +207,7 @@ Startup applies pending migrations. If the database contains migrations newer th
 | `DATABASE_URL` | `file:./dev.db` | Prisma SQLite URL |
 | `PORT` | `3001` | Port inside the app/container |
 | `SLEEVE_PORT` | `3001` | Host port published by Docker Compose |
+| `SLEEVE_DATA_DIR` | `sleeve-data` | Named volume or absolute host path mounted at `/data` |
 | `SLEEVE_VERSION` | `latest` | Image tag used by `docker-compose.image.yml` |
 | `DATA_DIR` | `./data` (`/data` in Docker) | Covers and backups |
 | `COVER_CACHE_DIR` | `$DATA_DIR/covers` | Cover cache override |
@@ -386,6 +402,7 @@ Never leave test records in the real DB.
 | Symptom | Cause / fix |
 | --- | --- |
 | `EADDRINUSE` on 3001 | Another process owns the port. For Docker, set `SLEEVE_PORT`; for a source run, set `PORT`. |
+| Docker: `unable to open database file` | Bind-mount directory is not writable by uid/gid `1000`. Create it and `chown -R 1000:1000`, or use the default named volume. |
 | New route/model missing | Dev API not restarted after schema/code change. |
 | Prisma model undefined | Run `bun run db:push`/`db:generate`, restart dev. |
 | Metadata not updating | Check MBID; use Refresh/Search match. |

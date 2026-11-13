@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - The published GHCR image is now the primary Docker path; `docker-compose.image.yml` accepts `SLEEVE_VERSION` and the auth/user-agent variables.
+- `SLEEVE_DATA_DIR` can point `/data` at an absolute host directory instead of the named volume.
 
 ## [0.1.0] - 2026-11-13
 

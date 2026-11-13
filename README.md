@@ -53,7 +53,7 @@ curl -fsSLO https://raw.githubusercontent.com/Nicuz/sleeve/main/docker-compose.i
 docker compose -f docker-compose.image.yml up -d
 ```
 
-Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume. Back it up from **Settings → Backup & restore**. Pin a release with `SLEEVE_VERSION=0.1.0` in `.env`; update later with `docker compose -f docker-compose.image.yml pull && docker compose -f docker-compose.image.yml up -d`. **Settings → About** shows the running version and commit. If `3001` is already in use, set `SLEEVE_PORT=3011` in `.env`; the container keeps listening on `3001`.
+Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume by default. Set `SLEEVE_DATA_DIR=/absolute/path` in `.env` to use a host directory instead; create it and make it writable by uid/gid `1000` (`sudo chown -R 1000:1000 /absolute/path`). Back it up from **Settings → Backup & restore**. Pin a release with `SLEEVE_VERSION=0.1.0` in `.env`; update later with `docker compose -f docker-compose.image.yml pull && docker compose -f docker-compose.image.yml up -d`. **Settings → About** shows the running version and commit. If `3001` is already in use, set `SLEEVE_PORT=3011` in `.env`; the container keeps listening on `3001`.
 
 Or clone and build the image locally:
 

@@ -1,4 +1,5 @@
 # Published multi-arch image. Pin a release with SLEEVE_VERSION=0.1.0 in .env.
+# Set SLEEVE_DATA_DIR to an absolute host path to use a bind mount instead of the named volume.
 services:
   sleeve:
     image: ghcr.io/nicuz/sleeve:${SLEEVE_VERSION:-latest}
@@ -12,7 +13,7 @@ services:
       SLEEVE_AUTH_USER: ${SLEEVE_AUTH_USER:-}
       SLEEVE_AUTH_PASSWORD: ${SLEEVE_AUTH_PASSWORD:-}
     volumes:
-      - sleeve-data:/data
+      - ${SLEEVE_DATA_DIR:-sleeve-data}:/data
 
 volumes:
   sleeve-data:

@@ -25,7 +25,7 @@ services:
       SLEEVE_AUTH_USER: ${SLEEVE_AUTH_USER:-}
       SLEEVE_AUTH_PASSWORD: ${SLEEVE_AUTH_PASSWORD:-}
     volumes:
-      - sleeve-data:/data
+      - ${SLEEVE_DATA_DIR:-sleeve-data}:/data
 
 volumes:
   sleeve-data:

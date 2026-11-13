@@ -1,6 +1,10 @@
 services:
   sleeve:
-    build: .
+    build:
+      context: .
+      args:
+        SLEEVE_COMMIT: ${SLEEVE_COMMIT:-}
+        SLEEVE_BUILD_DATE: ${SLEEVE_BUILD_DATE:-}
     image: sleeve:latest
     restart: unless-stopped
     init: true

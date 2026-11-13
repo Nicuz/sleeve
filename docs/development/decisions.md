@@ -145,3 +145,9 @@ Theme, accent, default view and sort stay in browser `localStorage`; default for
 **Status:** accepted
 
 In-app restore uses a full JSON backup inside one transaction, not a live SQLite file swap. Replace mode clears releases, wishlist, saved, follows, library defaults and discovery state, then restores the backup, preserving `createdAt`. Every import creates a `pre-import-*.db` snapshot first and aborts if that snapshot fails; the last 5 are kept. Snapshots are internal rollback files, not a user-facing feature. JSON is the only visible backup/restore path, which also works cleanly in Docker because browser download/upload crosses the container boundary. Exact database restoration remains a CLI command (`bun run restore`, or `docker compose run` in Docker) because swapping the SQLite file under an active Prisma connection is unsafe. Benefits: safe one-click restore, no binary snapshot management in Settings, and no risk of corrupting a live database.
+
+## ADR-023 — SemVer releases with build info
+
+**Status:** accepted
+
+`package.json` is the version source of truth and releases are annotated `vX.Y.Z` tags. A tag workflow refuses to publish when the tag and `package.json` disagree, runs the full check, and creates a GitHub Release whose notes come from `CHANGELOG.md`. Builds stamp the short commit and build date: Vite defines `__SLEEVE_BUILD__` for the client and emits `dist/build-info.json`, which the production server reads. Local checkouts fall back to `git rev-parse`; Docker build args supply the commit because `.git` is excluded from the image. **Settings → About** and the public `GET /api/version` expose the same data. Benefits: users and operators can identify exactly what they run, and release notes never depend on a manually edited GitHub form.

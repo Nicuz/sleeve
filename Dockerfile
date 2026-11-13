@@ -14,7 +14,13 @@ COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 ENV NODE_ENV=production
 ENV DATABASE_URL=file:/app/build.db
-RUN bun run build
+ARG SLEEVE_COMMIT=unknown
+ARG SLEEVE_DIRTY=false
+ARG SLEEVE_BUILD_DATE
+RUN SLEEVE_COMMIT="$SLEEVE_COMMIT" \
+    SLEEVE_DIRTY="$SLEEVE_DIRTY" \
+    SLEEVE_BUILD_DATE="${SLEEVE_BUILD_DATE:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}" \
+    bun run build
 
 FROM prerelease AS test
 ENV NODE_ENV=test

@@ -22,6 +22,24 @@ Common status codes:
 { "ok": true, "name": "Sleeve", "time": "2026-…" }
 ```
 
+## Version
+
+### `GET /api/version`
+
+Public, no auth. Reports the running build so you can confirm what an instance is serving.
+
+```json
+{
+  "name": "Sleeve",
+  "version": "0.1.0",
+  "commit": "25da4cb",
+  "dirty": false,
+  "buildDate": "2026-11-13T10:00:00.000Z"
+}
+```
+
+`commit` is the short Git SHA, or `unknown` when the build had no Git metadata. `dirty` is `true` when the working tree had uncommitted changes at build time.
+
 ## Releases
 
 ### `GET /api/releases`

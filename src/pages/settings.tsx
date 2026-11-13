@@ -22,12 +22,14 @@ import {
   type AccentKey,
 } from '@/lib/settings';
 import type { AppSettings } from '@/lib/types';
+import { buildInfo } from '@/lib/build-info';
 import { CONDITIONS, CURRENCIES, cn, FORMAT_OPTIONS, pluralize } from '@/lib/utils';
 import { ImportBackupDialog } from '@/components/import-backup-dialog';
 import { LogoMark } from '@/components/logo';
 import { SegmentedControl } from '@/components/segmented-control';
 import { useToast } from '@/components/toast';
-import packageJson from '../../package.json';
+
+const RELEASES_URL = 'https://github.com/Nicuz/sleeve/releases';
 
 function Section({
   title,
@@ -622,12 +624,32 @@ export function SettingsPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <p className="font-display text-lg font-semibold text-cream">Sleeve</p>
                 <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[10px] font-medium tabular-nums text-muted">
-                  v{packageJson.version}
+                  v{buildInfo.version}
                 </span>
               </div>
               <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted">
                 A local-first catalog for your physical music collection. No account, no
                 analytics; backups are portable JSON files.
+              </p>
+              <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted/70">
+                <span className="font-mono">
+                  {buildInfo.commit}
+                  {buildInfo.dirty ? '-dirty' : ''}
+                </span>
+                <span aria-hidden="true">·</span>
+                <span title={buildInfo.buildDate}>
+                  Built {buildInfo.buildDate.slice(0, 10)}
+                </span>
+                <span aria-hidden="true">·</span>
+                <a
+                  href={RELEASES_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-accent transition hover:text-accent-soft"
+                >
+                  What's new
+                  <ArrowUpRight size={11} />
+                </a>
               </p>
             </div>
           </div>

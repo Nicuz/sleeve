@@ -17,6 +17,7 @@ import { discoverRoutes } from './routes/discover';
 import { importRoutes } from './routes/import';
 import { maintenanceRoutes } from './routes/maintenance';
 import { coverRoutes, pruneCoverCache } from './routes/covers';
+import { versionRoutes } from './routes/version';
 import { ensureMigrations } from './migrate';
 
 const SECURITY_HEADERS = {
@@ -70,7 +71,8 @@ const app = new Elysia()
   .use(discoverRoutes)
   .use(importRoutes)
   .use(maintenanceRoutes)
-  .use(coverRoutes);
+  .use(coverRoutes)
+  .use(versionRoutes);
 
 function isAuthorized(request: Request): boolean {
   if (!env.auth) return true;
@@ -152,7 +154,10 @@ if (env.isProduction) {
     port: env.port,
     async fetch(request) {
       const url = new URL(request.url);
-      const publicPath = url.pathname === '/api/health' || url.pathname === '/api/ready';
+      const publicPath =
+        url.pathname === '/api/health' ||
+        url.pathname === '/api/ready' ||
+        url.pathname === '/api/version';
 
       if (!publicPath && !isAuthorized(request)) {
         return unauthorized();

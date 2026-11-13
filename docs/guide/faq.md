@@ -59,6 +59,10 @@ Picks are cached and refreshed weekly. There is no manual refresh button. Adding
 
 The service worker only runs in production builds. Hard-reload, or clear the site data for the app and open it again. See [Operations](../development/operations.md#pwa-service-worker).
 
+## Which version am I running?
+
+**Settings → About** shows the version, short commit and build date. On a server, `curl http://127.0.0.1:3001/api/version` returns the same information without opening the app. From a source checkout, `git describe --tags --always` shows the current tag or commit. Release notes live on [GitHub Releases](https://github.com/Nicuz/sleeve/releases).
+
 ## Can several people use one instance?
 
 Sleeve is single-user. Optional HTTP Basic auth protects an exposed instance, but there are no separate accounts or per-user libraries.

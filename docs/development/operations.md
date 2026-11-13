@@ -103,8 +103,18 @@ The compose file already applies these:
 
 ```bash
 git pull
-docker compose up -d --build
+SLEEVE_COMMIT=$(git rev-parse --short HEAD) docker compose up -d --build
 ```
+
+`.git` is excluded from the image, so pass the commit at build time. Without it, **Settings → About** and `/api/version` show `unknown`.
+
+Check what is running before and after an upgrade:
+
+```bash
+curl -s http://127.0.0.1:3001/api/version
+```
+
+The same version, commit and build date appear in **Settings → About**. Releases are tagged `vX.Y.Z`; `git fetch --tags && git describe --tags --always` shows the checkout you are on.
 
 Startup applies pending migrations. If the database contains migrations newer than the running build, Sleeve refuses to start; restore a backup or deploy the newer version.
 

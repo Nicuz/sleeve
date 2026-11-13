@@ -82,6 +82,22 @@ Rules:
 - Never commit `.env`, `prisma/dev.db`, `data/`, `dist/` or secrets.
 - Do not rewrite shared history or force-push.
 
+## Releases
+
+`package.json` holds the version and releases are tagged `vX.Y.Z`.
+
+1. Move the relevant `CHANGELOG.md` entries from `[Unreleased]` into a dated `## [X.Y.Z]` section.
+2. Bump `"version"` in `package.json` (same value, no `v`).
+3. Commit as `chore(release): vX.Y.Z`.
+4. Tag and push:
+
+```bash
+git tag -a vX.Y.Z -m "vX.Y.Z"
+git push origin main --tags
+```
+
+The tag must equal `v${package.json.version}`. The release workflow fails otherwise, then runs `bun run check` and publishes a GitHub Release using the matching changelog section.
+
 ## Code
 
 - TypeScript strict. Avoid `any`; justify casts.
@@ -104,5 +120,6 @@ Rules:
 | `docs/guide/` | user guide, including server steps |
 | `docs/development/` | architecture, API, data model, design, operations, decisions |
 | `README.md` | setup and feature overview |
+| `CHANGELOG.md` | release notes, grouped by version |
 
-Update the matching doc when schema, API, commands or architecture change.
+Update the matching doc when schema, API, commands or architecture change. Release notes go in `CHANGELOG.md`, not in a separate draft.

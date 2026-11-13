@@ -28,7 +28,7 @@ wait_for_health() {
 }
 
 echo "Building Docker image…"
-docker build --target release -t "${image}" . >/dev/null
+docker build --target release --build-arg SLEEVE_COMMIT=smoke-test -t "${image}" . >/dev/null
 
 echo "Starting isolated container…"
 docker run -d \
@@ -41,6 +41,13 @@ docker run -d \
   "${image}" >/dev/null
 
 wait_for_health
+
+echo "Checking version endpoint…"
+expected_version="$(node -p "require('./package.json').version")"
+version_json="$(curl -fsS "${base}/api/version")"
+printf '%s' "${version_json}" | grep -q '"name":"Sleeve"'
+printf '%s' "${version_json}" | grep -q "\"version\":\"${expected_version}\""
+printf '%s' "${version_json}" | grep -q '"commit":"smoke-test"'
 
 echo "Checking JSON export…"
 export_json="$(curl -fsS "${base}/api/export")"

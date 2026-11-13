@@ -39,10 +39,10 @@ Start with the Docker command above. For a long-running server:
 
    ```bash
    git pull
-   docker compose up -d --build
+   SLEEVE_COMMIT=$(git rev-parse --short HEAD) docker compose up -d --build
    ```
 
-   Pending migrations run on startup.
+   Pending migrations run on startup. **Settings → About** and `/api/version` show the running version and commit.
 3. Download a backup from **Settings → Backup & restore** after upgrades and before risky changes.
 
 Basic auth protects an exposed instance. It does not add user accounts or separate libraries. Environment variables, Docker details and hardening live in [Operations](../development/operations.md#production).

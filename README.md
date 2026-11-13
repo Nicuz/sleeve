@@ -53,7 +53,7 @@ cd sleeve
 docker compose up -d --build
 ```
 
-Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume. Back it up from **Settings → Backup & restore**. Update later with `git pull && docker compose up -d --build`.
+Open **http://127.0.0.1:3001**. Your library lives in the `sleeve-data` volume. Back it up from **Settings → Backup & restore**. Update later with `git pull && SLEEVE_COMMIT=$(git rev-parse --short HEAD) docker compose up -d --build`. **Settings → About** shows the running version and commit.
 
 For login, ports, data layout and upgrades, see [Run on a server](https://nicuz.github.io/sleeve/guide/getting-started#run-it-on-a-server).
 

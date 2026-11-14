@@ -24,7 +24,7 @@ services:
     tmpfs:
       - /tmp:size=64m,mode=1777
     ports:
-      - "127.0.0.1:${SLEEVE_PORT:-3001}:3001"
+      - "${SLEEVE_PORT:-3001}:3001"
     environment:
       MUSICBRAINZ_USER_AGENT: ${MUSICBRAINZ_USER_AGENT:-}
       SLEEVE_AUTH_USER: ${SLEEVE_AUTH_USER:-}

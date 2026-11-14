@@ -30,9 +30,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - The published GHCR image is the primary Docker path; `docker-compose.image.yml` accepts `SLEEVE_VERSION` and the auth/user-agent variables.
 - `SLEEVE_DATA_DIR` can point `/data` at an absolute host directory instead of the named volume.
 - The image entrypoint fixes data-directory ownership before dropping to the non-root app user, so bind mounts work without manual `chown`.
+- The published Docker port binds to all host interfaces by default, so other devices on the LAN can reach the app; loopback-only publishing stays an opt-in.
 
 ### Fixed
 
+- The installed iOS PWA no longer pinches or double-taps to zoom, and mobile form fields render at 16px so focusing search or dialog inputs does not autozoom the page.
 - Cover art tracks load and failure state per URL and recovers already-cached images, preventing blank covers after mobile page or grid/list switches.
 - Empty Discover feeds retry after 30 minutes instead of staying cached for a week, and the empty state offers a **Try again** action.
 - Wishlist grid cards reserve a two-line note slot, so cards with and without notes stay aligned and long notes truncate instead of changing row height.

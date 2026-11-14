@@ -21,7 +21,7 @@ services:
     image: ghcr.io/nicuz/sleeve:${SLEEVE_VERSION:-latest}
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3001:3001"
+      - "3001:3001"
     volumes:
       - ${SLEEVE_DATA_DIR:-./data}:/data
 ```
@@ -32,7 +32,7 @@ Then start it:
 docker compose up -d
 ```
 
-Open [http://127.0.0.1:3001](http://127.0.0.1:3001). Pin a release with `SLEEVE_VERSION=0.1.0` in `.env`; the default is `latest`. If `3001` is taken, change the host side of `ports`.
+Open [http://127.0.0.1:3001](http://127.0.0.1:3001), or `http://<host-ip>:3001` from another device on your LAN. Pin a release with `SLEEVE_VERSION=0.1.0` in `.env`; the default is `latest`. If `3001` is taken, change the host side of `ports`.
 
 Data defaults to `./data` next to the compose file. To use another path:
 

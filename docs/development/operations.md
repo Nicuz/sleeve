@@ -82,6 +82,8 @@ If you run the container with an explicit non-root `user:`, the entrypoint canno
 
 The container always listens on `3001`. The host port defaults to `3001`, so the two appear identical. Only the host side can collide with another service.
 
+The mapping publishes on every host interface, so other devices on the same network can connect. To keep it on loopback only, prefix the host side with `127.0.0.1:`, for example `"127.0.0.1:3001:3001"`. Enable auth or put a reverse proxy in front before exposing the port beyond your LAN.
+
 If something else already uses `3001`, set `SLEEVE_PORT` in `.env`:
 
 ```dotenv
@@ -166,7 +168,7 @@ The compose file already applies these:
 - `cap_drop: ALL` and `no-new-privileges`
 - read-only root filesystem with a small `/tmp` tmpfs
 - data written with `0600` files and `0700` directories
-- port published on `127.0.0.1` only
+- published on all host interfaces; prefix the host side with `127.0.0.1:` to restrict it to loopback
 - health probes on `/api/health`
 
 ### Upgrades

@@ -147,6 +147,8 @@ Do not introduce another display font or all-caps body copy.
 - Filters wrap; grids go 2 columns.
 - Dialogs become bottom sheets (`rounded-t-3xl`, full width) and switch to centered cards at `sm`.
 - Full-height fixed elements respect `pb-[env(safe-area-inset-bottom)]`.
+- Page zoom is locked in the installed app (`user-scalable=no` plus `touch-action: pan-x pan-y` and iOS `gesturestart` guards); Safari tabs stay zoomable for accessibility.
+- Form fields render at `16px` on coarse pointers so focusing them never triggers iOS autozoom.
 
 ## Surfaces, radius and shadows
 

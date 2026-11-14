@@ -7,7 +7,10 @@ import { AppProvider } from './components/app-context';
 import { ErrorBoundary } from './components/error-boundary';
 import { ToastProvider } from './components/toast';
 import { SettingsProvider } from './lib/settings';
+import { installZoomGuards } from './lib/prevent-zoom';
 import './index.css';
+
+installZoomGuards();
 
 const queryClient = new QueryClient({
   defaultOptions: {

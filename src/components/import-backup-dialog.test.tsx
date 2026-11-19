@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, expect, mock, test } from 'bun:test';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
+import { strToU8, zipSync } from 'fflate';
 import type { ImportMode, ImportPreview, ImportResult } from '@/lib/types';
 
 if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
@@ -138,7 +139,7 @@ test('previews a backup and gates destructive replace behind RESTORE', async () 
 
   fireEvent.click(replaceButton);
   await waitFor(() =>
-    expect(importData).toHaveBeenCalledWith(expect.anything(), 'replace'),
+    expect(importData).toHaveBeenCalledWith(expect.anything(), 'replace', []),
   );
 });
 
@@ -156,6 +157,41 @@ test('does not require confirmation for add-to-library merge', async () => {
 
   fireEvent.click(mergeButton);
   await waitFor(() =>
-    expect(importData).toHaveBeenCalledWith(expect.anything(), 'merge'),
+    expect(importData).toHaveBeenCalledWith(expect.anything(), 'merge', []),
+  );
+});
+
+test('reads uploaded covers from a zip backup', async () => {
+  previewImport.mockClear();
+  importData.mockClear();
+  const coverName = `${'a'.repeat(64)}.webp`;
+  const payload = {
+    app: 'sleeve',
+    version: 1,
+    releases: [{ title: 'Album', artist: 'Artist', coverUrl: `upload:${coverName}` }],
+  };
+  const archive = zipSync({
+    'library.json': strToU8(JSON.stringify(payload)),
+    [`covers/${coverName}`]: new Uint8Array([1, 2, 3]),
+  });
+  const zip = new File([archive], 'backup.zip', { type: 'application/zip' });
+
+  const { container } = renderDialog();
+  const input = container.querySelector('input[type="file"]');
+  if (!input) throw new Error('File input not found');
+  await act(async () => {
+    fireEvent.change(input, { target: { files: [zip] } });
+    await Promise.resolve();
+  });
+
+  await screen.findByText(/1 cover image will be restored/);
+  const mergeButton = screen.getByRole('button', {
+    name: 'Add to my library',
+  }) as HTMLButtonElement;
+  fireEvent.click(mergeButton);
+  await waitFor(() =>
+    expect(importData).toHaveBeenCalledWith(expect.anything(), 'merge', [
+      expect.any(File),
+    ]),
   );
 });

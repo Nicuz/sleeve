@@ -492,7 +492,7 @@ Records an implicit Discover interaction. Used by the UI when a suggestion is op
 
 ### `GET /api/export`
 
-Full JSON backup:
+Full backup. Without uploaded covers this is the JSON payload below; once the library has uploaded cover art it is a zip containing `library.json` plus `covers/<sha256>.<ext>`:
 
 ```json
 {
@@ -507,7 +507,7 @@ Full JSON backup:
 }
 ```
 
-`Content-Disposition: attachment`. This is the only export format; there is no CSV collection export.
+`Content-Disposition: attachment` with a `.json` or `.zip` filename. This is the only export format; there is no CSV collection export.
 
 ### `POST /api/import/preview`
 
@@ -578,9 +578,18 @@ Response:
 
 The Discogs CSV UI maps a CSV client-side and sends the mapped releases to this same endpoint in merge mode.
 
+### `POST /api/import/upload?mode=merge|replace`
+
+Multipart restore for backups that contain uploaded covers. Fields:
+
+- `payload`: the `library.json` object, as a JSON string or parsed field.
+- `covers`: zero or more image files named `<sha256>.<jpg|png|webp|gif>`.
+
+Every `upload:` cover referenced by the payload must be present. Missing files return `400` before the database changes. Valid files are stored in `data/uploads/covers`, then the normal merge or replace runs and unreferenced uploads are pruned.
+
 ## Backups
 
-The JSON export/import endpoints are the user-facing backup API. Automatic `pre-import-*.db` snapshots live in `$BACKUP_DIR`; exact snapshot restore is CLI-only (`bun run restore -- <name>` with the server stopped).
+The JSON export/import endpoints are the user-facing backup API. When uploaded covers exist, export switches to a zip that carries `library.json` and the cover files, and restore uses the multipart import route. Automatic `pre-import-*.db` snapshots live in `$BACKUP_DIR`; exact snapshot restore is CLI-only (`bun run restore -- <name>` with the server stopped). Snapshots contain the database only, not uploaded cover files.
 
 See [Operations § Backups](operations.md#backups).
 
@@ -611,6 +620,23 @@ Allowlisted proxy for `https://coverartarchive.org/...` only.
 - `Cache-Control: public, max-age=31536000, immutable`.
 - `400` for other hosts; `502` when upstream fails.
 - Limit 5MB.
+
+### `POST /api/covers/upload`
+
+Multipart cover upload with a single `file` field. Accepts JPEG, PNG, WebP and GIF, validated by content, maximum 8MB. Responses:
+
+- `200`: `{ "coverUrl": "upload:<sha256>.<ext>", "contentType": "image/webp", "bytes": 183422 }`
+- `400`: unsupported image, empty file or oversize.
+
+Files are stored in `data/uploads/covers`. Identical images share one file. Uploaded covers are user-owned: metadata refresh keeps them unless the release is edited. Legacy non-CAA URLs are still served and preserved, but the UI does not accept new URLs.
+
+### `DELETE /api/covers/upload/:name`
+
+Deletes an unreferenced upload. Returns `{ "deleted": true }` when removed and `{ "deleted": false }` when a release, wishlist item or saved suggestion still uses it. Invalid names return `400`. The client calls this when an editor closes after an unsaved upload; the server always checks references first.
+
+### `GET /api/covers/upload/:name`
+
+Serves a stored upload with its content type and `Cache-Control: public, max-age=31536000, immutable`. Names are validated as `<sha256>.<ext>`; anything else returns `400` or `404`.
 
 ## Notes for clients
 

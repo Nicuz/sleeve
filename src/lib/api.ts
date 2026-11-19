@@ -55,6 +55,18 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
+async function requestForm<T>(path: string, body: FormData): Promise<T> {
+  const response = await fetch(path, { method: 'POST', body });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new ApiError(
+      typeof data.message === 'string' ? data.message : 'Request failed',
+      response.status,
+    );
+  }
+  return data as T;
+}
+
 export type ReleaseFilters = {
   q?: string;
   format?: string;
@@ -87,11 +99,17 @@ export const api = {
     return request<GlobalSearchResponse>(`/api/search?${params}`, { signal });
   },
 
-  importData(payload: unknown, mode: ImportMode = 'merge') {
-    return request<ImportResult>(`/api/import?mode=${mode}`, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
+  importData(payload: unknown, mode: ImportMode = 'merge', covers: File[] = []) {
+    if (covers.length === 0) {
+      return request<ImportResult>(`/api/import?mode=${mode}`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    }
+    const form = new FormData();
+    form.append('payload', JSON.stringify(payload));
+    for (const cover of covers) form.append('covers', cover);
+    return requestForm<ImportResult>(`/api/import/upload?mode=${mode}`, form);
   },
 
   previewImport(payload: unknown, mode: ImportMode = 'merge') {
@@ -277,6 +295,22 @@ export const api = {
 
   exportBackupUrl() {
     return '/api/export';
+  },
+
+  uploadCover(file: File) {
+    const form = new FormData();
+    form.append('file', file);
+    return requestForm<{ coverUrl: string; contentType: string; bytes: number }>(
+      '/api/covers/upload',
+      form,
+    );
+  },
+
+  deleteCoverUpload(name: string) {
+    return request<{ deleted: boolean }>(
+      `/api/covers/upload/${encodeURIComponent(name)}`,
+      { method: 'DELETE' },
+    );
   },
 
   searchMusicbrainz(query: string, limit = 20, signal?: AbortSignal) {

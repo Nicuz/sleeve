@@ -58,6 +58,7 @@ export const env = {
   userAgent,
   dataDir,
   coverCacheDir: process.env.COVER_CACHE_DIR ?? join(dataDir, 'covers'),
+  coverUploadDir: process.env.COVER_UPLOAD_DIR ?? join(dataDir, 'uploads', 'covers'),
   backupDir: process.env.BACKUP_DIR ?? join(dataDir, 'backups'),
   coverCacheMaxBytes: readPositiveInt(process.env.COVER_CACHE_MAX_MB, 500) * 1024 * 1024,
   autoMigrate: process.env.AUTO_MIGRATE !== 'false',

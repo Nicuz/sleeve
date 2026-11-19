@@ -1,4 +1,5 @@
 import { prisma } from './db';
+import { isUploadCover } from './cover-uploads';
 import {
   getRelease,
   searchReleases,
@@ -27,6 +28,16 @@ function similarity(a: string, b: string): number {
 
 function cleanQuery(value: string): string {
   return value.replace(/"/g, '').trim();
+}
+
+function isCustomCover(coverUrl: string | null | undefined): boolean {
+  if (!coverUrl) return false;
+  if (isUploadCover(coverUrl)) return true;
+  try {
+    return new URL(coverUrl).hostname !== 'coverartarchive.org';
+  } catch {
+    return true;
+  }
 }
 
 type MatchableRelease = {
@@ -69,6 +80,11 @@ function scoreCandidate(release: MatchableRelease, candidate: SearchResult): num
 
 export async function applyReleaseDetail(releaseId: string, detail: ReleaseDetail) {
   return prisma.$transaction(async (tx) => {
+    const existing = await tx.release.findUnique({
+      where: { id: releaseId },
+      select: { coverUrl: true },
+    });
+    const keepCustomCover = isCustomCover(existing?.coverUrl);
     await tx.track.deleteMany({ where: { releaseId } });
     return tx.release.update({
       where: { id: releaseId },
@@ -84,7 +100,7 @@ export async function applyReleaseDetail(releaseId: string, detail: ReleaseDetai
         catalogNumber: detail.catalogNumber,
         barcode: detail.barcode,
         formatDetail: detail.formatDetail,
-        coverUrl: detail.coverUrl,
+        coverUrl: keepCustomCover ? existing?.coverUrl : detail.coverUrl,
         genres: detail.genres.length ? detail.genres.join(', ') : null,
         trackCount: detail.trackCount,
         tracks: detail.tracks.length

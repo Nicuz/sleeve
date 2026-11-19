@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readdir, rm } from 'node:fs/promises';
 import { Elysia } from 'elysia';
+import { strFromU8, unzipSync } from 'fflate';
 
 const databaseUrl = process.env.DATABASE_URL;
 const backupDir = process.env.BACKUP_DIR;
@@ -27,9 +28,15 @@ const { settingsRoutes } = await import('../server/routes/settings');
 const { followRoutes } = await import('../server/routes/follows');
 const { importRoutes } = await import('../server/routes/import');
 const { releaseRoutes } = await import('../server/routes/releases');
+const { coverRoutes } = await import('../server/routes/covers');
 const { wishlistRoutes } = await import('../server/routes/wishlist');
 const { savedRoutes } = await import('../server/routes/saved');
 const { getCollectionSnapshot } = await import('../server/discovery');
+const { saveCoverUpload, readCoverUpload, uploadCoverName } = await import(
+  '../server/cover-uploads'
+);
+const { applyReleaseDetail } = await import('../server/release-metadata');
+const { pruneOrphanCoverUploads } = await import('../server/cover-gc');
 
 await configureDatabase();
 
@@ -478,6 +485,210 @@ await reset();
   });
   assert.equal(removed.status, 200);
   assert.equal(await prisma.savedSuggestion.count(), 0);
+}
+
+// Uploaded covers export in a zip and restore through the multipart import route.
+await reset();
+const PNG_BYTES = new Uint8Array(
+  Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    'base64',
+  ),
+);
+{
+  const app = new Elysia().use(coverRoutes);
+  const form = new FormData();
+  form.append('file', new File([PNG_BYTES], 'cover.png', { type: 'image/png' }));
+  const response = await api(app, '/api/covers/upload', {
+    method: 'POST',
+    body: form,
+  });
+  assert.equal(response.status, 200);
+  const body = (await response.json()) as { coverUrl: string; bytes: number };
+  const name = uploadCoverName(body.coverUrl);
+  assert.ok(name);
+  assert.equal(body.bytes, PNG_BYTES.byteLength);
+
+  const image = await api(app, `/api/covers/upload/${name}`);
+  assert.equal(image.status, 200);
+  assert.equal(image.headers.get('content-type'), 'image/png');
+  assert.equal((await image.arrayBuffer()).byteLength, PNG_BYTES.byteLength);
+
+  const invalidForm = new FormData();
+  invalidForm.append(
+    'file',
+    new File([new Uint8Array([1, 2, 3])], 'notes.txt', { type: 'image/png' }),
+  );
+  const invalid = await api(app, '/api/covers/upload', {
+    method: 'POST',
+    body: invalidForm,
+  });
+  assert.equal(invalid.status, 400);
+}
+
+{
+  const app = new Elysia().use(coverRoutes);
+  const saved = await saveCoverUpload(PNG_BYTES);
+  const name = uploadCoverName(saved.coverUrl);
+  assert.ok(name);
+
+  const unused = await api(app, `/api/covers/upload/${name}`, { method: 'DELETE' });
+  assert.equal(unused.status, 200);
+  assert.equal(((await unused.json()) as { deleted: boolean }).deleted, true);
+  assert.equal(await readCoverUpload(name), null);
+
+  const kept = await saveCoverUpload(PNG_BYTES);
+  const keptName = uploadCoverName(kept.coverUrl);
+  assert.ok(keptName);
+  await prisma.release.create({
+    data: {
+      title: 'Referenced',
+      artist: 'Artist',
+      format: 'CD',
+      coverUrl: kept.coverUrl,
+    },
+  });
+  const referenced = await api(app, `/api/covers/upload/${keptName}`, {
+    method: 'DELETE',
+  });
+  assert.equal(referenced.status, 200);
+  assert.equal(((await referenced.json()) as { deleted: boolean }).deleted, false);
+  assert.ok(await readCoverUpload(keptName));
+
+  await prisma.release.deleteMany();
+  const orphan = await saveCoverUpload(PNG_BYTES);
+  const orphanName = uploadCoverName(orphan.coverUrl);
+  assert.ok(orphanName);
+  assert.ok((await pruneOrphanCoverUploads(0)) >= 1);
+  assert.equal(await readCoverUpload(orphanName), null);
+}
+
+{
+  const saved = await saveCoverUpload(PNG_BYTES);
+  const name = uploadCoverName(saved.coverUrl);
+  assert.ok(name);
+  assert.equal((await readCoverUpload(name))?.contentType, 'image/png');
+
+  await prisma.release.create({
+    data: {
+      title: 'Covered',
+      artist: 'Artist',
+      format: 'CD',
+      coverUrl: saved.coverUrl,
+    },
+  });
+
+  const app = new Elysia().use(exportRoutes);
+  const response = await api(app, '/api/export');
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/zip');
+  const archive = unzipSync(new Uint8Array(await response.arrayBuffer()));
+  const libraryJson = archive['library.json'];
+  assert.ok(libraryJson);
+  const body = JSON.parse(strFromU8(libraryJson)) as {
+    releases: Array<{ coverUrl: string }>;
+  };
+  assert.equal(body.releases[0]?.coverUrl, saved.coverUrl);
+  assert.ok(archive[`covers/${name}`]);
+}
+
+{
+  const saved = await saveCoverUpload(PNG_BYTES);
+  const name = uploadCoverName(saved.coverUrl);
+  assert.ok(name);
+  const payload = basePayload();
+  payload.releases[0] = {
+    ...payload.releases[0],
+    musicbrainzId: null,
+    title: 'Restored Cover',
+    coverUrl: saved.coverUrl,
+  } as (typeof payload.releases)[number];
+
+  await reset();
+  const app = new Elysia().use(importRoutes);
+  const form = new FormData();
+  form.append('payload', JSON.stringify(payload));
+  form.append('covers', new File([PNG_BYTES], name, { type: 'image/png' }));
+  const response = await api(app, '/api/import/upload?mode=replace', {
+    method: 'POST',
+    body: form,
+  });
+  assert.equal(response.status, 200);
+  const restored = await prisma.release.findFirst();
+  assert.equal(restored?.coverUrl, saved.coverUrl);
+  assert.ok(await readCoverUpload(name));
+}
+
+{
+  const payload = basePayload();
+  payload.releases[0] = {
+    ...payload.releases[0],
+    coverUrl: `upload:${'f'.repeat(64)}.webp`,
+  } as (typeof payload.releases)[number];
+  await reset();
+  const app = new Elysia().use(importRoutes);
+  const form = new FormData();
+  form.append('payload', JSON.stringify(payload));
+  const response = await api(app, '/api/import/upload?mode=merge', {
+    method: 'POST',
+    body: form,
+  });
+  assert.equal(response.status, 400);
+  assert.equal(await prisma.release.count(), 0);
+}
+
+// Metadata refresh keeps user-chosen covers.
+{
+  const detail = {
+    musicbrainzId: 'aaaaaaaa-1111-4111-8111-111111111111',
+    title: 'Custom Cover',
+    artist: 'Artist',
+    artistId: null,
+    year: 2020,
+    releaseDate: '2020-01-01',
+    country: null,
+    label: null,
+    catalogNumber: null,
+    barcode: null,
+    format: 'CD',
+    formatDetail: 'CD',
+    trackCount: 0,
+    coverUrl:
+      'https://coverartarchive.org/release/aaaaaaaa-1111-4111-8111-111111111111/front-500',
+    type: 'Album',
+    status: 'Official',
+    packaging: null,
+    genres: [],
+    tracks: [],
+  };
+
+  const saved = await saveCoverUpload(PNG_BYTES);
+  const release = await prisma.release.create({
+    data: {
+      title: 'Custom Cover',
+      artist: 'Artist',
+      format: 'CD',
+      coverUrl: saved.coverUrl,
+    },
+  });
+  await applyReleaseDetail(release.id, detail);
+  const updated = await prisma.release.findUnique({ where: { id: release.id } });
+  assert.equal(updated?.coverUrl, saved.coverUrl);
+
+  const linked = await prisma.release.create({
+    data: {
+      title: 'Linked Cover',
+      artist: 'Artist',
+      format: 'CD',
+      coverUrl: 'https://example.com/cover.jpg',
+    },
+  });
+  await applyReleaseDetail(linked.id, {
+    ...detail,
+    musicbrainzId: 'bbbbbbbb-2222-4222-8222-222222222222',
+  });
+  const linkedUpdated = await prisma.release.findUnique({ where: { id: linked.id } });
+  assert.equal(linkedUpdated?.coverUrl, 'https://example.com/cover.jpg');
 }
 
 await prisma.$disconnect();

@@ -1,10 +1,36 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { strFromU8, unzipSync } from 'fflate';
 import { AlertTriangle, FileJson, Loader2, Upload, X } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import type { ImportMode, ImportPreview, ImportResult } from '@/lib/types';
 import { cn, formatDate, pluralize } from '@/lib/utils';
 import { useToast } from './toast';
+
+const MAX_BACKUP_BYTES = 500 * 1024 * 1024;
+const COVER_TYPES: Record<string, string> = {
+  jpg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  gif: 'image/gif',
+};
+
+function referencedCovers(payload: unknown): string[] {
+  const names: string[] = [];
+  if (!payload || typeof payload !== 'object') return names;
+  const record = payload as Record<string, unknown>;
+  for (const key of ['releases', 'wishlist', 'saved']) {
+    const rows = record[key];
+    if (!Array.isArray(rows)) continue;
+    for (const row of rows) {
+      if (!row || typeof row !== 'object') continue;
+      const coverUrl = (row as Record<string, unknown>).coverUrl;
+      if (typeof coverUrl !== 'string' || !coverUrl.startsWith('upload:')) continue;
+      names.push(coverUrl.slice('upload:'.length));
+    }
+  }
+  return names;
+}
 
 export function ImportBackupDialog({
   open,
@@ -20,6 +46,7 @@ export function ImportBackupDialog({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [payload, setPayload] = useState<unknown>(null);
+  const [covers, setCovers] = useState<File[]>([]);
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [mode, setMode] = useState<ImportMode>('merge');
   const [confirmation, setConfirmation] = useState('');
@@ -45,6 +72,7 @@ export function ImportBackupDialog({
     if (open) return;
     setFileName(null);
     setPayload(null);
+    setCovers([]);
     setPreview(null);
     setMode('merge');
     setConfirmation('');
@@ -80,13 +108,59 @@ export function ImportBackupDialog({
     setMode('merge');
     setConfirmation('');
     setPreview(null);
+    setCovers([]);
     setError(null);
     try {
-      const parsed = JSON.parse(await file.text()) as unknown;
+      let parsed: unknown;
+      let coverFiles: File[] = [];
+      if (file.size > MAX_BACKUP_BYTES) {
+        throw new Error('This backup is too large to restore.');
+      }
+      if (/\.zip$/i.test(file.name) || file.type === 'application/zip') {
+        let totalUncompressed = 0;
+        const archive = unzipSync(new Uint8Array(await file.arrayBuffer()), {
+          filter: (entry) => {
+            if (entry.name === 'library.json') return true;
+            if (!/^covers\/[a-f0-9]{64}\.(jpg|png|webp|gif)$/.test(entry.name)) {
+              return false;
+            }
+            totalUncompressed += entry.originalSize;
+            if (totalUncompressed > MAX_BACKUP_BYTES) {
+              throw new Error('This backup is too large to restore.');
+            }
+            return true;
+          },
+        });
+        const library = archive['library.json'];
+        if (!library) throw new Error('This zip does not contain a Sleeve backup.');
+        parsed = JSON.parse(strFromU8(library)) as unknown;
+        coverFiles = Object.entries(archive)
+          .filter(([name]) => name.startsWith('covers/'))
+          .map(([name, data]) => {
+            const fileName = name.slice('covers/'.length);
+            const ext = fileName.split('.').pop() ?? '';
+            return new File([data], fileName, {
+              type: COVER_TYPES[ext] ?? 'application/octet-stream',
+            });
+          });
+        const provided = new Set(coverFiles.map((cover) => cover.name));
+        const missing = referencedCovers(parsed).filter((name) => !provided.has(name));
+        if (missing.length > 0) {
+          throw new Error(
+            `This backup is missing ${missing.length} cover image${
+              missing.length === 1 ? '' : 's'
+            }.`,
+          );
+        }
+      } else {
+        parsed = JSON.parse(await file.text()) as unknown;
+      }
+      setCovers(coverFiles);
       setPayload(parsed);
       await loadPreview(parsed, 'merge');
     } catch (fileError) {
       setPayload(null);
+      setCovers([]);
       setError(
         fileError instanceof SyntaxError
           ? 'That file is not a valid backup file.'
@@ -112,7 +186,7 @@ export function ImportBackupDialog({
     setImporting(true);
     setError(null);
     try {
-      const result = await api.importData(payload, mode);
+      const result = await api.importData(payload, mode, covers);
       queryClient.invalidateQueries();
       queryClient.removeQueries({ queryKey: ['release'] });
       toast(
@@ -216,8 +290,8 @@ export function ImportBackupDialog({
               {fileName ?? 'Choose a Sleeve backup file'}
             </p>
             <p className="mt-1 text-xs text-muted">
-              A backup file contains releases, wishlist, saved items, followed artists and
-              defaults.
+              A backup contains releases, wishlist, saved items, followed artists,
+              defaults and any uploaded covers.
             </p>
             <button
               type="button"
@@ -231,7 +305,7 @@ export function ImportBackupDialog({
             <input
               ref={fileInputRef}
               type="file"
-              accept="application/json,.json"
+              accept="application/json,application/zip,.json,.zip"
               className="hidden"
               onChange={(event) => {
                 const file = event.target.files?.[0];
@@ -272,6 +346,11 @@ export function ImportBackupDialog({
                     ? `This backup contains ${incomingSummary}.`
                     : 'This backup is empty.'}
                 </p>
+                {covers.length > 0 && (
+                  <p className="mt-1 text-xs text-muted">
+                    {pluralize(covers.length, 'cover image')} will be restored.
+                  </p>
+                )}
                 {duplicateTotal > 0 && (
                   <p className="mt-1 text-xs text-muted">
                     {pluralize(duplicateTotal, 'item')} already in your library will be

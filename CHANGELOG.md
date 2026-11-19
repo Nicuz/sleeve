@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Custom cover art: upload an image when adding or editing a release. Uploaded covers are user-owned, survive metadata refresh, can be removed to restore the MusicBrainz cover and are included in backups.
+- Zip backups when the library contains uploaded covers, with `library.json` plus the cover files. JSON backups still import.
+
+### Fixed
+
+- Orphaned cover uploads are cleaned up when an editor closes without saving, on release changes and imports, and by startup plus hourly sweeps.
+- MusicBrainz barcode and title searches no longer return nothing when the only editions are digital.
+- Editing a release respects the default purchase currency instead of falling back to EUR.
+
 ## [0.1.0] - 2026-11-13
 
 ### Added

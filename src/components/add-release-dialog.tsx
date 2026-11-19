@@ -30,6 +30,7 @@ import {
 import { useApp } from './app-context';
 import { ArtistAvatar } from './artist-avatar';
 import { CoverArt } from './cover-art';
+import { CoverPicker } from './cover-picker';
 import { useToast } from './toast';
 import { FormatBadge } from './release-card';
 
@@ -53,6 +54,7 @@ type Draft = {
   genres: string;
   notes: string;
   rating: number | null;
+  coverUrl: string;
   purchaseDate: string;
   purchaseLocation: string;
   purchasePrice: string;
@@ -97,6 +99,7 @@ const emptyDraft: Draft = {
   genres: '',
   notes: '',
   rating: null,
+  coverUrl: '',
   purchaseDate: '',
   purchaseLocation: '',
   purchasePrice: '',
@@ -252,6 +255,7 @@ export function AddReleaseDialog() {
       genres: detail.genres.join(', '),
       notes: '',
       rating: null,
+      coverUrl: detail.coverUrl,
       purchaseDate: '',
       purchaseLocation: '',
       purchasePrice: '',
@@ -292,7 +296,7 @@ export function AddReleaseDialog() {
       barcode: detail.barcode,
       format: draft.format,
       formatDetail: detail.formatDetail,
-      coverUrl: detail.coverUrl,
+      coverUrl: draft.coverUrl.trim() || null,
       notes: draft.notes.trim() || null,
       rating: draft.rating,
       condition: draft.condition || null,
@@ -889,17 +893,13 @@ export function AddReleaseDialog() {
                   </select>
                 </label>
 
-                <label>
-                  <span className="field-label">Cover image URL</span>
-                  <input
-                    value={manual.coverUrl}
-                    onChange={(event) =>
-                      setManual({ ...manual, coverUrl: event.target.value })
-                    }
-                    className="input"
-                    placeholder="https://…"
+                <div className="sm:col-span-2">
+                  <CoverPicker
+                    value={manual.coverUrl || null}
+                    onChange={(coverUrl) => setManual({ ...manual, coverUrl })}
+                    title={manual.title || 'New release'}
                   />
-                </label>
+                </div>
                 <label className="sm:col-span-2">
                   <span className="field-label">Genres (comma separated)</span>
                   <input
@@ -974,7 +974,7 @@ function ReleaseEditor({
     <div className="animate-fade-in">
       <div className="flex gap-4">
         <CoverArt
-          src={detail.coverUrl}
+          src={draft.coverUrl}
           title={detail.title}
           className="h-28 w-28 shrink-0 rounded-xl"
           iconSize={26}
@@ -1013,6 +1013,16 @@ function ReleaseEditor({
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mt-4">
+        <CoverPicker
+          value={draft.coverUrl || null}
+          onChange={(coverUrl) => setDraft({ ...draft, coverUrl })}
+          title={detail.title}
+          fallbackCoverUrl={detail.coverUrl || null}
+          showPreview={false}
+        />
       </div>
 
       <div className="divider my-5" />

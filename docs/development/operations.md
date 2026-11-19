@@ -19,6 +19,7 @@ bun run dev
 - Vite proxies `/api` to the Bun API.
 - SQLite: `prisma/dev.db`
 - Cover cache: `data/covers/`
+- Uploaded covers: `data/uploads/covers/`
 - MusicBrainz cache: `MetadataCache` inside the SQLite DB
 
 Bun is required. Node is not used at runtime.
@@ -41,7 +42,7 @@ Recommended deploy steps:
 2. `bun run db:deploy` (also runs automatically on start unless `AUTO_MIGRATE=false`)
 3. `bun run build`
 4. Start `bun run start` under a process manager (systemd, pm2, container).
-5. Persist `prisma/dev.db` and `data/covers/` on a volume.
+5. Persist `prisma/dev.db`, `data/covers/` and `data/uploads/` on a volume.
 6. Set a real `MUSICBRAINZ_USER_AGENT` with contact info.
 
 ### Docker
@@ -51,6 +52,7 @@ The compose file binds to localhost and stores everything in the `sleeve-data` v
 ```text
 /data/sleeve.db      SQLite database
 /data/covers/        cover image cache (safe to delete)
+/data/uploads/       user-uploaded covers (include in backups)
 /data/backups/       internal pre-import snapshots
 ```
 
@@ -210,6 +212,7 @@ Startup applies pending migrations. If the database contains migrations newer th
 | `SLEEVE_VERSION` | `latest` | Image tag used by `docker-compose.image.yml` |
 | `DATA_DIR` | `./data` (`/data` in Docker) | Covers and backups |
 | `COVER_CACHE_DIR` | `$DATA_DIR/covers` | Cover cache override |
+| `COVER_UPLOAD_DIR` | `$DATA_DIR/uploads/covers` | Uploaded cover storage override |
 | `BACKUP_DIR` | `$DATA_DIR/backups` | Backups and import snapshots |
 | `COVER_CACHE_MAX_MB` | `500` | Cover cache size limit |
 | `AUTO_MIGRATE` | `true` | Apply pending migrations on production startup |
@@ -260,7 +263,8 @@ The clear-library action in Settings requires typing `DELETE`; it removes releas
 
 Preferred:
 
-- Settings → **Backup & restore** → **Download backup** (releases, tracks, wishlist, saved suggestions, followed artists, library defaults)
+- Settings → **Backup & restore** → **Download backup** (releases, tracks, wishlist, saved suggestions, followed artists, library defaults, uploaded covers)
+- The file is JSON when nothing was uploaded, or a zip with `library.json` and `covers/` once uploaded art exists. Restore reads either.
 
 Automatic snapshots:
 
@@ -268,6 +272,7 @@ Automatic snapshots:
 - Snapshot failure aborts the import.
 - Snapshots live in `data/backups` (or `BACKUP_DIR`), are internal, and keep the last 5.
 - They are a rollback safety net, not the primary backup.
+- Snapshots copy SQLite only. Uploaded covers in `data/uploads` are not part of a `.db` snapshot; use the Settings backup for those.
 
 Restore from JSON:
 

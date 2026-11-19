@@ -16,13 +16,13 @@ Discover puts options in front of you. It does not play, add or buy anything. Wi
 ## Where is my data stored?
 
 - Docker: the `sleeve-data` volume, mounted at `/data`.
-- From source: `prisma/dev.db` for the database, `data/covers` for the cover cache and `data/backups` for snapshots.
+- From source: `prisma/dev.db` for the database, `data/covers` for the cover cache, `data/uploads` for uploaded covers and `data/backups` for snapshots.
 
-Use **Settings → Backup & restore** for a portable JSON backup.
+Use **Settings → Backup & restore** for a portable backup, which includes uploaded covers.
 
 ## A cover is missing. Is the match wrong?
 
-Not necessarily. The Cover Art Archive does not have art for every edition. Open the release and use **Search match** to try another pressing. Cover failures are common enough that Sleeve gives them their own action.
+Not necessarily. The Cover Art Archive does not have art for every edition. Open the release and use **Search match** to try another pressing. If you own a scan or a better image, open the release, click **Edit**, and upload it. Uploaded art replaces the Cover Art Archive image and is kept when metadata refreshes. **Remove custom cover** restores the MusicBrainz image. Uploaded art is included in the backup file.
 
 ## Metadata download skipped a record
 

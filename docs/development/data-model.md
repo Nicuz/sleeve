@@ -25,7 +25,7 @@ Owned release/edition.
 | `label`, `catalogNumber`, `barcode` | Release identifiers |
 | `format` | Normalized category: `CD`, `Vinyl`, `Cassette`, `Digital`, `Other` |
 | `formatDetail` | Raw MusicBrainz/Discogs format string |
-| `coverUrl` | Usually CAA release URL; rendered through proxy |
+| `coverUrl` | Cover Art Archive URL or `upload:<sha256>.<ext>` for uploaded art, rendered through the matching proxy route |
 | `notes` | User-owned text |
 | `rating` | 1–5 or null |
 | `condition` | User-owned condition label |
@@ -199,6 +199,22 @@ Not in SQLite. Cover Art Archive images are cached on disk:
 - ignored by git
 - 5MB per image limit
 
+## Uploaded covers
+
+User-uploaded art is stored outside the prunable cache:
+
+- directory: `data/uploads/covers/` (or `COVER_UPLOAD_DIR`)
+- filename: `<sha256>.<jpg|png|webp|gif>`, content-addressed and deduplicated
+- database value: `coverUrl = upload:<filename>`
+- served by `/api/covers/upload/<filename>`
+- 8MB upload limit after browser-side downscale to max 1600px WebP
+- uploaded art is user-owned: metadata refresh and apply-match keep it, and only the release edit form clears or replaces it
+- the UI offers MusicBrainz art or an upload, with no cover URL entry; legacy non-CAA URLs still render and are preserved
+- cleanup has three layers: editor close deletes an unreferenced upload it created, release update/delete and replace imports delete the exact files they orphan, and an hourly sweep plus startup sweep remove stale leftovers older than one hour
+- prune removes files that no release, wishlist item or saved suggestion references
+
+The cover cache at `data/covers/` remains disposable CAA cache and is never used for uploads.
+
 ## Settings
 
 Hybrid storage:
@@ -227,7 +243,8 @@ UI preferences stay device-local and load synchronously before paint. Library de
 - `format` is always a normalized category. Keep the raw string in `formatDetail`.
 - `genres` is comma-separated; ingestion dedupes case-insensitively.
 - MB IDs are unique, but multiple null values are allowed.
-- Preserve user-owned fields on refresh/enrichment: condition, rating, notes, purchase date/location/price/currency, and chosen format.
+- Preserve user-owned fields on refresh/enrichment: condition, rating, notes, purchase date/location/price/currency, chosen format and uploaded cover.
+- An uploaded cover is user-owned even when enrichment has a CAA image.
 - Dates are date-only strings where possible; prices are numbers.
 - Deleting a release must cascade-delete tracks.
 - Wishlist and library are independent; an item can exist in both unless application logic prevents it.
@@ -268,7 +285,7 @@ UI preferences stay device-local and load synchronously before paint. Library de
 }
 ```
 
-JSON is the only collection export format. Discogs CSV is import-only.
+JSON is the collection export format. When uploaded covers exist, export is a zip containing this `library.json` plus `covers/<filename>`; import reads the zip and sends `library.json` with the cover files to `/api/import/upload`. Discogs CSV is import-only.
 
 ## Database snapshots
 
@@ -290,6 +307,7 @@ Automatic `pre-import-*.db` snapshots live in `data/backups` (or `BACKUP_DIR`); 
 - Tracks are created with the release in the same transaction.
 - `genres` accepts string or array.
 - Date strings are stored as provided; CSV mapping normalizes to date-only.
+- `coverUrl` values beginning with `upload:` must have a matching cover file in the backup; missing files reject the restore before any write.
 
 Replace mode also clears `DiscoveryFeed`, `DiscoverySeen` and `DiscoveryEvent` so the next Discover build reflects the restored collection. Metadata and cover caches are kept. If the backup has no settings, library defaults reset to built-in values.
 

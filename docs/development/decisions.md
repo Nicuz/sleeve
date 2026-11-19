@@ -151,3 +151,15 @@ In-app restore uses a full JSON backup inside one transaction, not a live SQLite
 **Status:** accepted
 
 `package.json` is the version source of truth and releases are annotated `vX.Y.Z` tags. A tag workflow refuses to publish when the tag and `package.json` disagree, runs the full check, publishes multi-arch `ghcr.io/nicuz/sleeve` images, and creates a GitHub Release whose notes come from `CHANGELOG.md`. Builds stamp the short commit and build date: Vite defines `__SLEEVE_BUILD__` for the client and emits `dist/build-info.json`, which the production server reads. Local checkouts fall back to `git rev-parse`; Docker build args supply the commit because `.git` is excluded from the image. **Settings → About** and the public `GET /api/version` expose the same data. `docker-compose.image.yml` is the minimal image-only stack for prebuilt deployments; the root compose remains the hardened source-build path. Benefits: users and operators can identify exactly what they run, and release notes never depend on a manually edited GitHub form.
+
+## ADR-024 — Local cover uploads and zip backups
+
+**Status:** accepted
+
+Cover Art Archive gaps are common, and the edit flow previously had no way to set artwork at all. Uploaded covers are stored in `data/uploads/covers` as content-addressed `<sha256>.<ext>` files, never in the disposable `data/covers` cache, and referenced from `Release.coverUrl` as `upload:<filename>`. The browser downscales before upload to at most 1600px WebP at quality 0.9, which keeps typical covers around 250KB and still exceeds every display size in the UI. The server validates the image signature and an 8MB limit instead of trusting the MIME type.
+
+The UI deliberately accepts only a local upload, never a cover URL. Remote links rot and would silently degrade the collection. Uploaded art is user-owned: enrichment, refresh and apply-match keep it, and only the edit form replaces it or restores the MusicBrainz cover. Legacy non-CAA URLs already in the database still render and are preserved, but the UI cannot create new ones.
+
+Unsaved uploads cannot linger. Closing an editor asks the server to delete the uploads that editor created, and the server refuses when any row still references them. Startup and an hourly sweep also remove unreferenced files older than one hour, which covers crashes and closed tabs where the cleanup request never arrives.
+
+Backups stay a single file. When no uploads exist, `/api/export` keeps the existing JSON format. Once uploads exist, export becomes a zip with `library.json` plus `covers/<filename>`, and restore uses a multipart endpoint that stores the files before running the normal merge or replace transaction. This avoids base64 bloat in large libraries and keeps restore complete. Automatic `pre-import-*.db` snapshots remain DB-only and are documented as such. Benefits: users can fix missing art, metadata stays non-destructive, and backups remain portable without a second download.

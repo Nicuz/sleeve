@@ -244,7 +244,7 @@ export function WishlistEditDialog({
             type="button"
             onClick={() => setConfirmDelete(true)}
             disabled={confirmDelete}
-            className="btn btn-ghost px-2 text-xs text-muted hover:text-red-300 disabled:opacity-40"
+            className="btn btn-ghost px-2 text-xs text-muted hover:text-danger disabled:opacity-40"
           >
             <Trash2 size={14} />
             Remove

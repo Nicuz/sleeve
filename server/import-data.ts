@@ -9,6 +9,8 @@ import {
   type AppSettingsValues,
 } from './app-settings';
 import { createBackup, type BackupFile } from './backup';
+import { deleteUnusedCoverUpload } from './cover-gc';
+import { readCoverUpload, uploadCoverName } from './cover-uploads';
 import { prisma } from './db';
 
 const MAX_ROWS = 10_000;
@@ -572,6 +574,23 @@ export async function applyImport(
     throw new ImportError('Replace requires a full Sleeve JSON backup.');
   }
 
+  const requiredCovers = new Set<string>();
+  const missingCovers: string[] = [];
+  for (const row of [...prepared.releases, ...prepared.wishlist, ...prepared.saved]) {
+    const name = row.coverUrl ? uploadCoverName(row.coverUrl) : null;
+    if (name) requiredCovers.add(name);
+  }
+  for (const name of requiredCovers) {
+    if (!(await readCoverUpload(name))) missingCovers.push(name);
+  }
+  if (missingCovers.length > 0) {
+    throw new ImportError(
+      `This backup is missing ${missingCovers.length} cover image${
+        missingCovers.length === 1 ? '' : 's'
+      }.`,
+    );
+  }
+
   let backup: BackupFile;
   try {
     backup = await createBackup('pre-import');
@@ -591,6 +610,19 @@ export async function applyImport(
     prepared.saved.length > 0 ||
     prepared.follows.length > 0 ||
     Boolean(prepared.settings);
+
+  const replacedCovers = new Set<string>();
+  if (mode === 'replace') {
+    const [releaseCovers, wishlistCovers, savedCovers] = await Promise.all([
+      prisma.release.findMany({ select: { coverUrl: true } }),
+      prisma.wishlistItem.findMany({ select: { coverUrl: true } }),
+      prisma.savedSuggestion.findMany({ select: { coverUrl: true } }),
+    ]);
+    for (const row of [...releaseCovers, ...wishlistCovers, ...savedCovers]) {
+      const name = row.coverUrl ? uploadCoverName(row.coverUrl) : null;
+      if (name) replacedCovers.add(name);
+    }
+  }
 
   if (hasWork) {
     await prisma.$transaction(
@@ -638,6 +670,10 @@ export async function applyImport(
       },
       { timeout: 60_000 },
     );
+  }
+
+  for (const name of replacedCovers) {
+    await deleteUnusedCoverUpload(name).catch(() => undefined);
   }
 
   return {

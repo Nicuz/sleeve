@@ -14,3 +14,5 @@ const fallback: ClientBuildInfo = {
 
 export const buildInfo: ClientBuildInfo =
   typeof __SLEEVE_BUILD__ === 'undefined' ? fallback : __SLEEVE_BUILD__;
+
+export const isDemoBuild = buildInfo.commit === 'demo';

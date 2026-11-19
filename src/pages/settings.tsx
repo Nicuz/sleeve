@@ -481,8 +481,8 @@ export function SettingsPage() {
               </span>
               <p className="mt-3 text-sm font-semibold text-cream">Save a backup</p>
               <p className="mt-1 text-xs leading-relaxed text-muted">
-                One file with your releases, wishlist, saved items, followed artists and
-                defaults.
+                One file with your releases, wishlist, saved items, followed artists,
+                defaults and uploaded covers.
               </p>
               <button
                 type="button"
@@ -629,7 +629,7 @@ export function SettingsPage() {
               </div>
               <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted">
                 A local-first catalog for your physical music collection. No account, no
-                analytics; backups are portable JSON files.
+                analytics; backups are portable files you can restore on another machine.
               </p>
               <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted/70">
                 <span className="font-mono">

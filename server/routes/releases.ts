@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { parseSearchQuery } from '../../shared/search-query';
 import { prisma } from '../db';
 import { removeOwnedReleaseFromDiscoveryFeed } from '../discovery';
+import { deleteUnusedCoverUpload, pruneOrphanCoverUploads } from '../cover-gc';
+import { uploadCoverName } from '../cover-uploads';
 import { refreshRelease } from '../musicbrainz';
 import { releaseWhereFromQuery } from '../search-query';
 import {
@@ -79,6 +81,12 @@ function mapNullable(data: Record<string, unknown>) {
     result[key] = value;
   }
   return result;
+}
+
+async function deleteOrphanCover(coverUrl: string | null | undefined) {
+  if (!coverUrl) return;
+  const name = uploadCoverName(coverUrl);
+  if (name) await deleteUnusedCoverUpload(name).catch(() => undefined);
 }
 
 function errorMessage(error: unknown): string {
@@ -268,6 +276,10 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
     });
 
     try {
+      const previous = await prisma.release.findUnique({
+        where: { id: params.id },
+        select: { coverUrl: true },
+      });
       const release = await prisma.$transaction(async (tx) => {
         await tx.release.update({
           where: { id: params.id },
@@ -300,6 +312,10 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
         set.status = 404;
         return { message: 'Release not found' };
       }
+      if (previous?.coverUrl && previous.coverUrl !== release.coverUrl) {
+        await deleteOrphanCover(previous.coverUrl);
+      }
+      await pruneOrphanCoverUploads().catch(() => undefined);
       return { release };
     } catch (error) {
       if (
@@ -319,7 +335,14 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
       set.status = 400;
       return { message: 'Type DELETE to confirm clearing the library.' };
     }
+    const covers = await prisma.release.findMany({
+      where: { coverUrl: { startsWith: 'upload:' } },
+      select: { coverUrl: true },
+      distinct: ['coverUrl'],
+    });
     const result = await prisma.release.deleteMany();
+    for (const row of covers) await deleteOrphanCover(row.coverUrl);
+    await pruneOrphanCoverUploads().catch(() => undefined);
     return { ok: true, deleted: result.count };
   })
   .post('/:id/apply-match', async ({ params, body, set, request }) => {
@@ -384,7 +407,13 @@ export const releaseRoutes = new Elysia({ prefix: '/api/releases' })
   })
   .delete('/:id', async ({ params, set }) => {
     try {
+      const previous = await prisma.release.findUnique({
+        where: { id: params.id },
+        select: { coverUrl: true },
+      });
       await prisma.release.delete({ where: { id: params.id } });
+      await deleteOrphanCover(previous?.coverUrl);
+      await pruneOrphanCoverUploads().catch(() => undefined);
       return { ok: true };
     } catch (error) {
       if (

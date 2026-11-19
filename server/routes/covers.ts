@@ -1,8 +1,10 @@
-import { Elysia } from 'elysia';
+import { Elysia, t } from 'elysia';
 import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { env } from '../config';
+import { readCoverUpload, saveCoverUpload, uploadCoverName } from '../cover-uploads';
+import { deleteUnusedCoverUpload } from '../cover-gc';
 
 const CACHE_DIR = env.coverCacheDir;
 const ALLOWED_HOST = 'coverartarchive.org';
@@ -159,6 +161,55 @@ export async function pruneCoverCache(maxBytes = env.coverCacheMaxBytes) {
 }
 
 export const coverRoutes = new Elysia()
+  .post(
+    '/api/covers/upload',
+    async ({ body, set }) => {
+      try {
+        const data = new Uint8Array(await body.file.arrayBuffer());
+        return await saveCoverUpload(data);
+      } catch (error) {
+        set.status = 400;
+        return {
+          message:
+            error instanceof Error ? error.message : 'Could not store cover image.',
+        };
+      }
+    },
+    {
+      body: t.Object({
+        file: t.File({
+          maxSize: '8m',
+        }),
+      }),
+    },
+  )
+  .get('/api/covers/upload/:name', async ({ params, set }) => {
+    const cover = await readCoverUpload(params.name);
+    if (!cover) {
+      set.status = 404;
+      return { message: 'Cover image not found.' };
+    }
+    return new Response(
+      cover.data.buffer.slice(
+        cover.data.byteOffset,
+        cover.data.byteOffset + cover.data.byteLength,
+      ) as ArrayBuffer,
+      {
+        headers: {
+          'content-type': cover.contentType,
+          'cache-control': 'public, max-age=31536000, immutable',
+        },
+      },
+    );
+  })
+  .delete('/api/covers/upload/:name', async ({ params, set }) => {
+    if (!uploadCoverName(`upload:${params.name}`)) {
+      set.status = 400;
+      return { message: 'Invalid cover name.' };
+    }
+    const deleted = await deleteUnusedCoverUpload(params.name);
+    return { deleted };
+  })
   .get('/api/covers/cache', async () => cacheInfo())
   .delete('/api/covers/cache', async () => ({
     ok: true,

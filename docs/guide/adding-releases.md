@@ -25,7 +25,7 @@ A release already in your library is rejected as a duplicate. If you own a diffe
 
 Use the **Manual** tab when MusicBrainz has no match or you are cataloging a private pressing.
 
-Fill in at least title, artist and format. Year, cover URL, genres, condition, rating, notes and purchase details are optional. Sleeve uses your default format, condition and currency from Settings.
+Fill in at least title, artist and format. Year, genres, condition, rating, notes and purchase details are optional. For the cover, upload an image from your computer; Sleeve does not accept remote image links. Sleeve uses your default format, condition and currency from Settings.
 
 ## Fix missing metadata
 

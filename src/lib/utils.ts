@@ -90,6 +90,9 @@ export function parsePriceInput(value: string): number | null {
 
 export function proxiedCoverUrl(value: string | null | undefined): string | null {
   if (!value) return null;
+  if (value.startsWith('upload:')) {
+    return `/api/covers/upload/${encodeURIComponent(value.slice(7))}`;
+  }
   try {
     const url = new URL(value);
     if (url.protocol === 'https:' && url.hostname === 'coverartarchive.org') {
@@ -99,6 +102,17 @@ export function proxiedCoverUrl(value: string | null | undefined): string | null
     return value;
   }
   return value;
+}
+
+export function isUploadedCover(value: string | null | undefined): boolean {
+  return Boolean(value?.startsWith('upload:'));
+}
+
+export function musicbrainzCoverUrl(
+  mbid: string | null | undefined,
+  size: 250 | 500 = 500,
+): string | null {
+  return mbid ? `https://coverartarchive.org/release/${mbid}/front-${size}` : null;
 }
 
 export function hueFromString(value: string): number {

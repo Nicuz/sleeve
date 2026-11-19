@@ -17,6 +17,7 @@ import { discoverRoutes } from './routes/discover';
 import { importRoutes } from './routes/import';
 import { maintenanceRoutes } from './routes/maintenance';
 import { coverRoutes, pruneCoverCache } from './routes/covers';
+import { pruneOrphanCoverUploads } from './cover-gc';
 import { versionRoutes } from './routes/version';
 import { ensureMigrations } from './migrate';
 
@@ -29,7 +30,11 @@ const SECURITY_HEADERS = {
 
 const requestStarted = new WeakMap<Request, number>();
 
-const app = new Elysia()
+const app = new Elysia({
+  serve: {
+    maxRequestBodySize: 600 * 1024 * 1024,
+  },
+})
   .onRequest(({ request }) => {
     requestStarted.set(request, performance.now());
   })
@@ -147,6 +152,18 @@ await configureDatabase();
 await pruneCoverCache().catch((error) => {
   console.warn('[server] cover cache prune failed', error);
 });
+await pruneOrphanCoverUploads().catch((error) => {
+  console.warn('[server] cover upload prune failed', error);
+});
+const coverUploadSweep = setInterval(
+  () => {
+    pruneOrphanCoverUploads().catch((error) => {
+      console.warn('[server] cover upload prune failed', error);
+    });
+  },
+  60 * 60 * 1000,
+);
+(coverUploadSweep as { unref?: () => void }).unref?.();
 
 if (env.isProduction) {
   const dist = join(process.cwd(), 'dist');

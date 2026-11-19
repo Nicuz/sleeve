@@ -17,6 +17,7 @@ Elysia (Bun)
   ├── Prisma → SQLite (Release, Track, WishlistItem, MetadataCache)
   ├── MusicBrainz service → MetadataCache + rate limiter + single-flight
   └── Cover proxy → disk cache (data/covers)
+  ├── Uploaded covers → data/uploads/covers
 ```
 
 ## Runtime modes
@@ -101,12 +102,12 @@ Metadata application and matching:
 | `follows.ts` | Followed artists list, follow/unfollow |
 | `settings.ts` | Library defaults read/update |
 | `discover.ts` | Discover picks from library affinity and ListenBrainz |
-| `import.ts` | Merge-safe JSON import (releases, wishlist, saved, follows) |
-| `export.ts` | Full JSON backup (releases, tracks, wishlist, saved, follows, settings) |
+| `import.ts` | Merge-safe import, JSON or multipart with uploaded covers |
+| `export.ts` | Backup: JSON, or zip with `library.json` and uploaded covers |
 | `stats.ts` | Collection stats, spending stats, missing-metadata count |
 | `meta.ts` | Format/genre/decade filter options |
 | `maintenance.ts` | Metadata cache stats + clear |
-| `covers.ts` | Allowlisted Cover Art Archive proxy + disk cache |
+| `covers.ts` | Allowlisted Cover Art Archive proxy, disk cache, uploaded cover storage |
 
 ## Request flows
 
@@ -153,7 +154,7 @@ The proxy:
 - returns immutable browser cache headers;
 - responds with `x-cover-cache: HIT|MISS`.
 
-Non-CAA manual image URLs are rendered directly.
+Non-CAA URLs already stored render directly, but the UI no longer offers URL entry. Uploaded covers use `coverUrl = upload:<sha256>.<ext>` and are served from `data/uploads/covers`; they are user-owned and survive metadata refresh. The edit form and manual add dialog offer upload, replacement and removal. An editor that closes without saving deletes the uploads it created after a server reference check. Release updates, deletes and replace imports delete the exact files they orphan. Startup and an hourly sweep remove any remaining stale files, with a one-hour age guard.
 
 ### Imports
 
@@ -172,6 +173,7 @@ Non-CAA manual image URLs are rendered directly.
 - `createdAt` is preserved for releases, wishlist, saved and follows.
 - Creates release tracks in one transaction with the release rows.
 - Every import creates a `pre-import-*.db` snapshot before writing. Snapshot failure aborts the import.
+- When the backup is a zip, the client extracts `library.json` and the cover files, previews the JSON, then posts the payload plus files to `POST /api/import/upload`. Cover files are written before the transaction and referenced `upload:` values must all be present.
 - Exact `.db` restore remains CLI-only; live SQLite file swapping is intentionally avoided.
 
 #### Discogs CSV import

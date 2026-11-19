@@ -25,6 +25,7 @@ import {
   formatDuration,
   formatPrice,
   formatTotalDuration,
+  musicbrainzCoverUrl,
   parseGenres,
   parsePriceInput,
   splitList,
@@ -35,6 +36,7 @@ import { FollowArtistButton } from '@/components/follow-artist-button';
 import { FormatBadge } from '@/components/release-card';
 import { useToast } from '@/components/toast';
 import { MetadataMatchDialog } from '@/components/metadata-match-dialog';
+import { CoverPicker } from '@/components/cover-picker';
 import { useSettings } from '@/lib/settings';
 
 type Draft = {
@@ -43,6 +45,7 @@ type Draft = {
   genres: string;
   notes: string;
   rating: number | null;
+  coverUrl: string;
   purchaseDate: string;
   purchaseLocation: string;
   purchasePrice: string;
@@ -130,6 +133,7 @@ export function ReleasePage() {
       purchaseLocation: string | null;
       purchasePrice: number | null;
       purchaseCurrency: string | null;
+      coverUrl: string | null;
     }) => api.updateRelease(id as string, payload),
     onSuccess: ({ release }) => {
       queryClient.setQueryData(['release', id], { release });
@@ -259,6 +263,7 @@ export function ReleasePage() {
       genres: genres.join(', '),
       notes: release.notes ?? '',
       rating: release.rating,
+      coverUrl: release.coverUrl ?? '',
       purchaseDate: release.purchaseDate ?? '',
       purchaseLocation: release.purchaseLocation ?? '',
       purchasePrice: release.purchasePrice !== null ? String(release.purchasePrice) : '',
@@ -276,6 +281,7 @@ export function ReleasePage() {
       genres: splitList(draft.genres),
       notes: draft.notes.trim() || null,
       rating: draft.rating,
+      coverUrl: draft.coverUrl.trim() || null,
       purchaseDate: draft.purchaseDate || null,
       purchaseLocation: draft.purchaseLocation.trim() || null,
       purchasePrice: parsePriceInput(draft.purchasePrice),
@@ -388,7 +394,7 @@ export function ReleasePage() {
                   setConfirmDelete(true);
                   setEditing(false);
                 }}
-                className="btn btn-secondary hover:border-red-400/30 hover:text-red-300"
+                className="btn btn-secondary hover:border-danger/30 hover:text-danger"
               >
                 <Trash2 size={15} />
                 Remove
@@ -499,6 +505,16 @@ export function ReleasePage() {
             >
               <X size={14} />
             </button>
+          </div>
+          <div className="mt-4">
+            <CoverPicker
+              value={draft.coverUrl || null}
+              onChange={(coverUrl) => setDraft({ ...draft, coverUrl })}
+              title={release.title}
+              fallbackCoverUrl={
+                release.musicbrainzId ? musicbrainzCoverUrl(release.musicbrainzId) : null
+              }
+            />
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <label>

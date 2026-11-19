@@ -35,6 +35,7 @@ import { FollowArtistButton } from '@/components/follow-artist-button';
 import { FormatBadge } from '@/components/release-card';
 import { useToast } from '@/components/toast';
 import { MetadataMatchDialog } from '@/components/metadata-match-dialog';
+import { useSettings } from '@/lib/settings';
 
 type Draft = {
   format: string;
@@ -95,6 +96,7 @@ export function ReleasePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { settings } = useSettings();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -260,7 +262,7 @@ export function ReleasePage() {
       purchaseDate: release.purchaseDate ?? '',
       purchaseLocation: release.purchaseLocation ?? '',
       purchasePrice: release.purchasePrice !== null ? String(release.purchasePrice) : '',
-      purchaseCurrency: release.purchaseCurrency ?? 'EUR',
+      purchaseCurrency: release.purchaseCurrency ?? settings.defaultCurrency,
     });
     setEditing(true);
     setConfirmDelete(false);

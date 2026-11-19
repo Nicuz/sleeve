@@ -4,12 +4,17 @@ All notable changes to Sleeve are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0] - 2026-11-19
 
 ### Added
 
 - Custom cover art: upload an image when adding or editing a release. Uploaded covers are user-owned, survive metadata refresh, can be removed to restore the MusicBrainz cover and are included in backups.
 - Zip backups when the library contains uploaded covers, with `library.json` plus the cover files. JSON backups still import.
+
+### Changed
+
+- Cover art now comes from MusicBrainz or a local upload. The cover URL field was removed so remote links cannot rot; existing non-CAA URLs still render.
+- Uploaded covers are stored under `data/uploads/covers`; automatic database snapshots remain database-only.
 
 ### Fixed
 

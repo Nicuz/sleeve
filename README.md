@@ -69,7 +69,7 @@ Open **http://127.0.0.1:3001**, or `http://<host-ip>:3001` from another device o
 
 - **Data directory — optional.** Everything lives in `/data`, bound to `./data` next to the compose file. Set `SLEEVE_DATA_DIR=/absolute/path` in `.env` before the first start to keep it elsewhere. The image fixes ownership on startup.
 - **Backups — recommended.** Use **Settings → Backup & restore**.
-- **Upgrades — optional.** The image tracks `latest` by default, so `docker compose pull && docker compose up -d` moves to the newest release. To stay on a specific release, set `SLEEVE_VERSION=0.1.0` in `.env` and change that value to the new tag before running the same command. **Settings → About** shows the running version and commit.
+- **Upgrades — optional.** The image tracks `latest` by default, so `docker compose pull && docker compose up -d` moves to the newest release. To stay on a specific release, set `SLEEVE_VERSION=0.2.0` in `.env` and change that value to the new tag before running the same command. **Settings → About** shows the running version and commit.
 - **Different port — optional.** Change the left side, for example `"3002:3001"`.
 - **Login — optional.** Switch to [docker-compose.image.yml](docker-compose.image.yml), which passes through `SLEEVE_PORT`, `SLEEVE_AUTH_USER` and `SLEEVE_AUTH_PASSWORD` (HTTP Basic auth).
 

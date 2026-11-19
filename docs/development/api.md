@@ -31,7 +31,7 @@ Public, no auth. Reports the running build so you can confirm what an instance i
 ```json
 {
   "name": "Sleeve",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "commit": "25da4cb",
   "dirty": false,
   "buildDate": "2026-11-13T10:00:00.000Z"

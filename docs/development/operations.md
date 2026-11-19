@@ -128,7 +128,7 @@ Tagged releases publish multi-arch images to GitHub Container Registry:
 
 The package is public. If a pull asks for credentials, check the package visibility in GitHub package settings. Images appear after the first tagged release.
 
-`docker-compose.image.yml` is the full runtime stack with auth and user-agent variables. The README and getting started show a shorter inline version without them. Set `SLEEVE_VERSION` to pin `0.1.0`, `0.1`, or another tag; the default is `latest`. With `latest`, an update action that runs `docker compose pull` picks up new releases.
+`docker-compose.image.yml` is the full runtime stack with auth and user-agent variables. The README and getting started show a shorter inline version without them. Set `SLEEVE_VERSION` to pin `0.2.0`, `0.2`, or another tag; the default is `latest`. With `latest`, an update action that runs `docker compose pull` picks up new releases.
 
 Source builds keep using the root `docker-compose.yml` and its hardening options.
 

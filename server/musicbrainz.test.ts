@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { normalizeFormat, sortFormats } from './musicbrainz';
+import { normalizeFormat, preferPhysicalReleases, sortFormats } from './musicbrainz';
 
 describe('normalizeFormat', () => {
   test('maps common media formats', () => {
@@ -19,5 +19,23 @@ describe('sortFormats', () => {
       'Digital',
       'Other',
     ]);
+  });
+});
+
+describe('preferPhysicalReleases', () => {
+  test('drops digital releases when a physical edition exists', () => {
+    const releases = [
+      { id: 'digital', format: 'Digital' },
+      { id: 'cd', format: 'CD' },
+    ];
+    expect(preferPhysicalReleases(releases)).toEqual([{ id: 'cd', format: 'CD' }]);
+  });
+
+  test('keeps digital releases when they are the only editions', () => {
+    const releases = [
+      { id: 'digital-a', format: 'Digital' },
+      { id: 'digital-b', format: 'Digital' },
+    ];
+    expect(preferPhysicalReleases(releases)).toEqual(releases);
   });
 });

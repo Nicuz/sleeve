@@ -547,12 +547,17 @@ function countryBoost(country: string | null): number {
   return country === 'XE' || EU_COUNTRIES.has(country) ? 15 : 0;
 }
 
+export function preferPhysicalReleases<T extends { format: string }>(releases: T[]): T[] {
+  const physical = releases.filter((release) => release.format !== 'Digital');
+  return physical.length > 0 ? physical : releases;
+}
+
 export async function searchReleases(
   query: string,
   limit = 20,
   signal?: AbortSignal,
 ): Promise<SearchResult[]> {
-  const key = `mb:release-search:v2:${query.trim().toLowerCase()}:${limit}`;
+  const key = `mb:release-search:v3:${query.trim().toLowerCase()}:${limit}`;
   return withCache(
     key,
     'search',
@@ -561,15 +566,14 @@ export async function searchReleases(
         `release/?query=${encodeURIComponent(query)}&fmt=json&limit=${Math.min(100, limit * 2)}`,
         flightSignal,
       );
-      return (data.releases ?? [])
+      const releases = (data.releases ?? [])
         .map(mapSearchRelease)
-        .filter((release) => release.format !== 'Digital')
         .sort(
           (a, b) =>
             b.score + countryBoost(b.country) - (a.score + countryBoost(a.country)) ||
             b.score - a.score,
-        )
-        .slice(0, limit);
+        );
+      return preferPhysicalReleases(releases).slice(0, limit);
     },
     signal,
   );
